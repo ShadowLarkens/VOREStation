@@ -197,3 +197,145 @@
 
 
 	return ..()
+
+/datum/category_item/player_setup_item/general/language/get_constant_data()
+	var/list/data = ..()
+
+	return data
+
+/datum/category_item/player_setup_item/general/language/tgui_static_data(mob/user)
+	var/list/data = ..()
+
+	data["extra_languages"] = pref.extra_languages
+	data["alternate_languages"] = pref.alternate_languages
+	data["language_prefixes"] = pref.language_prefixes
+	data["preferred_language"] = pref.preferred_language
+
+	data["num_alternate_languages"] = 0
+	data["species_lang"] = null
+	data["species_default"] = null
+
+	if(pref.species)
+		var/datum/species/S = GLOB.all_species[pref.species]
+		data["species_lang"] = S.language
+
+		if(S.default_language && S.default_language != S.language)
+			data["species_default"] = S.default_language
+
+		data["num_alternate_languages"] = S.num_alternate_languages
+
+	return data
+
+/datum/category_item/player_setup_item/general/language/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
+	. = ..()
+	if(.)
+		return
+
+	switch(action)
+		if("remove_language")
+			var/index = text2num(params["index"])
+			pref.alternate_languages.Cut(index, index+1)
+			return TOPIC_REFRESH
+
+		if("add_language")
+			var/datum/species/S = GLOB.all_species[pref.species]
+			if(LAZYLEN(pref.alternate_languages) >= (S.num_alternate_languages + pref.extra_languages))
+				tgui_alert_async(ui.user, "You have already selected the maximum number of alternate languages for this species!")
+				return TOPIC_REFRESH
+
+			var/list/available_languages = S.secondary_langs.Copy()
+
+			for(var/L in GLOB.all_languages)
+				var/datum/language/lang = GLOB.all_languages[L]
+				if(!(lang.flags & RESTRICTED) && (is_lang_whitelisted(ui.user, lang)))
+					available_languages |= L
+
+			// make sure we don't let them waste slots on the default languages
+			available_languages -= S.language
+			available_languages -= S.default_language
+			available_languages -= pref.alternate_languages
+
+			if(!LAZYLEN(available_languages))
+				tgui_alert_async(ui.user, "There are no additional languages available to select.")
+				return TOPIC_REFRESH
+
+			var/new_lang = tgui_input_list(ui.user, "Select an additional language", "Character Generation", available_languages)
+			if(new_lang && pref.alternate_languages.len < (S.num_alternate_languages + pref.extra_languages))
+				var/datum/language/chosen_lang = GLOB.all_languages[new_lang]
+				if(istype(chosen_lang))
+					var/choice = tgui_alert(usr, "[chosen_lang.desc]",chosen_lang.name, list("Take","Cancel"))
+					if(choice != "Cancel" && pref.alternate_languages.len < (S.num_alternate_languages + pref.extra_languages))
+						pref.alternate_languages |= new_lang
+				return TOPIC_REFRESH
+
+		if("change_prefix")
+			var/char
+			var/keys[0]
+			do
+				char = tgui_input_text(usr, "Enter a single special character.\nYou may re-select the same characters.\nThe following characters are already in use by radio: ; : .\nThe following characters are already in use by special say commands: ! * ^", "Enter Character - [3 - keys.len] remaining")
+				if(char)
+					if(length(char) > 1)
+						tgui_alert_async(ui.user, "Only single characters allowed.", "Error")
+					else if(char in list(";", ":", "."))
+						tgui_alert_async(ui.user, "Radio character. Rejected.", "Error")
+					else if(char in list("!","*","^","-"))
+						tgui_alert_async(ui.user, "Say character. Rejected.", "Error")
+					else if(contains_az09(char))
+						tgui_alert_async(ui.user, "Non-special character. Rejected.", "Error")
+					else
+						keys.Add(char)
+			while(char && keys.len < 3)
+
+			if(keys.len == 3)
+				pref.language_prefixes = keys
+				return TOPIC_REFRESH
+
+		if("reset_prefix")
+			pref.language_prefixes = config.language_prefixes.Copy()
+			return TOPIC_REFRESH
+
+		if("set_custom_key")
+			var/lang = params["language"]
+			if(!(lang in GLOB.all_languages))
+				return TOPIC_REFRESH
+
+			var/oldkey = ""
+			for(var/key in pref.language_custom_keys)
+				if(pref.language_custom_keys[key] == lang)
+					oldkey = key
+					break
+
+			var/char = tgui_input_text(ui.user, "Input a language key for [lang]. Input a single space to reset.", "Language Custom Key", oldkey)
+			// tgui_input_text runs trim() which will set " " to ""
+			if(char == "")
+				for(var/key in pref.language_custom_keys)
+					if(pref.language_custom_keys[key] == lang)
+						pref.language_custom_keys -= key
+						break
+			else if(length(char) != 1)
+				return TOPIC_REFRESH
+			else if(contains_az09(char))
+				if(!(char in pref.language_custom_keys))
+					pref.language_custom_keys += char
+				pref.language_custom_keys[char] = lang
+			else
+				tgui_alert_async(ui.user, "Improper language key. Rejected.", "Error")
+
+			return TOPIC_REFRESH
+
+		if("pref_lang")
+			if(!pref.species) // Safety to prevent a null runtime here
+				return TOPIC_REFRESH
+
+			var/datum/species/S = GLOB.all_species[pref.species]
+			var/list/lang_opts = list(S.language) + pref.alternate_languages + LANGUAGE_GALCOM
+			var/selection = tgui_input_list(ui.user, "Choose your preferred spoken language:", "Preferred Spoken Language", lang_opts, pref.preferred_language)
+			if(!selection) // Set our preferred to default, just in case.
+				tgui_alert_async(ui.user, "Preferred Language not modified.", "Selection Canceled")
+			if(selection)
+				pref.preferred_language = selection
+				if(selection == "common" || selection == S.language)
+					tgui_alert_async(ui.user, "You will now speak your standard default language, [S.language ? S.language : "common"], if you do not specify a language when speaking.", "Preferred Set to Default")
+				else // Did they set anything else?
+					tgui_alert_async(ui.user, "You will now speak [pref.preferred_language] if you do not specify a language when speaking.", "Preferred Language Set")
+			return TOPIC_REFRESH

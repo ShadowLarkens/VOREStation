@@ -97,6 +97,148 @@
 		. += "<b>OOC Notes: <a href='?src=\ref[src];edit_ooc_notes=1'>Edit</a><a href='?src=\ref[src];edit_ooc_note_likes=1'>Likes</a><a href='?src=\ref[src];edit_ooc_note_dislikes=1'>Dislikes</a></b><br>"
 	. = jointext(.,null)
 
+/datum/category_item/player_setup_item/general/basic/get_constant_data()
+	var/list/data = ..()
+
+	data["available_identifying_genders"] = all_genders_define_list
+	data["allow_metadata"] = config.allow_Metadata
+	data["spawntypes"] = spawntypes
+	data["max_name_len"] = MAX_NAME_LEN
+
+	return data
+
+/datum/category_item/player_setup_item/general/basic/tgui_static_data(mob/user)
+	var/list/data = ..()
+
+	data["real_name"] = pref.real_name
+	data["be_random_name"] = pref.be_random_name
+	data["nickname"] = pref.nickname
+	data["biological_gender"] = pref.biological_gender
+	data["identifying_gender"] = pref.identifying_gender
+	data["age"] = pref.age
+	data["bday_month"] = pref.bday_month
+	data["bday_day"] = pref.bday_day
+	data["bday_announce"] = pref.bday_announce
+	data["spawnpoint"] = pref.spawnpoint
+
+	data["available_biological_genders"] = get_genders()
+	data["min_age"] = get_min_age()
+	data["max_age"] = get_max_age()
+
+	return data
+
+/datum/category_item/player_setup_item/general/basic/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
+	. = ..()
+	if(.)
+		return
+
+	switch(action)
+		if("set_real_name")
+			var/new_name = sanitize_name(params["name"], pref.species, is_FBP())
+			if(new_name)
+				pref.real_name = new_name
+				return TOPIC_REFRESH
+			else
+				to_chat(usr, "<span class='warning'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, -, ' and .</span>")
+				return TOPIC_NOACTION
+		if("randomize_name")
+			pref.real_name = random_name(pref.identifying_gender, pref.species)
+			return TOPIC_REFRESH
+		if("set_be_random_name")
+			pref.be_random_name = !pref.be_random_name
+			return TOPIC_REFRESH
+		if("set_nickname")
+			var/new_name = sanitize_name(params["name"], pref.species, is_FBP())
+			if(new_name)
+				pref.nickname = new_name
+				return TOPIC_REFRESH
+			else
+				to_chat(usr, "<span class='warning'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, -, ' and .</span>")
+				return TOPIC_NOACTION
+		if("clear_nickname")
+			var/nick_choice = tgui_alert(usr, "Wipe your Nickname? This will completely remove any chosen nickname(s).","Wipe Nickname",list("No","Yes"))
+			if(nick_choice == "Yes")
+				pref.nickname = null
+			return TOPIC_REFRESH
+		if("set_bio_gender")
+			var/gender = params["gender"]
+			if(gender in get_genders())
+				pref.set_biological_gender(gender)
+			return TOPIC_REFRESH
+		if("set_ident_gender")
+			var/gender = params["gender"]
+			if(gender in all_genders_define_list)
+				pref.identifying_gender = gender
+			return TOPIC_REFRESH
+		if("set_age")
+			pref.age = clamp(round(params["age"]), get_min_age(), get_max_age())
+			return TOPIC_REFRESH
+		if("set_bday_month")
+			pref.bday_month = clamp(params["month"], 0, 12)
+			if(pref.bday_month == 0)
+				pref.bday_day = 0
+			return TOPIC_REFRESH
+		if("set_bday_day")
+			var/day = params["day"]
+
+			var/max_days = 0
+			switch(pref.bday_month)
+				if(1)
+					max_days = 31
+				if(2)
+					max_days = 29
+				if(3)
+					max_days = 31
+				if(4)
+					max_days = 30
+				if(5)
+					max_days = 31
+				if(6)
+					max_days = 30
+				if(7)
+					max_days = 31
+				if(8)
+					max_days = 31
+				if(9)
+					max_days = 30
+				if(10)
+					max_days = 31
+				if(11)
+					max_days = 30
+				if(12)
+					max_days = 31
+
+			pref.bday_day = clamp(day, 0, max_days)
+			return TOPIC_REFRESH
+		if("set_bday_announce")
+			pref.bday_announce = !pref.bday_announce
+			return TOPIC_REFRESH
+		if("set_spawnpoint")
+			var/spawnpoint = params["spawnpoint"]
+			if(!spawntypes[spawnpoint])
+				return TOPIC_REFRESH
+			pref.spawnpoint = spawnpoint
+			return TOPIC_REFRESH
+		if("ooc_notes_edit")
+			var/new_metadata = strip_html_simple(tgui_input_text(usr, "Enter any information you'd like others to see, such as Roleplay-preferences. This will not be saved permanently unless you click save in the Character Setup panel!", "Game Preference" , html_decode(pref.metadata), multiline = TRUE,  prevent_enter = TRUE))
+			if(new_metadata)
+				pref.metadata = new_metadata
+			return TOPIC_REFRESH
+		if("ooc_notes_likes")
+			var/new_metadata = strip_html_simple(tgui_input_text(usr, "Enter any information you'd like others to see relating to your LIKED roleplay preferences. This will not be saved permanently unless you click save in the Character Setup panel! Type \"!clear\" to empty.", "Game Preference" , html_decode(pref.metadata_likes), multiline = TRUE,  prevent_enter = TRUE))
+			if(new_metadata)
+				if(new_metadata == "!clear")
+					new_metadata = ""
+				pref.metadata_likes = new_metadata
+			return TOPIC_REFRESH
+		if("ooc_notes_dislikes")
+			var/new_metadata = strip_html_simple(tgui_input_text(usr, "Enter any information you'd like others to see relating to your DISLIKED roleplay preferences. This will not be saved permanently unless you click save in the Character Setup panel! Type \"!clear\" to empty.", "Game Preference" , html_decode(pref.metadata_dislikes), multiline = TRUE,  prevent_enter = TRUE))
+			if(new_metadata)
+				if(new_metadata == "!clear")
+					new_metadata = ""
+				pref.metadata_dislikes = new_metadata
+			return TOPIC_REFRESH
+
 /datum/category_item/player_setup_item/general/basic/OnTopic(var/href,var/list/href_list, var/mob/user)
 	if(href_list["rename"])
 		var/raw_name = tgui_input_text(user, "Choose your character's name:", "Character Name")

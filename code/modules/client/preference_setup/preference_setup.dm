@@ -79,6 +79,50 @@
 	for(var/datum/category_group/player_setup_category/PS in categories)
 		PS.copy_to_mob(C)
 
+/****************/
+/*  TGUI START  */
+/****************/
+/datum/category_collection/player_setup_collection/proc/get_constant_data()
+	var/list/data = list()
+
+	var/list/categories_data = list()
+	for(var/datum/category_group/player_setup_category/PS in categories)
+		categories_data[PS.name] = PS.get_constant_data()
+	data["categories"] = categories_data
+
+	return data
+
+/datum/category_collection/player_setup_collection/tgui_static_data(mob/user)
+	var/list/data = list()
+	data["ref"] = "\ref[src]"
+
+	var/list/categories_data = list()
+	for(var/datum/category_group/player_setup_category/PS in categories)
+		categories_data += list(list("name" = PS.name, "ref" = "\ref[PS]"))
+	data["categories"] = categories_data
+
+	data["selected_category"] = selected_category?.tgui_static_data(user)
+	return data
+
+/datum/category_collection/player_setup_collection/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
+	. = ..()
+	if(.)
+		return
+
+	. = selected_category?.tgui_act(action, params, ui, state)
+	if(.)
+		return
+
+	switch(action)
+		if("set_category")
+			var/category = locate(params["category"])
+			if(category && (category in categories))
+				selected_category = category
+			. = TRUE
+/****************/
+/*  TGUI END  */
+/****************/
+
 /datum/category_collection/player_setup_collection/proc/header()
 	var/dat = ""
 	for(var/datum/category_group/player_setup_category/PS in categories)
@@ -150,6 +194,44 @@
 /datum/category_group/player_setup_category/proc/copy_to_mob(var/mob/living/carbon/human/C)
 	for(var/datum/category_item/player_setup_item/PI in items)
 		PI.copy_to_mob(C)
+
+/****************/
+/*  TGUI START  */
+/****************/
+/datum/category_group/player_setup_category/proc/get_constant_data()
+	var/list/data = list()
+
+	var/list/items_data = list()
+	for(var/datum/category_item/player_setup_item/PI in items)
+		items_data[PI.name] = PI.get_constant_data()
+	data["items"] = items_data
+
+	return data
+
+/datum/category_group/player_setup_category/tgui_static_data(mob/user)
+	var/list/data = ..()
+	data["name"] = name
+	data["ref"] = "\ref[src]"
+
+	var/list/items_data = list()
+	for(var/datum/category_item/player_setup_item/PI in items)
+		items_data += list(PI.tgui_static_data(user))
+	data["items"] = items_data
+
+	return data
+
+/datum/category_group/player_setup_category/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
+	. = ..()
+	if(.)
+		return
+
+	for(var/datum/category_item/player_setup_item/PI in items)
+		. = PI.tgui_act(action, params, ui, state)
+		if(.)
+			return
+/****************/
+/*  TGUI END  */
+/****************/
 
 /datum/category_group/player_setup_category/proc/content(var/mob/user)
 	. = "<table style='width:100%'><tr style='vertical-align:top'><td style='width:50%'>"
@@ -223,6 +305,21 @@
 
 /datum/category_item/player_setup_item/proc/sanitize_preferences()
 	return
+
+/****************/
+/*  TGUI START  */
+/****************/
+/datum/category_item/player_setup_item/proc/get_constant_data()
+	return list()
+
+/datum/category_item/player_setup_item/tgui_static_data(mob/user)
+	var/list/data = ..()
+	data["name"] = name
+	data["ref"] = "\ref[src]"
+	return data
+/****************/
+/*  TGUI END  */
+/****************/
 
 /datum/category_item/player_setup_item/Topic(var/href,var/list/href_list)
 	if(..())

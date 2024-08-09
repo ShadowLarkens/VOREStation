@@ -39,6 +39,8 @@ type OptionalProps = Partial<{
   autoFocus: boolean;
   /** Automatically selects the input value on focus */
   autoSelect: boolean;
+  /** Automatically reset the input on reactive change */
+  autoUpdate: boolean;
   /** The class name of the input */
   className: string;
   /** Disables the input */
@@ -83,6 +85,7 @@ export function Input(props: Props) {
   const {
     autoFocus,
     autoSelect,
+    autoUpdate,
     className,
     disabled,
     expensive,
@@ -136,24 +139,27 @@ export function Input(props: Props) {
   }
 
   /** Focuses the input on mount */
-  useEffect(() => {
-    const input = inputRef.current;
-    if (!input) return;
+  useEffect(
+    () => {
+      const input = inputRef.current;
+      if (!input) return;
 
-    const newValue = toInputValue(value);
+      const newValue = toInputValue(value);
 
-    if (input.value !== newValue) input.value = newValue;
+      if (input.value !== newValue) input.value = newValue;
 
-    if (!autoFocus && !autoSelect) return;
+      if (!autoFocus && !autoSelect) return;
 
-    setTimeout(() => {
-      input.focus();
+      setTimeout(() => {
+        input.focus();
 
-      if (autoSelect) {
-        input.select();
-      }
-    }, 1);
-  }, []);
+        if (autoSelect) {
+          input.select();
+        }
+      }, 1);
+    },
+    autoUpdate ? [value] : [],
+  );
 
   return (
     <Box
