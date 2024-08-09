@@ -264,6 +264,8 @@ var/list/preferences_datums = list()
 		update_preview_icon()
 	show_character_previews()
 
+	tgui_interact(user)
+
 	var/dat = "<html><body><center>"
 
 	if(path)
