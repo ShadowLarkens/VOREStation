@@ -49,6 +49,7 @@
 	output += "<hr>"
 
 	output += "<p><a href='byond://?src=\ref[src];show_preferences=1'>Character Setup</A></p>"
+	output += "<p><a href='byond://?src=\ref[src];show_game_preferences=1'>Game Options</A></p>"
 
 	if(!ticker || ticker.current_state <= GAME_STATE_PREGAME)
 		if(ready)
@@ -146,7 +147,10 @@
 	if(!client)	return 0
 
 	if(href_list["show_preferences"])
-		client.prefs.ShowChoices(src)
+		client.character_setup()
+		return 1
+	if(href_list["show_game_preferences"])
+		client.game_options()
 		return 1
 
 	if(href_list["ready"])
