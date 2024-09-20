@@ -240,31 +240,35 @@ var/list/preferences_datums = list()
 		update_preview_icon()
 	show_character_previews()
 
-	var/dat = "<html><body><center>"
+	current_window = PREFERENCE_TAB_CHARACTER_PREFERENCES
+	update_tgui_static_data(user)
+	tgui_interact(user)
 
-	if(path)
-		dat += "Slot - "
-		dat += "<a href='byond://?src=\ref[src];load=1'>Load slot</a> - "
-		dat += "<a href='byond://?src=\ref[src];save=1'>Save slot</a> - "
-		dat += "<a href='byond://?src=\ref[src];reload=1'>Reload slot</a> - "
-		dat += "<a href='byond://?src=\ref[src];resetslot=1'>Reset slot</a> - "
-		dat += "<a href='byond://?src=\ref[src];copy=1'>Copy slot</a>"
+	// var/dat = "<html><body><center>"
 
-	else
-		dat += "Please create an account to save your preferences."
+	// if(path)
+	// 	dat += "Slot - "
+	// 	dat += "<a href='?src=\ref[src];load=1'>Load slot</a> - "
+	// 	dat += "<a href='?src=\ref[src];save=1'>Save slot</a> - "
+	// 	dat += "<a href='?src=\ref[src];reload=1'>Reload slot</a> - "
+	// 	dat += "<a href='?src=\ref[src];resetslot=1'>Reset slot</a> - "
+	// 	dat += "<a href='?src=\ref[src];copy=1'>Copy slot</a>"
 
-	dat += "<br>"
-	dat += player_setup.header()
-	dat += "<br><HR></center>"
-	dat += player_setup.content(user)
+	// else
+	// 	dat += "Please create an account to save your preferences."
 
-	dat += "</html></body>"
-	//user << browse(dat, "window=preferences;size=635x736")
-	winshow(user, "preferences_window", TRUE)
-	var/datum/browser/popup = new(user, "preferences_browser", "Character Setup", 800, 800)
-	popup.set_content(dat)
-	popup.open(FALSE) // Skip registring onclose on the browser pane
-	onclose(user, "preferences_window", src) // We want to register on the window itself
+	// dat += "<br>"
+	// dat += player_setup.header()
+	// dat += "<br><HR></center>"
+	// dat += player_setup.content(user)
+
+	// dat += "</html></body>"
+	// //user << browse(dat, "window=preferences;size=635x736")
+	// winshow(user, "preferences_window", TRUE)
+	// var/datum/browser/popup = new(user, "preferences_browser", "Character Setup", 800, 800)
+	// popup.set_content(dat)
+	// popup.open(FALSE) // Skip registring onclose on the browser pane
+	// onclose(user, "preferences_window", src) // We want to register on the window itself
 
 /datum/preferences/proc/update_character_previews(var/mob/living/carbon/human/mannequin)
 	if(!client)
