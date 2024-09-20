@@ -1,4 +1,11 @@
+/datum/preferences
+	COOLDOWN_DECLARE(ui_refresh_cooldown)
+
 /datum/preferences/tgui_interact(mob/user, datum/tgui/ui, datum/tgui/parent_ui, custom_state)
+	if(!char_render_holders)
+		update_preview_icon()
+	show_character_previews()
+
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		ui = new(user, src, "PreferencesMenu", "Preferences")
@@ -45,6 +52,16 @@
 
 	// data["character_preview_view"] = character_preview_view.assigned_map
 	// data["overflow_role"] = SSjob.GetJobType(SSjob.overflow_role).title
+	if(current_window == PREFERENCE_TAB_CHARACTER_PREFERENCES)
+		data["header"] = player_setup.header()
+		data["content"] = player_setup.content(user)
+
+		var/list/categories = list()
+		for(var/datum/category_group/player_setup_category/PS in player_setup.categories)
+			categories += list(PS.name)
+		data["categories"] = categories
+		data["selected_category"] = player_setup.selected_category.name
+
 	data["window"] = current_window
 
 	for(var/datum/preference_middleware/preference_middleware as anything in middleware)
@@ -54,6 +71,10 @@
 
 /datum/preferences/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
 	. = ..()
+	if(.)
+		return
+
+	. = bay_act(action, params, ui, state)
 	if(.)
 		return
 
@@ -85,6 +106,57 @@
 			return call(preference_middleware, delegation)(params, ui.user)
 
 	return FALSE
+
+/// Actions pertaining to the old bay system
+/datum/preferences/proc/bay_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
+	. = FALSE
+
+	switch(action)
+		// Basic actions
+		if("load")
+			if(!IsGuestKey(usr.key))
+				open_load_dialog(usr)
+			. = TRUE
+		if("save")
+			save_character()
+			save_preferences()
+			. = TRUE
+		if("reload")
+			load_preferences()
+			load_character()
+			attempt_vr(client.prefs_vr,"load_vore","") //VOREStation Edit
+			sanitize_preferences()
+			. = TRUE
+		if("resetslot")
+			if("Yes" != tgui_alert(usr, "This will reset the current slot. Continue?", "Reset current slot?", list("No", "Yes")))
+				return
+			if("Yes" != tgui_alert(usr, "Are you completely sure that you want to reset this character slot?", "Reset current slot?", list("No", "Yes")))
+				return
+			reset_slot()
+			sanitize_preferences()
+			. = TRUE
+		if("copy")
+			if(!IsGuestKey(usr.key))
+				open_copy_dialog(usr)
+			. = TRUE
+		// More specific stuff
+		if("switch_category")
+			var/new_category = params["category"]
+			for(var/datum/category_group/player_setup_category/PS in player_setup.categories)
+				if(PS.name == new_category)
+					player_setup.selected_category = PS
+					update_tgui_static_data(usr, ui)
+					break
+			. = TRUE
+		if("game_prefs")
+			usr.client.game_options()
+			. = TRUE
+		if("refresh_character_preview")
+			if(!COOLDOWN_FINISHED(src, ui_refresh_cooldown))
+				return
+			update_preview_icon()
+			COOLDOWN_START(src, ui_refresh_cooldown, 5 SECONDS)
+			. = TRUE
 
 /datum/preferences/tgui_close(mob/user)
 	save_character()
