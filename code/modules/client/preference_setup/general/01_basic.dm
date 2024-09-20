@@ -97,6 +97,23 @@
 		. += span_bold("OOC Notes: <a href='?src=\ref[src];edit_ooc_notes=1'>Edit</a><a href='?src=\ref[src];edit_ooc_note_likes=1'>Likes</a><a href='?src=\ref[src];edit_ooc_note_dislikes=1'>Dislikes</a>") + "<br>"
 	. = jointext(.,null)
 
+/datum/category_item/player_setup_item/general/basic/tgui_static_data(mob/user)
+	var/list/data = ..()
+
+	data["real_name"] = pref.real_name
+	data["be_random_name"] = pref.be_random_name
+	data["nickname"] = pref.nickname
+	data["biological_sex"] = gender2text(pref.biological_gender)
+	data["identifying_gender"] = gender2text(pref.identifying_gender)
+	data["age"] = pref.age
+	data["bday_month"] = pref.bday_month
+	data["bday_day"] = pref.bday_day
+	data["bday_announce"] = pref.bday_announce
+	data["spawnpoint"] = pref.spawnpoint
+	data["allow_metadata"] = config.allow_Metadata
+
+	return data
+
 /datum/category_item/player_setup_item/general/basic/OnTopic(var/href,var/list/href_list, var/mob/user)
 	if(href_list["rename"])
 		var/raw_name = tgui_input_text(user, "Choose your character's name:", "Character Name")
