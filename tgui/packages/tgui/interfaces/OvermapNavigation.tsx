@@ -1,4 +1,5 @@
 import { BooleanLike } from 'common/react';
+import { ByondUi } from 'tgui-core/components';
 
 import { useBackend } from '../backend';
 import { Button, LabeledList, Section } from '../components';
@@ -21,11 +22,12 @@ type Data = {
   s_y: number;
   sector_info: string;
   viewing: BooleanLike;
+  mapRef: string;
 };
 
 export const OvermapNavigationContent = (props) => {
   const { act, data } = useBackend<Data>();
-  const { sector, s_x, s_y, sector_info, viewing } = data;
+  const { sector, s_x, s_y, sector_info, viewing, mapRef } = data;
   return (
     <>
       <Section
@@ -48,6 +50,15 @@ export const OvermapNavigationContent = (props) => {
       </Section>
       <Section title="Flight Data">
         <OvermapFlightData disableLimiterControls />
+      </Section>
+      <Section title="View">
+        <ByondUi
+          height={15}
+          params={{
+            id: mapRef,
+            type: 'map',
+          }}
+        />
       </Section>
     </>
   );
