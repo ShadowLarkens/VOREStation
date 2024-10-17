@@ -54,3 +54,5 @@
 #define SCRN_OBJ_IN_PALETTE "palette"
 /// In cult spell list
 #define SCRN_OBJ_CULT_LIST "cult_list"
+///Inserted first in the list
+#define SCRN_OBJ_INSERT_FIRST "first"

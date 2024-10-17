@@ -193,6 +193,9 @@ var/list/global_huds = list(
 	var/obj/screen/palette_scroll/down/palette_down
 	var/obj/screen/palette_scroll/up/palette_up
 
+	var/datum/action_group/palette/palette_actions
+	var/datum/action_group/listed/listed_actions
+	var/list/floating_actions
 
 	var/list/slot_info
 

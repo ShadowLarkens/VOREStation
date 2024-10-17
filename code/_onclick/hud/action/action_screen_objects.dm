@@ -1,19 +1,10 @@
-/**
- * This is a silly proc used in hud code code to determine what icon and icon state we should be using
- * for hud elements (such as action buttons) that don't have their own icon and icon state set.
- *
- * It returns a list, which is pretty much just a struct of info
- */
-// /datum/hud/proc/get_action_buttons_icons()
-// 	. = list()
-// 	.["bg_icon"] = ui_style
-// 	.["bg_state"] = "template"
-// 	.["bg_state_active"] = "template_active"
-
 /obj/screen/movable/action_button
 	var/datum/action/linked_action
 	var/datum/hud/our_hud
 	screen_loc = "WEST,NORTH"
+
+	/// Where we are currently placed on the hud. SCRN_OBJ_DEFAULT asks the linked action what it thinks
+	var/location = SCRN_OBJ_DEFAULT
 
 /obj/screen/movable/action_button/Click(location,control,params)
 	var/list/modifiers = params2list(params)
@@ -79,3 +70,15 @@
 	var/image/img = image(icon,src,hidden?"show":"hide")
 	add_overlay(img)
 	return
+
+/**
+ * This is a silly proc used in hud code code to determine what icon and icon state we should be using
+ * for hud elements (such as action buttons) that don't have their own icon and icon state set.
+ *
+ * It returns a list, which is pretty much just a struct of info
+ */
+// /datum/hud/proc/get_action_buttons_icons()
+// 	. = list()
+// 	.["bg_icon"] = ui_style
+// 	.["bg_state"] = "template"
+// 	.["bg_state_active"] = "template_active"

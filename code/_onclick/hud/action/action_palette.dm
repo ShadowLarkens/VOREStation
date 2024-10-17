@@ -92,10 +92,10 @@ GLOBAL_LIST_INIT(palette_removed_matrix, list(1.4,0,0,0, 0.7,0.4,0,0, 0.4,0,0.6,
 	var/list/modifiers = params2list(params)
 
 	if(LAZYACCESS(modifiers, ALT_CLICK))
-		// for(var/datum/action/action as anything in usr.actions) // Reset action positions to default
-		// 	for(var/datum/hud/hud as anything in action.viewers)
-		// 		var/obj/screen/movable/action_button/button = action.viewers[hud]
-		// 		hud.position_action(button, SCRN_OBJ_DEFAULT)
+		for(var/datum/action/action as anything in usr.actions) // Reset action positions to default
+			// for(var/datum/hud/hud as anything in action.viewers)
+			// 	var/obj/screen/movable/action_button/button = action.viewers[hud]
+			usr.hud_used?.position_action(action.button, SCRN_OBJ_DEFAULT)
 		to_chat(usr, span_notice("Action button positions have been reset."))
 		return TRUE
 
@@ -156,6 +156,7 @@ GLOBAL_LIST_INIT(palette_removed_matrix, list(1.4,0,0,0, 0.7,0.4,0,0, 0.4,0,0.6,
 	if(viewer.client)
 		viewer.client.screen |= src
 
+	// TODO: hud icon support
 	// var/list/settings = our_hud.get_action_buttons_icons()
 	// icon = settings["bg_icon"]
 

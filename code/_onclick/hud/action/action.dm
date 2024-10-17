@@ -1,9 +1,16 @@
 
 /datum/action
-	var/name = "Generic Action"
 	var/action_type = AB_ITEM
 	var/procname = null
+	/// The name of the action
+	var/name = "Generic Action"
+	/// The description of what the action does, shown in button tooltips
+	var/desc
+	/// The target the action is attached to. If the target datum is deleted, the action is as well.
+	/// Set in New() via the proc link_to(). PLEASE set a target if you're making an action
 	var/atom/movable/target = null
+	/// Where any buttons we create should be by default. Accepts screen_loc and location defines
+	var/default_button_position = SCRN_OBJ_IN_LIST
 	var/check_flags = 0
 	var/processing = 0
 	var/active = 0
@@ -11,7 +18,7 @@
 	var/button_icon = 'icons/mob/actions/actions.dmi'
 	var/button_icon_state = "default"
 	var/background_icon_state = "bg_default"
-	var/mob/living/owner
+	var/mob/owner
 
 /datum/action/New(var/Target)
 	target = Target
@@ -23,7 +30,7 @@
 	QDEL_NULL(button)
 	return ..()
 
-/datum/action/proc/Grant(mob/living/T)
+/datum/action/proc/Grant(mob/T)
 	if(owner)
 		if(owner == T)
 			return
@@ -33,7 +40,7 @@
 	owner.update_action_buttons()
 	return
 
-/datum/action/proc/Remove(mob/living/T)
+/datum/action/proc/Remove(mob/T)
 	if(button)
 		if(T.client)
 			T.client.screen -= button
@@ -74,7 +81,7 @@
 /datum/action/process()
 	return
 
-/datum/action/proc/CheckRemoval(mob/living/user) // 1 if action is no longer valid for this mob and should be removed
+/datum/action/proc/CheckRemoval(mob/user) // 1 if action is no longer valid for this mob and should be removed
 	return 0
 
 /datum/action/proc/IsAvailable()
