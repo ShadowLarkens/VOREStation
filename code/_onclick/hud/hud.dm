@@ -188,7 +188,11 @@ var/list/global_huds = list(
 
 	var/obj/screen/movable/action_button/hide_toggle/hide_actions_toggle
 	var/action_buttons_hidden = 0
+
 	var/obj/screen/button_palette/toggle_palette
+	var/obj/screen/palette_scroll/down/palette_down
+	var/obj/screen/palette_scroll/up/palette_up
+
 
 	var/list/slot_info
 
@@ -210,6 +214,8 @@ var/list/global_huds = list(
 	. = ..()
 	QDEL_NULL_LIST(minihuds)
 	QDEL_NULL(toggle_palette)
+	QDEL_NULL(palette_down)
+	QDEL_NULL(palette_up)
 	grab_intent = null
 	hurt_intent = null
 	disarm_intent = null
@@ -328,6 +334,10 @@ var/list/global_huds = list(
 
 	toggle_palette = new()
 	toggle_palette.set_hud(src)
+	palette_down = new()
+	palette_down.set_hud(src)
+	palette_up = new()
+	palette_up.set_hud(src)
 
 	persistant_inventory_update()
 	mymob.reload_fullscreen() // Reload any fullscreen overlays this mob has.

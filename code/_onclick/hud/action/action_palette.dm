@@ -94,7 +94,7 @@ GLOBAL_LIST_INIT(palette_removed_matrix, list(1.4,0,0,0, 0.7,0.4,0,0, 0.4,0,0.6,
 	if(LAZYACCESS(modifiers, ALT_CLICK))
 		// for(var/datum/action/action as anything in usr.actions) // Reset action positions to default
 		// 	for(var/datum/hud/hud as anything in action.viewers)
-		// 		var/atom/movable/screen/movable/action_button/button = action.viewers[hud]
+		// 		var/obj/screen/movable/action_button/button = action.viewers[hud]
 		// 		hud.position_action(button, SCRN_OBJ_DEFAULT)
 		to_chat(usr, span_notice("Action button positions have been reset."))
 		return TRUE
@@ -105,8 +105,8 @@ GLOBAL_LIST_INIT(palette_removed_matrix, list(1.4,0,0,0, 0.7,0.4,0,0, 0.4,0,0.6,
 	if(istype(target, /obj/screen/movable/action_button) || istype(target, /obj/screen/palette_scroll) || target == src) // If you're clicking on an action button, or us, you can live
 		return
 	set_expanded(FALSE)
-	// if(source)
-		// UnregisterSignal(source, COMSIG_CLIENT_CLICK) // TODO: Implement
+	if(source)
+		UnregisterSignal(source, COMSIG_CLIENT_CLICK)
 
 /obj/screen/button_palette/proc/set_expanded(new_expanded)
 	// var/datum/action_group/our_group = our_hud.palette_actions
@@ -122,11 +122,10 @@ GLOBAL_LIST_INIT(palette_removed_matrix, list(1.4,0,0,0, 0.7,0.4,0,0, 0.4,0,0.6,
 	if(!usr.client)
 		return
 
-	// TODO: all of this
-	// if(expanded)
-	// 	RegisterSignal(usr.client, COMSIG_CLIENT_CLICK, PROC_REF(clicked_while_open))
-	// else
-	// 	UnregisterSignal(usr.client, COMSIG_CLIENT_CLICK)
+	if(expanded)
+		RegisterSignal(usr.client, COMSIG_CLIENT_CLICK, PROC_REF(clicked_while_open))
+	else
+		UnregisterSignal(usr.client, COMSIG_CLIENT_CLICK)
 
 	closeToolTip(usr) //Our tooltips are now invalid, can't seem to update them in one frame, so here, just close them
 
@@ -135,3 +134,68 @@ GLOBAL_LIST_INIT(palette_removed_matrix, list(1.4,0,0,0, 0.7,0.4,0,0, 0.4,0,0.6,
 /* Palette Scroll Buttons */
 /**************************/
 /obj/screen/palette_scroll
+	icon = 'icons/mob/screen_gen.dmi'
+	screen_loc = ui_palette_scroll
+	/// How should we move the palette's actions?
+	/// Positive scrolls down the list, negative scrolls back
+	var/scroll_direction = 0
+	var/datum/hud/our_hud
+
+// /obj/screen/palette_scroll/proc/can_use(mob/user)
+// 	if (isobserver(user))
+// 		var/mob/dead/observer/O = user
+// 		return !O.observetarget
+// 	return TRUE
+
+/obj/screen/palette_scroll/proc/set_hud(datum/hud/our_hud)
+	src.our_hud = our_hud
+	refresh_owner()
+
+/obj/screen/palette_scroll/proc/refresh_owner()
+	var/mob/viewer = our_hud.mymob
+	if(viewer.client)
+		viewer.client.screen |= src
+
+	// var/list/settings = our_hud.get_action_buttons_icons()
+	// icon = settings["bg_icon"]
+
+/obj/screen/palette_scroll/Click(location, control, params)
+	// if(!can_use(usr))
+	// 	return
+	// our_hud.palette_actions.scroll(scroll_direction)
+
+/obj/screen/palette_scroll/MouseEntered(location, control, params)
+	. = ..()
+	if(QDELETED(src))
+		return
+	openToolTip(usr, src, params, title = name, content = desc)
+
+/obj/screen/palette_scroll/MouseExited()
+	closeToolTip(usr)
+	return ..()
+
+/obj/screen/palette_scroll/down
+	name = "Scroll Down"
+	desc = "<b>Click</b> on this to scroll the actions above down"
+	icon_state = "scroll_down"
+	scroll_direction = 1
+
+/obj/screen/palette_scroll/down/Destroy()
+	if(our_hud)
+		our_hud.mymob?.client?.screen -= src
+		our_hud.palette_down = null
+		our_hud = null
+	return ..()
+
+/obj/screen/palette_scroll/up
+	name = "Scroll Up"
+	desc = "<b>Click</b> on this to scroll the actions above up"
+	icon_state = "scroll_up"
+	scroll_direction = -1
+
+/obj/screen/palette_scroll/up/Destroy()
+	if(our_hud)
+		our_hud.mymob?.client?.screen -= src
+		our_hud.palette_up = null
+		our_hud = null
+	return ..()
