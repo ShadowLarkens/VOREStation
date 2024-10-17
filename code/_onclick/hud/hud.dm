@@ -188,6 +188,8 @@ var/list/global_huds = list(
 
 	var/obj/screen/movable/action_button/hide_toggle/hide_actions_toggle
 	var/action_buttons_hidden = 0
+	var/obj/screen/button_palette/toggle_palette
+
 	var/list/slot_info
 
 	var/icon/ui_style
@@ -207,6 +209,7 @@ var/list/global_huds = list(
 /datum/hud/Destroy()
 	. = ..()
 	QDEL_NULL_LIST(minihuds)
+	QDEL_NULL(toggle_palette)
 	grab_intent = null
 	hurt_intent = null
 	disarm_intent = null
@@ -323,6 +326,9 @@ var/list/global_huds = list(
 
 	mymob.create_mob_hud(src)
 
+	toggle_palette = new()
+	toggle_palette.set_hud(src)
+
 	persistant_inventory_update()
 	mymob.reload_fullscreen() // Reload any fullscreen overlays this mob has.
 	mymob.update_action_buttons()
@@ -385,6 +391,7 @@ var/list/global_huds = list(
 			client.screen -= hud_used.hotkeybuttons
 		if(hud_used.other_important)
 			client.screen -= hud_used.other_important
+		client.screen -= hud_used.toggle_palette
 	else
 		hud_used.hud_shown = 1
 		if(hud_used.adding)
@@ -404,6 +411,7 @@ var/list/global_huds = list(
 
 		hud_used?.action_intent.screen_loc = ui_acti //Restore intent selection to the original position
 		client.screen += zone_sel				//This one is a special snowflake
+		client.screen += hud_used.toggle_palette
 
 	hud_used.hidden_inventory_update()
 	hud_used.persistant_inventory_update()

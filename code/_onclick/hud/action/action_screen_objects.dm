@@ -1,3 +1,14 @@
+/**
+ * This is a silly proc used in hud code code to determine what icon and icon state we should be using
+ * for hud elements (such as action buttons) that don't have their own icon and icon state set.
+ *
+ * It returns a list, which is pretty much just a struct of info
+ */
+// /datum/hud/proc/get_action_buttons_icons()
+// 	. = list()
+// 	.["bg_icon"] = ui_style
+// 	.["bg_state"] = "template"
+// 	.["bg_state_active"] = "template_active"
 
 /obj/screen/movable/action_button
 	var/datum/action/owner
@@ -39,7 +50,7 @@
 //Hide/Show Action Buttons ... Button
 /obj/screen/movable/action_button/hide_toggle
 	name = "Hide Buttons"
-	icon = 'icons/mob/actions.dmi'
+	icon = 'icons/mob/actions/actions.dmi'
 	icon_state = "bg_default"
 	var/hidden = 0
 

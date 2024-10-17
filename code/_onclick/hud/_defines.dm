@@ -82,6 +82,13 @@
 #define ui_ai_add_multicam "SOUTH+1:6,WEST+12:16"
 #define ui_ai_updown "SOUTH+1:6,WEST+13:16"
 
+//Upper left (action buttons)
+#define ui_action_palette "WEST+0:23,NORTH-1:5"
+#define ui_action_palette_offset(north_offset) ("WEST+0:23,NORTH-[1+north_offset]:5")
+
+#define ui_palette_scroll "WEST+1:8,NORTH-6:28"
+#define ui_palette_scroll_offset(north_offset) ("WEST+1:8,NORTH-[6+north_offset]:28")
+
 //Upper-middle right (alerts)
 #define ui_alert1 "EAST-1:28,CENTER+5:27"
 #define ui_alert2 "EAST-1:28,CENTER+4:25"

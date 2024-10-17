@@ -251,6 +251,7 @@
 #include "code\_onclick\hud\soulcatcher_guest.dm"
 #include "code\_onclick\hud\spell_screen_objects.dm"
 #include "code\_onclick\hud\action\action.dm"
+#include "code\_onclick\hud\action\action_palette.dm"
 #include "code\_onclick\hud\action\action_screen_objects.dm"
 #include "code\ATMOSPHERICS\_atmos_setup.dm"
 #include "code\ATMOSPHERICS\_atmospherics_helpers.dm"
