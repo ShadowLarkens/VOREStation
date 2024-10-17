@@ -11,38 +11,39 @@
 // 	.["bg_state_active"] = "template_active"
 
 /obj/screen/movable/action_button
-	var/datum/action/owner
+	var/datum/action/linked_action
+	var/datum/hud/our_hud
 	screen_loc = "WEST,NORTH"
 
 /obj/screen/movable/action_button/Click(location,control,params)
 	var/list/modifiers = params2list(params)
 	if(modifiers["shift"])
 		moved = FALSE
-		owner?.owner?.update_action_buttons()
+		linked_action?.owner?.update_action_buttons()
 		return 1
 	if(!usr.checkClickCooldown())
 		return
-	owner.Trigger()
+	linked_action.Trigger()
 	return 1
 
 /obj/screen/movable/action_button/proc/UpdateIcon()
-	if(!owner)
+	if(!linked_action)
 		return
-	icon = owner.button_icon
-	icon_state = owner.background_icon_state
+	icon = linked_action.button_icon
+	icon_state = linked_action.background_icon_state
 
 	cut_overlays()
 	var/image/img
-	if(owner.action_type == AB_ITEM && owner.target)
-		var/obj/item/I = owner.target
+	if(linked_action.action_type == AB_ITEM && linked_action.target)
+		var/obj/item/I = linked_action.target
 		img = image(I.icon, src , I.icon_state)
-	else if(owner.button_icon && owner.button_icon_state)
-		img = image(owner.button_icon,src,owner.button_icon_state)
+	else if(linked_action.button_icon && linked_action.button_icon_state)
+		img = image(linked_action.button_icon,src,linked_action.button_icon_state)
 	img.pixel_x = 0
 	img.pixel_y = 0
 	add_overlay(img)
 
-	if(!owner.IsAvailable())
+	if(!linked_action.IsAvailable())
 		color = rgb(128,0,0,128)
 	else
 		color = rgb(255,255,255,255)

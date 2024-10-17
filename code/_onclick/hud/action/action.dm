@@ -136,7 +136,8 @@
 		button_number++
 		if(A.button == null)
 			var/obj/screen/movable/action_button/N = new(hud_used)
-			N.owner = A
+			N.linked_action = A
+			N.our_hud = hud_used
 			A.button = N
 
 		var/obj/screen/movable/action_button/B = A.button
