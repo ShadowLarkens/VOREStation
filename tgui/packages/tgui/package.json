@@ -16,6 +16,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-popper": "^2.3.0",
+    "react-wasm": "^1.0.1",
+    "rustgui": "workspace:*",
     "tgui-core": "^1.2.0",
     "tgui-dev-server": "workspace:*",
     "tgui-polyfill": "workspace:*"

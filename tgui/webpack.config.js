@@ -7,6 +7,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const ExtractCssPlugin = require('mini-css-extract-plugin');
+const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
 
 const createStats = (verbose) => ({
   assets: verbose,
@@ -29,9 +30,13 @@ module.exports = (env = {}, argv) => {
   const config = {
     mode: mode === 'production' ? 'production' : 'development',
     context: path.resolve(__dirname),
-    target: ['web', 'es5', 'browserslist:ie 11'],
+    target: ['web', 'es2024'],
     entry: {
-      tgui: ['./packages/tgui-polyfill', './packages/tgui'],
+      tgui: [
+        './packages/tgui-polyfill',
+        './packages/rustgui',
+        './packages/tgui',
+      ],
       'tgui-panel': ['./packages/tgui-polyfill', './packages/tgui-panel'],
       'tgui-say': ['./packages/tgui-polyfill', './packages/tgui-say'],
     },
@@ -117,7 +122,14 @@ module.exports = (env = {}, argv) => {
         filename: '[name].bundle.css',
         chunkFilename: '[name].bundle.css',
       }),
+      new WasmPackPlugin({
+        crateDirectory: path.resolve(__dirname, 'packages/rustgui'),
+        outName: 'rustgui',
+      }),
     ],
+    experiments: {
+      asyncWebAssembly: true,
+    },
   };
 
   if (bench) {
@@ -134,7 +146,7 @@ module.exports = (env = {}, argv) => {
     const { EsbuildPlugin } = require('esbuild-loader');
     config.optimization.minimizer = [
       new EsbuildPlugin({
-        target: 'ie11',
+        target: 'edge130',
         css: true,
       }),
     ];

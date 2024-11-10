@@ -18,6 +18,7 @@ package-lock.json
 !/public/*.html
 !/public/tgui-polyfill.min.js
 /coverage
+/pkg
 
 ## Previously ignored locations that are kept to avoid confusing git
 ## while transitioning to a new project structure.
