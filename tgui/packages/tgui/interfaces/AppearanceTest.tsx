@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { add } from 'rustgui/pkg';
 import { resolveAsset } from 'tgui/assets';
 import { fetchRetry } from 'tgui/http';
 import { Window } from 'tgui/layouts';
@@ -9,7 +8,7 @@ export const AppearanceTest = (props) => {
   return (
     <Window width={400} height={400}>
       <Window.Content scrollable>
-        <JsonLoader>{add(BigInt(5), BigInt(10))}</JsonLoader>
+        {/* <JsonLoader>{add(BigInt(5), BigInt(10))}</JsonLoader> */}
       </Window.Content>
     </Window>
   );

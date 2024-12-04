@@ -3,6 +3,7 @@
 	assets = list(
 		"tgui.bundle.js" = file("tgui/public/tgui.bundle.js"),
 		"tgui.bundle.css" = file("tgui/public/tgui.bundle.css"),
+		"rustgui.module.wasm" = file("tgui/public/rustgui.module.wasm"),
 	)
 
 /datum/asset/simple/tgui_panel

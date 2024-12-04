@@ -47,6 +47,7 @@ module.exports = (env = {}, argv) => {
       filename: '[name].bundle.js',
       chunkFilename: '[name].bundle.js',
       chunkLoadTimeout: 15000,
+      webassemblyModuleFilename: 'rustgui.module.wasm',
       publicPath: '/',
     },
     resolve: {
