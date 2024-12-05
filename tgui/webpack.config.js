@@ -130,6 +130,7 @@ module.exports = (env = {}, argv) => {
     ],
     experiments: {
       asyncWebAssembly: true,
+      syncWebAssembly: true,
     },
   };
 

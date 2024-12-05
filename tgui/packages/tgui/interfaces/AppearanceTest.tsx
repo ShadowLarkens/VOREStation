@@ -3,13 +3,14 @@ import { resolveAsset } from 'tgui/assets';
 import { fetchRetry } from 'tgui/http';
 import { Window } from 'tgui/layouts';
 import { Box } from 'tgui-core/components';
+import { add } from 'rustgui';
 
 export const AppearanceTest = (props) => {
+  let x = Number(add(BigInt(1), BigInt(2)));
+
   return (
     <Window width={400} height={400}>
-      <Window.Content scrollable>
-        {/* <JsonLoader>{add(BigInt(5), BigInt(10))}</JsonLoader> */}
-      </Window.Content>
+      <Window.Content scrollable>abab {x}</Window.Content>
     </Window>
   );
 };
