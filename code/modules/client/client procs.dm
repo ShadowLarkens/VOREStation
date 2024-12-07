@@ -527,14 +527,25 @@
 /client/verb/character_setup()
 	set name = "Character Setup"
 	set category = "Preferences.Character"
-	if(prefs)
-		prefs.ShowChoices(usr)
+
+	if(!prefs)
+		return
+
+	prefs.ShowChoices(usr)
+	prefs.current_window = PREFERENCE_TAB_CHARACTER_PREFERENCES
+	prefs.update_tgui_static_data(usr)
+	prefs.tgui_interact(usr)
 
 /client/verb/game_options()
 	set name = "Game Options"
 	set category = "Preferences.Game"
-	if(prefs)
-		prefs.tgui_interact(usr)
+
+	if(!prefs)
+		return
+
+	prefs.current_window = PREFERENCE_TAB_GAME_PREFERENCES
+	prefs.update_tgui_static_data(usr)
+	prefs.tgui_interact(usr)
 
 /client/proc/findJoinDate()
 	var/list/http = world.Export("http://byond.com/members/[ckey]?format=text")

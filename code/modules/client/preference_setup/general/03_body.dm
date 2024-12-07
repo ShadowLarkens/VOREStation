@@ -246,6 +246,83 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	save_data["b_wing3"]			= pref.b_wing3
 	save_data["digitigrade"]		= pref.digitigrade
 
+/datum/category_item/player_setup_item/general/body/tgui_data(mob/user)
+	var/list/data = ..()
+
+	data["species"]				= pref.species
+	data["hair_style_name"]		= pref.h_style
+	data["hair_red"]				= pref.r_hair
+	data["hair_green"]				= pref.g_hair
+	data["hair_blue"]				= pref.b_hair
+	data["grad_style_name"]		= pref.grad_style
+	data["grad_red"]				= pref.r_grad
+	data["grad_green"]				= pref.g_grad
+	data["grad_blue"]				= pref.b_grad
+	data["facial_style_name"]	= pref.f_style
+	data["facial_red"]				= pref.r_facial
+	data["facial_green"]			= pref.g_facial
+	data["facial_blue"]				= pref.b_facial
+	data["skin_tone"]			= pref.s_tone
+	data["skin_red"]				= pref.r_skin
+	data["skin_green"]				= pref.g_skin
+	data["skin_blue"]				= pref.b_skin
+	data["eyes_red"]			= pref.r_eyes
+	data["eyes_green"]			= pref.g_eyes
+	data["eyes_blue"]			= pref.b_eyes
+
+	data["b_type"]				= pref.b_type
+	data["disabilities"]		= pref.disabilities
+	data["organ_data"]			= pref.organ_data
+	data["rlimb_data"]			= pref.rlimb_data
+	var/list/body_markings 		= pref.body_markings
+	for(var/i in pref.body_markings)
+		body_markings[i] = body_markings[i]
+		for(var/j in body_markings[i])
+			body_markings[i][j] = body_markings[i][j]
+	data["body_markings"]		= body_markings
+	data["synth_color"]			= pref.synth_color
+	data["synth_red"]				= pref.r_synth
+	data["synth_green"]				= pref.g_synth
+	data["synth_blue"]				= pref.b_synth
+	data["synth_markings"]		= pref.synth_markings
+	data["bgstate"]				= pref.bgstate
+	data["body_descriptors"]	= pref.body_descriptors
+	data["ear_style"]			= pref.ear_style
+	data["r_ears"]					= pref.r_ears
+	data["g_ears"]					= pref.g_ears
+	data["b_ears"]					= pref.b_ears
+	data["r_ears2"]					= pref.r_ears2
+	data["g_ears2"]					= pref.g_ears2
+	data["b_ears2"]					= pref.b_ears2
+	data["r_ears3"]					= pref.r_ears3
+	data["g_ears3"]					= pref.g_ears3
+	data["b_ears3"]					= pref.b_ears3
+	data["ear_secondary_style"] = pref.ear_secondary_style
+	data["ear_secondary_colors"] = pref.ear_secondary_colors
+	data["tail_style"]			= pref.tail_style
+	data["r_tail"]					= pref.r_tail
+	data["g_tail"]					= pref.g_tail
+	data["b_tail"]					= pref.b_tail
+	data["r_tail2"]					= pref.r_tail2
+	data["g_tail2"]					= pref.g_tail2
+	data["b_tail2"]					= pref.b_tail2
+	data["r_tail3"]					= pref.r_tail3
+	data["g_tail3"]					= pref.g_tail3
+	data["b_tail3"]					= pref.b_tail3
+	data["wing_style"]			= pref.wing_style
+	data["r_wing"]					= pref.r_wing
+	data["g_wing"]					= pref.g_wing
+	data["b_wing"]					= pref.b_wing
+	data["r_wing2"]					= pref.r_wing2
+	data["g_wing2"]					= pref.g_wing2
+	data["b_wing2"]					= pref.b_wing2
+	data["r_wing3"]					= pref.r_wing3
+	data["g_wing3"]					= pref.g_wing3
+	data["b_wing3"]					= pref.b_wing3
+	data["digitigrade"]			= pref.digitigrade
+
+	return data
+
 /datum/category_item/player_setup_item/general/body/sanitize_character()
 	if(!pref.species || !(pref.species in GLOB.playable_species))
 		pref.species = SPECIES_HUMAN

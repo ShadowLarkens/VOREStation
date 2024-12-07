@@ -68,6 +68,18 @@
 
 	pref.runechat_color = sanitize_hexcolor(pref.runechat_color, COLOR_BLACK)
 
+/datum/category_item/player_setup_item/general/language/tgui_data(mob/user)
+	var/list/data = ..()
+
+	data["language"]				= check_list_copy(pref.alternate_languages)
+	data["extra_languages"]			= pref.extra_languages
+	data["language_prefixes"]		= pref.language_prefixes
+	data["language_custom_keys"]	= pref.language_custom_keys
+	data["preflang"]				= check_list_copy(pref.preferred_language)
+	data["runechat_color"]			= pref.runechat_color
+
+	return data
+
 /datum/category_item/player_setup_item/general/language/content()
 	. += span_bold("Languages") + "<br>"
 	var/datum/species/S = GLOB.all_species[pref.species]

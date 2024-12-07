@@ -79,6 +79,26 @@
 	character.bday_month = pref.bday_month
 	character.bday_day = pref.bday_day
 
+/datum/category_item/player_setup_item/general/basic/tgui_data(mob/user)
+	var/list/data = ..()
+
+	data["real_name"]				= pref.real_name
+	data["nickname"]				= pref.nickname
+	data["name_is_always_random"]	= pref.be_random_name
+	data["gender"]					= pref.biological_gender
+	data["id_gender"]				= pref.identifying_gender
+	data["age"]						= pref.age
+	data["bday_month"]				= pref.bday_month
+	data["bday_day"]				= pref.bday_day
+	data["last_bday_note"]			= pref.last_birthday_notification
+	data["bday_announce"]			= pref.bday_announce
+	data["spawnpoint"]				= pref.spawnpoint
+	data["OOC_Notes"]				= pref.metadata
+	data["OOC_Notes_Likes"]			= pref.metadata_likes
+	data["OOC_Notes_Disikes"]		= pref.metadata_dislikes
+
+	return data
+
 /datum/category_item/player_setup_item/general/basic/content()
 	. = list()
 	. += span_bold("Name:") + " "
