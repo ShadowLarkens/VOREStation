@@ -1572,6 +1572,8 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	if(.)
 		return
 
+	var/datum/species/mob_species = GLOB.all_species[pref.species]
+
 	switch(action)
 		if("set_hair_style")
 			var/new_h_style = params["hair_style"]
@@ -1579,8 +1581,28 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 				pref.h_style = new_h_style
 				return TOPIC_REFRESH_UPDATE_PREVIEW
 
+		if("set_hair_color")
+			if(!has_flag(mob_species, HAS_HAIR_COLOR))
+				return TOPIC_NOACTION
+			var/new_hair = input(ui.user, "Choose your character's hair colour:", "Character Preference", rgb(pref.r_hair, pref.g_hair, pref.b_hair)) as color|null
+			if(new_hair && has_flag(mob_species, HAS_HAIR_COLOR))
+				pref.r_hair = hex2num(copytext(new_hair, 2, 4))
+				pref.g_hair = hex2num(copytext(new_hair, 4, 6))
+				pref.b_hair = hex2num(copytext(new_hair, 6, 8))
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
 		if("set_facial_hair_style")
 			var/new_f_style = params["facial_hair_style"]
 			if(new_f_style in pref.get_available_styles(facial_hair_styles_list))
 				pref.f_style = new_f_style
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("set_facial_hair_color")
+			if(!has_flag(mob_species, HAS_HAIR_COLOR))
+				return TOPIC_NOACTION
+			var/new_facial = input(ui.user, "Choose your character's facial-hair colour:", "Character Preference", rgb(pref.r_facial, pref.g_facial, pref.b_facial)) as color|null
+			if(new_facial && has_flag(mob_species, HAS_HAIR_COLOR))
+				pref.r_facial = hex2num(copytext(new_facial, 2, 4))
+				pref.g_facial = hex2num(copytext(new_facial, 4, 6))
+				pref.b_facial = hex2num(copytext(new_facial, 6, 8))
 				return TOPIC_REFRESH_UPDATE_PREVIEW
