@@ -1518,6 +1518,11 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	data["g_hair"] = pref.g_hair
 	data["b_hair"] = pref.b_hair
 
+	data["f_style"] = pref.f_style
+	data["r_facial"] = pref.r_facial
+	data["g_facial"] = pref.g_facial
+	data["b_facial"] = pref.b_facial
+
 	return data
 
 /datum/category_item/player_setup_item/general/body/tgui_static_data(mob/user)
@@ -1527,6 +1532,11 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	for(var/path in pref.get_available_styles(hair_styles_list))
 		UNTYPED_LIST_ADD(available_hair_styles, path)
 	data["available_hair_styles"] = available_hair_styles
+
+	var/list/available_facial_styles = list()
+	for(var/path in pref.get_available_styles(facial_hair_styles_list))
+		UNTYPED_LIST_ADD(available_facial_styles, path)
+	data["available_facial_styles"] = available_facial_styles
 
 	return data
 
@@ -1544,6 +1554,17 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 
 	data["hair_styles"] = hair_styles
 
+	var/list/facial_styles = list()
+	for(var/path in facial_hair_styles_list)
+		var/datum/sprite_accessory/S = facial_hair_styles_list[path]
+		facial_styles[path] = list(
+			"name" = S.name,
+			"icon" = REF(S.icon),
+			"icon_state" = S.icon_state,
+		)
+
+	data["facial_styles"] = facial_styles
+
 	return data
 
 /datum/category_item/player_setup_item/general/body/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
@@ -1556,4 +1577,10 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 			var/new_h_style = params["hair_style"]
 			if(new_h_style in pref.get_available_styles(hair_styles_list))
 				pref.h_style = new_h_style
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("set_facial_hair_style")
+			var/new_f_style = params["facial_hair_style"]
+			if(new_f_style in pref.get_available_styles(facial_hair_styles_list))
+				pref.f_style = new_f_style
 				return TOPIC_REFRESH_UPDATE_PREVIEW
