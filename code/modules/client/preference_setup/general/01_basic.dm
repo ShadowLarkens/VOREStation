@@ -110,7 +110,7 @@
 	data["bday_day"] = pref.bday_day
 	data["bday_announce"] = pref.bday_announce
 	data["spawnpoint"] = pref.spawnpoint
-	data["allow_metadata"] = config.allow_Metadata
+	data["allow_metadata"] = CONFIG_GET(flag/allow_metadata)
 
 	return data
 

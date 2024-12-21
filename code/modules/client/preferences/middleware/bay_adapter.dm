@@ -4,6 +4,9 @@
 /datum/preference_middleware/bay_adapter/get_ui_data(mob/user)
 	var/list/data = ..()
 
+	if(preferences.current_window != PREFERENCE_TAB_CHARACTER_PREFERENCES)
+		return data
+
 	var/list/legacy = list()
 	var/list/categories = preferences.player_setup.categories
 	for(var/datum/category_group/player_setup_category/category as anything in categories)
@@ -17,13 +20,23 @@
 /datum/preference_middleware/bay_adapter/get_ui_static_data(mob/user)
 	var/list/data = ..()
 
+	if(preferences.current_window != PREFERENCE_TAB_CHARACTER_PREFERENCES)
+		return data
+
+	data["header"] =  preferences.player_setup.header()
+	data["content"] = preferences.player_setup.content(user)
+	data["selected_category"] = preferences.player_setup.selected_category.name
+
 	var/list/legacy = list()
 	var/list/categories = preferences.player_setup.categories
+	var/list/categories_data = list()
 	for(var/datum/category_group/player_setup_category/category as anything in categories)
+		UNTYPED_LIST_ADD(categories_data, category.name)
 		var/list/items = category.items
 		for(var/datum/category_item/player_setup_item/item as anything in items)
 			legacy += item.tgui_static_data(user)
-	data["legacy"] = legacy
+	data["categories"] = categories_data
+	data["legacy_static"] = legacy
 
 	return data
 
@@ -41,3 +54,6 @@
 	data["legacy"] = legacy
 
 	return data
+
+/datum/category_item/player_setup_item/proc/tgui_constant_data()
+	return list()
