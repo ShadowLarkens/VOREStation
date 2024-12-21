@@ -13,6 +13,19 @@ import { LegacyServerData, ServerData } from '../data';
 import { ServerPreferencesFetcher } from '../ServerPreferencesFetcher';
 import { GeneralData, GeneralDataStatic } from './data';
 
+const getImage = async (url: string): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      resolve(image);
+    };
+    image.onerror = (error) => {
+      reject(error);
+    };
+    image.src = url;
+  });
+};
+
 const ColorizedImage = (props: {
   iconRef: string;
   iconState: string;
@@ -30,21 +43,34 @@ const ColorizedImage = (props: {
       return;
     }
 
-    ctx.imageSmoothingEnabled = false;
+    const drawImage = async () => {
+      // Pixel art please
+      ctx.imageSmoothingEnabled = false;
 
-    let image = new Image();
-    image.addEventListener('load', async () => {
+      // Load the image from the server
+      let image = await getImage(`${iconRef}?state=${iconState}&dir=2&frame=1`);
+
+      // Draw the image to the canvas
       ctx.drawImage(image, 0, 0, 64, 64);
+
+      // Draw a square over the image with the color
       ctx.globalCompositeOperation = 'multiply';
       ctx.fillStyle = color;
       ctx.fillRect(0, 0, 64, 64);
+
+      // Use the image as a mask
       ctx.globalCompositeOperation = 'destination-in';
       ctx.drawImage(image, 0, 0, 64, 64);
+
+      // Convert to a blob and put in our <img> tag
       let bitmap = await offscreenCanvas.convertToBlob();
       setBitmap(URL.createObjectURL(bitmap));
+
+      // Clean up after ourselves
       ctx.clearRect(0, 0, 64, 64);
-    });
-    image.src = `${iconRef}?state=${iconState}&dir=2&frame=1`;
+    };
+
+    drawImage();
 
     return () => {
       if (bitmap !== '') {
