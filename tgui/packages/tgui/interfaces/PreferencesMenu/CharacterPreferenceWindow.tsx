@@ -2,11 +2,15 @@ import { useBackend } from 'tgui/backend';
 import { Window } from 'tgui/layouts';
 import { Box, Button, ByondUi, Section, Stack } from 'tgui-core/components';
 
+import { BayPrefsEntryPoint } from './bay_prefs';
+import { LegacyStatic } from './bay_prefs/data';
+
 type Data = {
   header: string;
   content: string;
   categories: string[];
   selected_category: string;
+  legacy_static: LegacyStatic;
 };
 
 export const CharacterPreferenceWindow = (props) => {
@@ -52,10 +56,20 @@ export const CharacterPreferenceWindow = (props) => {
                 />
               </Box>
             </center>
-            <Section fill scrollable height="92%" mt={1}>
-              {/* eslint-disable-next-line react/no-danger */}
-              <div dangerouslySetInnerHTML={{ __html: content }} />
-            </Section>
+            <Stack vertical fill height="92%">
+              <Stack.Item grow>
+                <Section fill scrollable mt={1}>
+                  {/* eslint-disable-next-line react/no-danger */}
+                  <div dangerouslySetInnerHTML={{ __html: content }} />
+                </Section>
+              </Stack.Item>
+              <Stack.Item grow>
+                <BayPrefsEntryPoint
+                  type={selected_category}
+                  static_data={data.legacy_static}
+                />
+              </Stack.Item>
+            </Stack>
           </Stack.Item>
           <Stack.Item grow>
             <ByondUi

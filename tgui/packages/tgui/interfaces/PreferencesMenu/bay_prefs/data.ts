@@ -1,17 +1,17 @@
-type GeneralData = {
-  Basic: {
-    real_name: 'Shadow Larkens';
-    be_random_name: 0;
-    nickname: 'Shadow';
-    biological_sex: 'Female';
-    identifying_gender: 'Female';
-    age: 25;
-    bday_month: 3;
-    bday_day: 9;
-    bday_announce: 0;
-    spawnpoint: 'Cryogenic Storage';
-    allow_metadata: 1;
-  };
+import { BooleanLike } from 'tgui-core/react';
+
+export type GeneralDataStatic = {
+  real_name: string;
+  be_random_name: BooleanLike;
+  nickname: string;
+  biological_sex: string;
+  identifying_gender: string;
+  age: number;
+  bday_month: number;
+  bday_day: number;
+  bday_announce: BooleanLike;
+  spawnpoint: string;
+  allow_metadata: BooleanLike;
 };
 
-type LegacyValue = Partial<GeneralData>;
+export type LegacyStatic = Partial<GeneralDataStatic>;

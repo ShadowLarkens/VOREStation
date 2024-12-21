@@ -1,16 +1,15 @@
-import { logger } from '../../../logging';
+import { GeneralDataStatic, LegacyStatic } from './data';
 import { General } from './General';
 
 export const BayPrefsEntryPoint = (props: {
   type: string;
-  data: LegacyValue;
+  static_data: LegacyStatic;
 }) => {
-  const { type, data } = props;
-  logger.log('Rendering bay prefs ', type);
+  const { type, static_data } = props;
 
   switch (type) {
     case 'General':
-      return <General data={data as GeneralData} />;
+      return <General static_data={static_data as GeneralDataStatic} />;
     default: {
       return null;
     }

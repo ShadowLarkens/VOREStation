@@ -52,15 +52,6 @@
 
 	// data["character_preview_view"] = character_preview_view.assigned_map
 	// data["overflow_role"] = SSjob.GetJobType(SSjob.overflow_role).title
-	if(current_window == PREFERENCE_TAB_CHARACTER_PREFERENCES)
-		data["header"] = player_setup.header()
-		data["content"] = player_setup.content(user)
-
-		var/list/categories = list()
-		for(var/datum/category_group/player_setup_category/PS in player_setup.categories)
-			categories += list(PS.name)
-		data["categories"] = categories
-		data["selected_category"] = player_setup.selected_category.name
 
 	data["window"] = current_window
 
