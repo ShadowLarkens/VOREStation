@@ -48,12 +48,22 @@
 	var/list/legacy = list()
 	var/list/categories = collection.categories
 	for(var/datum/category_group/player_setup_category/category as anything in categories)
-		var/list/items = category.items
-		for(var/datum/category_item/player_setup_item/item as anything in items)
-			legacy += item.tgui_constant_data()
-	data["legacy"] = legacy
+		for(var/datum/category_item/player_setup_item/item as anything in category.items)
+			data += item.tgui_constant_data()
 
 	return data
 
 /datum/category_item/player_setup_item/proc/tgui_constant_data()
 	return list()
+
+
+/datum/preference_middleware/bay_adapter/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
+	. = ..()
+	if(.)
+		return
+
+	for(var/datum/category_group/player_setup_category/category as anything in preferences.player_setup.categories)
+		for(var/datum/category_item/player_setup_item/item as anything in category.items)
+			. = item.tgui_act(action, params, ui, state)
+			if(.)
+				return
