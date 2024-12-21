@@ -1509,3 +1509,51 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	pref.markings_subwindow.set_content(dat)
 	pref.markings_subwindow.open(FALSE)
 	onclose(user, "prefs_markings_subwindow", src)
+
+/datum/category_item/player_setup_item/general/body/tgui_data(mob/user, datum/tgui/ui, datum/tgui_state/state)
+	var/list/data = ..()
+
+	data["h_style"] = pref.h_style
+	data["r_hair"] = pref.r_hair
+	data["g_hair"] = pref.g_hair
+	data["b_hair"] = pref.b_hair
+
+	return data
+
+/datum/category_item/player_setup_item/general/body/tgui_static_data(mob/user)
+	var/list/data = ..()
+
+	var/list/available_hair_styles = list()
+	for(var/path in pref.get_available_styles(hair_styles_list))
+		UNTYPED_LIST_ADD(available_hair_styles, path)
+	data["available_hair_styles"] = available_hair_styles
+
+	return data
+
+/datum/category_item/player_setup_item/general/body/tgui_constant_data()
+	var/list/data = ..()
+
+	var/list/hair_styles = list()
+	for(var/path in hair_styles_list)
+		var/datum/sprite_accessory/S = hair_styles_list[path]
+		hair_styles[path] = list(
+			"name" = S.name,
+			"icon" = REF(S.icon),
+			"icon_state" = S.icon_state,
+		)
+
+	data["hair_styles"] = hair_styles
+
+	return data
+
+/datum/category_item/player_setup_item/general/body/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
+	. = ..()
+	if(.)
+		return
+
+	switch(action)
+		if("set_hair_style")
+			var/new_h_style = params["hair_style"]
+			if(new_h_style in pref.get_available_styles(hair_styles_list))
+				pref.h_style = new_h_style
+				return TOPIC_REFRESH_UPDATE_PREVIEW

@@ -1,5 +1,12 @@
 import { BooleanLike } from 'tgui-core/react';
 
+export type GeneralData = {
+  h_style: string;
+  r_hair: number;
+  g_hair: number;
+  b_hair: number;
+};
+
 export type GeneralDataStatic = {
   real_name: string;
   be_random_name: BooleanLike;
@@ -12,6 +19,9 @@ export type GeneralDataStatic = {
   bday_announce: BooleanLike;
   spawnpoint: string;
   allow_metadata: BooleanLike;
+  available_hair_styles: string[];
 };
+
+export type LegacyData = Partial<GeneralData>;
 
 export type LegacyStatic = Partial<GeneralDataStatic>;

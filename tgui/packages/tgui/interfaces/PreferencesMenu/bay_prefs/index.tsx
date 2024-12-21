@@ -1,15 +1,26 @@
-import { GeneralDataStatic, LegacyStatic } from './data';
+import {
+  GeneralData,
+  GeneralDataStatic,
+  LegacyData,
+  LegacyStatic,
+} from './data';
 import { General } from './General';
 
 export const BayPrefsEntryPoint = (props: {
   type: string;
-  static_data: LegacyStatic;
+  data: LegacyData;
+  staticData: LegacyStatic;
 }) => {
-  const { type, static_data } = props;
+  const { type, data, staticData } = props;
 
   switch (type) {
     case 'General':
-      return <General static_data={static_data as GeneralDataStatic} />;
+      return (
+        <General
+          data={data as GeneralData}
+          staticData={staticData as GeneralDataStatic}
+        />
+      );
     default: {
       return null;
     }

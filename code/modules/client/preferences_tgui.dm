@@ -92,9 +92,9 @@
 			return TRUE
 
 	for(var/datum/preference_middleware/preference_middleware as anything in middleware)
-		var/delegation = preference_middleware.action_delegations[action]
-		if(!isnull(delegation))
-			return call(preference_middleware, delegation)(params, ui.user)
+		. = preference_middleware.tgui_act(action, params, ui, state)
+		if(.)
+			return
 
 	return FALSE
 

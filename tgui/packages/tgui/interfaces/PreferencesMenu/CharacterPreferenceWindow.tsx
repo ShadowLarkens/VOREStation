@@ -3,20 +3,28 @@ import { Window } from 'tgui/layouts';
 import { Box, Button, ByondUi, Section, Stack } from 'tgui-core/components';
 
 import { BayPrefsEntryPoint } from './bay_prefs';
-import { LegacyStatic } from './bay_prefs/data';
+import { LegacyData, LegacyStatic } from './bay_prefs/data';
 
 type Data = {
   header: string;
   content: string;
   categories: string[];
   selected_category: string;
+  legacy: LegacyData;
   legacy_static: LegacyStatic;
 };
 
 export const CharacterPreferenceWindow = (props) => {
   const { act, data } = useBackend<Data>();
 
-  const { header, content, categories, selected_category } = data;
+  const {
+    header,
+    content,
+    categories,
+    selected_category,
+    legacy,
+    legacy_static,
+  } = data;
 
   return (
     <Window width={1000} height={800}>
@@ -66,7 +74,8 @@ export const CharacterPreferenceWindow = (props) => {
               <Stack.Item grow>
                 <BayPrefsEntryPoint
                   type={selected_category}
-                  static_data={data.legacy_static}
+                  data={legacy}
+                  staticData={legacy_static}
                 />
               </Stack.Item>
             </Stack>
