@@ -36,6 +36,10 @@ export type LegacyServerData = {
     string,
     { name: string; icon: string; icon_state: string }
   >;
+  facial_styles: Record<
+    string,
+    { name: string; icon: string; icon_state: string }
+  >;
 };
 
 export type ServerData = {

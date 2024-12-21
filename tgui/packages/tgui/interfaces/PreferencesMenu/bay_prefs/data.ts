@@ -5,6 +5,11 @@ export type GeneralData = {
   r_hair: number;
   g_hair: number;
   b_hair: number;
+
+  f_style: string;
+  r_facial: number;
+  g_facial: number;
+  b_facial: number;
 };
 
 export type GeneralDataStatic = {
@@ -20,6 +25,7 @@ export type GeneralDataStatic = {
   spawnpoint: string;
   allow_metadata: BooleanLike;
   available_hair_styles: string[];
+  available_facial_styles: string[];
 };
 
 export type LegacyData = Partial<GeneralData>;

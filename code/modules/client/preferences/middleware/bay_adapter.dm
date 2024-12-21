@@ -45,7 +45,6 @@
 
 	var/datum/category_collection/player_setup_collection/collection = new()
 
-	var/list/legacy = list()
 	var/list/categories = collection.categories
 	for(var/datum/category_group/player_setup_category/category as anything in categories)
 		for(var/datum/category_item/player_setup_item/item as anything in category.items)
