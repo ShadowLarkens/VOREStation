@@ -309,7 +309,12 @@ const HairDimmer = (props: {
     >
       <Stack fill justify="space-between">
         <Stack.Item>
-          <ColorPicker onClick={() => {}} color_one={hairColor} />
+          <ColorPicker
+            onClick={() => {
+              act('set_hair_color');
+            }}
+            color_one={hairColor}
+          />
         </Stack.Item>
         <Stack.Item>
           <Button onClick={() => setShow(false)} color="bad">
@@ -399,7 +404,12 @@ const FacialDimmer = (props: {
     >
       <Stack fill justify="space-between">
         <Stack.Item>
-          <ColorPicker onClick={() => {}} color_one={hairColor} />
+          <ColorPicker
+            onClick={() => {
+              act('set_facial_hair_color');
+            }}
+            color_one={hairColor}
+          />
         </Stack.Item>
         <Stack.Item>
           <Button onClick={() => setShow(false)} color="bad">
