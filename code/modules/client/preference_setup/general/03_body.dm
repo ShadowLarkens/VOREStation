@@ -624,16 +624,6 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 
 	. += "<h2>Genetics Settings</h2>"
 
-	var/list/ear_styles = pref.get_available_styles(global.ear_styles_list)
-	var/datum/sprite_accessory/ears/ears_secondary = ear_styles[pref.ear_secondary_style]
-	. += span_bold("Horns") + "<br>"
-	if(istype(ears_secondary))
-		. += " Style: <a href='byond://?src=\ref[src];ear_secondary_style=1'>[ears_secondary.name]</a><br>"
-		for(var/channel in 1 to min(ears_secondary.get_color_channel_count(), length(GLOB.fancy_sprite_accessory_color_channel_names)))
-			. += "<a href='byond://?src=\ref[src];ear_secondary_color=[channel]'>Change [GLOB.fancy_sprite_accessory_color_channel_names[channel]] Color</a> [color_square(hex = LAZYACCESS(pref.ear_secondary_colors, channel) || "#ffffff")]<br>"
-	else
-		. += " Style: <a href='byond://?src=\ref[src];ear_secondary_style=1'>Select</a><br>"
-
 	var/list/tail_styles = pref.get_available_styles(global.tail_styles_list)
 	var/datum/sprite_accessory/tail/tail = tail_styles[pref.tail_style]
 	. += span_bold("Tail") + "<br>"
