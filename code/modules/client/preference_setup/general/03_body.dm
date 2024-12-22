@@ -1143,65 +1143,6 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 		pref.bgstate = next_in_list(pref.bgstate, pref.bgstate_options)
 		return TOPIC_REFRESH_UPDATE_PREVIEW
 
-	else if(href_list["ear_style"])
-		var/new_ear_style = tgui_input_list(user, "Select an ear style for this character:", "Character Preference", pref.get_available_styles(global.ear_styles_list), pref.ear_style)
-		if(new_ear_style)
-			pref.ear_style = new_ear_style
-
-		return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["ear_color"])
-		var/new_earc = input(user, "Choose your character's ear colour:", "Character Preference",
-			rgb(pref.r_ears, pref.g_ears, pref.b_ears)) as color|null
-		if(new_earc)
-			pref.r_ears = hex2num(copytext(new_earc, 2, 4))
-			pref.g_ears = hex2num(copytext(new_earc, 4, 6))
-			pref.b_ears = hex2num(copytext(new_earc, 6, 8))
-			return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["ear_color2"])
-		var/new_earc2 = input(user, "Choose your character's ear colour:", "Character Preference",
-			rgb(pref.r_ears2, pref.g_ears2, pref.b_ears2)) as color|null
-		if(new_earc2)
-			pref.r_ears2 = hex2num(copytext(new_earc2, 2, 4))
-			pref.g_ears2 = hex2num(copytext(new_earc2, 4, 6))
-			pref.b_ears2 = hex2num(copytext(new_earc2, 6, 8))
-			return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["ear_color3"])
-		var/new_earc3 = input(user, "Choose your character's tertiary ear colour:", "Character Preference",
-			rgb(pref.r_ears3, pref.g_ears3, pref.b_ears3)) as color|null
-		if(new_earc3)
-			pref.r_ears3 = hex2num(copytext(new_earc3, 2, 4))
-			pref.g_ears3 = hex2num(copytext(new_earc3, 4, 6))
-			pref.b_ears3 = hex2num(copytext(new_earc3, 6, 8))
-			return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["ear_secondary_style"])
-		var/new_style = tgui_input_list(user, "Select an ear style for this character:", "Character Preference", pref.get_available_styles(global.ear_styles_list), pref.ear_secondary_style)
-		if(!new_style)
-			return TOPIC_NOACTION
-		pref.ear_secondary_style = new_style
-		return TOPIC_REFRESH_UPDATE_PREVIEW
-	else if(href_list["ear_secondary_color"])
-		var/channel = text2num(href_list["ear_secondary_color"])
-		// very important sanity check; this makes sure someone can't crash the server by setting channel to some insanely high value
-		if(channel > GLOB.fancy_sprite_accessory_color_channel_names.len)
-			return TOPIC_NOACTION
-		// this would say 'secondary ears' but you'd get 'choose your character's primary secondary ear colour' which sounds silly
-		var/new_color = input(
-			user,
-			"Choose your character's [lowertext(GLOB.fancy_sprite_accessory_color_channel_names[channel])] ear colour:",
-			"Secondary Ear Coloration",
-			LAZYACCESS(pref.ear_secondary_colors, channel) || "#ffffff",
-		) as color | null
-		if(!new_color)
-			return TOPIC_NOACTION
-		// ensures color channel list is at least that long
-		// the upper bound is to have a secondary safety check because list index set is a dangerous call
-		pref.ear_secondary_colors.len = clamp(length(pref.ear_secondary_colors), channel, length(GLOB.fancy_sprite_accessory_color_channel_names))
-		pref.ear_secondary_colors[channel] = new_color
-		return TOPIC_REFRESH_UPDATE_PREVIEW
 
 	else if(href_list["tail_style"])
 		var/new_tail_style = tgui_input_list(user, "Select a tail style for this character:", "Character Preference", pref.get_available_styles(global.tail_styles_list), pref.tail_style)
@@ -1420,6 +1361,9 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	data["g_ears3"] = pref.g_ears3
 	data["b_ears3"] = pref.b_ears3
 
+	data["ear_secondary_style"] = pref.ear_secondary_style
+	data["ear_secondary_colors"] = pref.ear_secondary_colors
+
 	return data
 
 /datum/category_item/player_setup_item/general/body/tgui_static_data(mob/user)
@@ -1435,7 +1379,8 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 		UNTYPED_LIST_ADD(available_facial_styles, path)
 	data["available_facial_styles"] = available_facial_styles
 
-	var/list/available_ear_styles = list()
+	// WARNING: Depends on adding "None"
+	var/list/available_ear_styles = list("None")
 	for(var/path in pref.get_available_styles(ear_styles_list))
 		UNTYPED_LIST_ADD(available_ear_styles, path)
 	data["available_ear_styles"] = available_ear_styles
@@ -1547,6 +1492,9 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 
 		if("set_ear_style")
 			var/new_ear_style = params["ear_style"]
+			if(new_ear_style == "None")
+				pref.ear_style = null
+				return TOPIC_REFRESH_UPDATE_PREVIEW
 			if(new_ear_style in pref.get_available_styles(ear_styles_list))
 				pref.ear_style = new_ear_style
 				return TOPIC_REFRESH_UPDATE_PREVIEW
@@ -1560,7 +1508,7 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 				return TOPIC_REFRESH_UPDATE_PREVIEW
 
 		if("set_ear_color2")
-			var/new_earc2 = input(ui.user, "Choose your character's ear colour:", "Character Preference", rgb(pref.r_ears2, pref.g_ears2, pref.b_ears2)) as color|null
+			var/new_earc2 = input(ui.user, "Choose your character's secondary ear colour:", "Character Preference", rgb(pref.r_ears2, pref.g_ears2, pref.b_ears2)) as color|null
 			if(new_earc2)
 				pref.r_ears2 = hex2num(copytext(new_earc2, 2, 4))
 				pref.g_ears2 = hex2num(copytext(new_earc2, 4, 6))
@@ -1574,3 +1522,33 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 				pref.g_ears3 = hex2num(copytext(new_earc3, 4, 6))
 				pref.b_ears3 = hex2num(copytext(new_earc3, 6, 8))
 				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("set_ear_secondary_style")
+			var/new_ear_style = params["ear_style"]
+			if(new_ear_style == "None")
+				pref.ear_secondary_style = null
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+			if(new_ear_style in pref.get_available_styles(ear_styles_list))
+				pref.ear_secondary_style = new_ear_style
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("set_ear_secondary_color")
+			var/channel = text2num(params["type"])
+			// very important sanity check; this makes sure someone can't crash the server by setting channel to some insanely high value
+			if(channel > LAZYLEN(GLOB.fancy_sprite_accessory_color_channel_names))
+				return TOPIC_NOACTION
+			var/new_color = input(
+				ui.user,
+				"Choose your character's [lowertext(GLOB.fancy_sprite_accessory_color_channel_names[channel])] ear colour:",
+				"Secondary Ear Coloration",
+				LAZYACCESS(pref.ear_secondary_colors, channel) || "#ffffff",
+			) as color | null
+			// this would say 'secondary ears' but you'd get 'choose your character's primary secondary ear colour' which sounds silly
+			if(!new_color)
+				return TOPIC_NOACTION
+			// ensures color channel list is at least that long
+			// the upper bound is to have a secondary safety check because list index set is a dangerous call
+			// this code SUCKS - shadow
+			pref.ear_secondary_colors.len = clamp(length(pref.ear_secondary_colors), channel, length(GLOB.fancy_sprite_accessory_color_channel_names))
+			pref.ear_secondary_colors[channel] = new_color
+			return TOPIC_REFRESH_UPDATE_PREVIEW

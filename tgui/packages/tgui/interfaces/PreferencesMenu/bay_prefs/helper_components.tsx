@@ -61,7 +61,7 @@ export const CanvasBackedImage = (props: {
 export const ColorizedImage = (props: {
   iconRef: string;
   iconState: string;
-  color: string;
+  color?: string | null;
 }) => {
   const { iconRef, iconState, color } = props;
 
@@ -78,7 +78,7 @@ export const ColorizedImage = (props: {
 
       // Draw a square over the image with the color
       ctx.globalCompositeOperation = 'multiply';
-      ctx.fillStyle = color;
+      ctx.fillStyle = color || '#ffffff';
       ctx.fillRect(0, 0, 64, 64);
 
       // Use the image as a mask
@@ -117,7 +117,7 @@ export const ColorizedImageButton = (
   props: PropsWithChildren<{
     iconRef: string;
     iconState: string;
-    color: string;
+    color?: string | null;
     onClick: () => void;
     selected?: boolean;
     tooltip?: string;
@@ -147,7 +147,7 @@ export enum ColorType {
 
 export const ColorPicker = (props: {
   onClick: (type: ColorType) => void;
-  color_one: string;
+  color_one?: string | null;
   color_two?: string | null;
   color_three?: string | null;
 }) => {

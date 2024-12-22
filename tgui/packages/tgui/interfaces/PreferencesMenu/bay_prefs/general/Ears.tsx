@@ -13,7 +13,7 @@ export const EarsImageButton = (
   props: PropsWithChildren<{
     serverData: GeneralDataConstant;
     style: string;
-    color: string;
+    color?: string | null;
     onClick: () => void;
     tooltip?: string;
     selected?: boolean;
@@ -27,6 +27,7 @@ export const EarsImageButton = (
         verticalAlign="top"
         onClick={onClick}
         tooltip={props.tooltip}
+        selected={props.selected}
       >
         {props.children}
       </ImageButton>
@@ -92,9 +93,9 @@ export const EarsDimmer = (props: {
                   break;
               }
             }}
-            color_one={color}
-            color_two={color2}
-            color_three={color3}
+            color_one={color || '#FFFFFF'}
+            color_two={color2 || '#FFFFFF'}
+            color_three={color3 || '#FFFFFF'}
           />
         </Stack.Item>
         <Stack.Item>
@@ -111,7 +112,10 @@ export const EarsDimmer = (props: {
           color={color}
           serverData={serverData}
           tooltip={style}
-          selected={style === data.ear_style}
+          selected={
+            style === data.ear_style ||
+            (data.ear_style === null && style === 'None')
+          }
           onClick={() => act('set_ear_style', { ear_style: style })}
         >
           {style}

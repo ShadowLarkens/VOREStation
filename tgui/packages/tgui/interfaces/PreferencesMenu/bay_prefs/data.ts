@@ -18,7 +18,7 @@ export type GeneralData = {
   g_grad: number;
   b_grad: number;
 
-  ear_style: string;
+  ear_style: string | null;
   r_ears: number;
   g_ears: number;
   b_ears: number;
@@ -30,6 +30,9 @@ export type GeneralData = {
   r_ears3: number;
   g_ears3: number;
   b_ears3: number;
+
+  ear_secondary_style: string | null;
+  ear_secondary_colors: string[];
 };
 
 export type GeneralDataStatic = {

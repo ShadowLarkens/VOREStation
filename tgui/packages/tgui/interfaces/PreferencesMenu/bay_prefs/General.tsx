@@ -5,6 +5,7 @@ import { ServerData } from '../data';
 import { ServerPreferencesFetcher } from '../ServerPreferencesFetcher';
 import { GeneralData, GeneralDataConstant, GeneralDataStatic } from './data';
 import { EarsDimmer, EarsImageButton } from './general/Ears';
+import { EarsSecondaryDimmer } from './general/EarsSecondary';
 import { FacialDimmer, FacialImageButton } from './general/Facial';
 import { GradientDimmer, GradientImageButton } from './general/Gradient';
 import { HairDimmer, HairImageButton } from './general/Hair';
@@ -47,6 +48,7 @@ export const GeneralContent = (props: {
   const [showFacialPopup, setShowFacialPopup] = useState(false);
   const [showGradientPopup, setShowGradientPopup] = useState(false);
   const [showEarsPopup, setShowEarsPopup] = useState(false);
+  const [showEars2Popup, setShowEars2Popup] = useState(false);
 
   const hair_color = `rgb(${data.r_hair}, ${data.g_hair}, ${data.b_hair})`;
   const facial_color = `rgb(${data.r_facial}, ${data.g_facial}, ${data.b_facial})`;
@@ -55,6 +57,7 @@ export const GeneralContent = (props: {
   const ears_color1 = `rgb(${data.r_ears}, ${data.g_ears}, ${data.b_ears})`;
   const ears_color2 = `rgb(${data.r_ears2}, ${data.g_ears2}, ${data.b_ears2})`;
   const ears_color3 = `rgb(${data.r_ears3}, ${data.g_ears3}, ${data.b_ears3})`;
+  const ear_secondary_colors = data.ear_secondary_colors;
 
   return (
     <Section title={real_name} fill scrollable mt={1} position="relative">
@@ -86,13 +89,22 @@ export const GeneralContent = (props: {
         Facial
       </FacialImageButton>
       <EarsImageButton
-        color={hair_color}
-        style={data.ear_style}
+        color={ears_color1}
+        style={data.ear_style || 'None'}
         serverData={serverData}
         onClick={() => setShowEarsPopup(true)}
-        tooltip={data.ear_style}
+        tooltip={data.ear_style || 'None'}
       >
         Ears
+      </EarsImageButton>
+      <EarsImageButton
+        color={ear_secondary_colors[0]}
+        style={data.ear_secondary_style || 'None'}
+        serverData={serverData}
+        onClick={() => setShowEars2Popup(true)}
+        tooltip={data.ear_secondary_style || 'None'}
+      >
+        Horns
       </EarsImageButton>
       {/* <ImageButton
         dmIcon="icons/mob/hair_gradients.dmi"
@@ -172,6 +184,15 @@ export const GeneralContent = (props: {
           color={ears_color1}
           color2={ears_color2}
           color3={ears_color3}
+        />
+      )}
+      {showEars2Popup && (
+        <EarsSecondaryDimmer
+          data={data}
+          staticData={staticData}
+          serverData={serverData}
+          setShow={setShowEars2Popup}
+          colors={ear_secondary_colors}
         />
       )}
     </Section>
