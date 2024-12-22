@@ -1,4 +1,5 @@
 import { sendAct } from '../../backend';
+import { LegacyConstant } from './bay_prefs/data';
 
 export enum GamePreferencesSelectedPage {
   Settings,
@@ -31,18 +32,7 @@ export type PreferencesMenuData = {
   window: Window;
 };
 
-export type LegacyServerData = {
-  hair_styles: Record<
-    string,
-    { name: string; icon: string; icon_state: string }
-  >;
-  facial_styles: Record<
-    string,
-    { name: string; icon: string; icon_state: string }
-  >;
-};
-
 export type ServerData = {
-  legacy: LegacyServerData;
+  legacy: LegacyConstant;
   [otheyKey: string]: unknown;
 };

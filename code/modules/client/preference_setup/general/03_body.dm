@@ -611,20 +611,6 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	. += "<br><a href='byond://?src=\ref[src];toggle_animations=1'>[pref.animations_toggle ? "Stop animations" : "Show animations"]</a>"
 	. += "</td></tr></table>"
 
-	. += span_bold("Hair") + "<br>"
-	if(has_flag(mob_species, HAS_HAIR_COLOR))
-		. += "<a href='byond://?src=\ref[src];hair_color=1'>Change Color</a> [color_square(pref.r_hair, pref.g_hair, pref.b_hair)] "
-	. += " Style: <a href='byond://?src=\ref[src];hair_style_left=[pref.h_style]'><</a> <a href='byond://?src=\ref[src];hair_style_right=[pref.h_style]''>></a> <a href='byond://?src=\ref[src];hair_style=1'>[pref.h_style]</a><br>" //The <</a> & ></a> in this line is correct-- those extra characters are the arrows you click to switch between styles.
-
-	. += span_bold("Gradient") + "<br>"
-	. += "<a href='byond://?src=\ref[src];grad_color=1'>Change Color</a> [color_square(pref.r_grad, pref.g_grad, pref.b_grad)] "
-	. += " Style: <a href='byond://?src=\ref[src];grad_style_left=[pref.grad_style]'><</a> <a href='byond://?src=\ref[src];grad_style_right=[pref.grad_style]''>></a> <a href='byond://?src=\ref[src];grad_style=1'>[pref.grad_style]</a><br>"
-
-	. += "<br><b>Facial</b><br>"
-	if(has_flag(mob_species, HAS_HAIR_COLOR))
-		. += "<a href='byond://?src=\ref[src];facial_color=1'>Change Color</a> [color_square(pref.r_facial, pref.g_facial, pref.b_facial)] "
-	. += " Style: <a href='byond://?src=\ref[src];facial_style_left=[pref.f_style]'><</a> <a href='byond://?src=\ref[src];facial_style_right=[pref.f_style]''>></a> <a href='byond://?src=\ref[src];facial_style=1'>[pref.f_style]</a><br>" //Same as above with the extra > & < characters
-
 	if(has_flag(mob_species, HAS_EYE_COLOR))
 		. += "<br><b>Eyes</b><br>"
 		. += "<a href='byond://?src=\ref[src];eye_color=1'>Change Color</a> [color_square(pref.r_eyes, pref.g_eyes, pref.b_eyes)]<br>"
@@ -639,19 +625,6 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	. += "<h2>Genetics Settings</h2>"
 
 	var/list/ear_styles = pref.get_available_styles(global.ear_styles_list)
-	var/datum/sprite_accessory/ears/ear = ear_styles[pref.ear_style]
-	. += span_bold("Ears") + "<br>"
-	if(istype(ear))
-		. += " Style: <a href='byond://?src=\ref[src];ear_style=1'>[ear.name]</a><br>"
-		if(ear.do_colouration)
-			. += "<a href='byond://?src=\ref[src];ear_color=1'>Change Color</a> [color_square(pref.r_ears, pref.g_ears, pref.b_ears)]<br>"
-		if(ear.extra_overlay)
-			. += "<a href='byond://?src=\ref[src];ear_color2=1'>Change Secondary Color</a> [color_square(pref.r_ears2, pref.g_ears2, pref.b_ears2)]<br>"
-		if(ear.extra_overlay2)
-			. += "<a href='byond://?src=\ref[src];ear_color3=1'>Change Tertiary Color</a> [color_square(pref.r_ears3, pref.g_ears3, pref.b_ears3)]<br>"
-	else
-		. += " Style: <a href='byond://?src=\ref[src];ear_style=1'>Select</a><br>"
-
 	var/datum/sprite_accessory/ears/ears_secondary = ear_styles[pref.ear_secondary_style]
 	. += span_bold("Horns") + "<br>"
 	if(istype(ears_secondary))
@@ -797,74 +770,6 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 
 			return TOPIC_REFRESH_UPDATE_PREVIEW
 
-	else if(href_list["hair_color"])
-		if(!has_flag(mob_species, HAS_HAIR_COLOR))
-			return TOPIC_NOACTION
-		var/new_hair = input(user, "Choose your character's hair colour:", "Character Preference", rgb(pref.r_hair, pref.g_hair, pref.b_hair)) as color|null
-		if(new_hair && has_flag(mob_species, HAS_HAIR_COLOR) && CanUseTopic(user))
-			pref.r_hair = hex2num(copytext(new_hair, 2, 4))
-			pref.g_hair = hex2num(copytext(new_hair, 4, 6))
-			pref.b_hair = hex2num(copytext(new_hair, 6, 8))
-			return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["grad_color"])
-		if(!has_flag(mob_species, HAS_HAIR_COLOR))
-			return TOPIC_NOACTION
-		var/new_grad = input(user, "Choose your character's secondary hair color:", "Character Preference", rgb(pref.r_grad, pref.g_grad, pref.b_grad)) as color|null
-		if(new_grad && has_flag(mob_species, HAS_HAIR_COLOR) && CanUseTopic(user))
-			pref.r_grad = hex2num(copytext(new_grad, 2, 4))
-			pref.g_grad = hex2num(copytext(new_grad, 4, 6))
-			pref.b_grad = hex2num(copytext(new_grad, 6, 8))
-			return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["hair_style"])
-		var/list/valid_hairstyles = pref.get_valid_hairstyles()
-
-		var/new_h_style = tgui_input_list(user, "Choose your character's hair style:", "Character Preference", valid_hairstyles, pref.h_style)
-		if(new_h_style && CanUseTopic(user))
-			pref.h_style = new_h_style
-			return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["grad_style"])
-		var/list/valid_gradients = GLOB.hair_gradients
-
-		var/new_grad_style = tgui_input_list(user, "Choose a color pattern for your hair:", "Character Preference", valid_gradients, pref.grad_style)
-		if(new_grad_style && CanUseTopic(user))
-			pref.grad_style = new_grad_style
-			return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["hair_style_left"])
-		var/H = href_list["hair_style_left"]
-		var/list/valid_hairstyles = pref.get_valid_hairstyles()
-		var/start = valid_hairstyles.Find(H)
-
-		if(start != 1) //If we're not the beginning of the list, become the previous element.
-			pref.h_style = valid_hairstyles[start-1]
-		else //But if we ARE, become the final element.
-			pref.h_style = valid_hairstyles[valid_hairstyles.len]
-		return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["hair_style_right"])
-		var/H = href_list["hair_style_right"]
-		var/list/valid_hairstyles = pref.get_valid_hairstyles()
-		var/start = valid_hairstyles.Find(H)
-
-		if(start != valid_hairstyles.len) //If we're not the end of the list, become the next element.
-			pref.h_style = valid_hairstyles[start+1]
-		else //But if we ARE, become the first element.
-			pref.h_style = valid_hairstyles[1]
-		return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["facial_color"])
-		if(!has_flag(mob_species, HAS_HAIR_COLOR))
-			return TOPIC_NOACTION
-		var/new_facial = input(user, "Choose your character's facial-hair colour:", "Character Preference", rgb(pref.r_facial, pref.g_facial, pref.b_facial)) as color|null
-		if(new_facial && has_flag(mob_species, HAS_HAIR_COLOR) && CanUseTopic(user))
-			pref.r_facial = hex2num(copytext(new_facial, 2, 4))
-			pref.g_facial = hex2num(copytext(new_facial, 4, 6))
-			pref.b_facial = hex2num(copytext(new_facial, 6, 8))
-			return TOPIC_REFRESH_UPDATE_PREVIEW
-
 	if(href_list["digitigrade"])
 		pref.digitigrade = !pref.digitigrade
 
@@ -897,36 +802,6 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 			pref.g_skin = hex2num(copytext(new_skin, 4, 6))
 			pref.b_skin = hex2num(copytext(new_skin, 6, 8))
 			return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["facial_style"])
-		var/list/valid_facialhairstyles = pref.get_valid_facialhairstyles()
-
-		var/new_f_style = tgui_input_list(user, "Choose your character's facial-hair style:", "Character Preference", valid_facialhairstyles, pref.f_style)
-		if(new_f_style && CanUseTopic(user))
-			pref.f_style = new_f_style
-			return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["facial_style_left"])
-		var/F = href_list["facial_style_left"]
-		var/list/valid_facialhairstyles = pref.get_valid_facialhairstyles()
-		var/start = valid_facialhairstyles.Find(F)
-
-		if(start != 1) //If we're not the beginning of the list, become the previous element.
-			pref.f_style = valid_facialhairstyles[start-1]
-		else //But if we ARE, become the final element.
-			pref.f_style = valid_facialhairstyles[valid_facialhairstyles.len]
-		return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if(href_list["facial_style_right"])
-		var/F = href_list["facial_style_right"]
-		var/list/valid_facialhairstyles = pref.get_valid_facialhairstyles()
-		var/start = valid_facialhairstyles.Find(F)
-
-		if(start != valid_facialhairstyles.len) //If we're not the end of the list, become the next element.
-			pref.f_style = valid_facialhairstyles[start+1]
-		else //But if we ARE, become the first element.
-			pref.f_style = valid_facialhairstyles[1]
-		return TOPIC_REFRESH_UPDATE_PREVIEW
 
 	else if(href_list["marking_style"])
 		var/list/usable_markings = pref.body_markings.Copy() ^ body_marking_styles_list.Copy()
@@ -1513,6 +1388,10 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 /datum/category_item/player_setup_item/general/body/tgui_data(mob/user, datum/tgui/ui, datum/tgui_state/state)
 	var/list/data = ..()
 
+	var/datum/species/mob_species = GLOB.all_species[pref.species]
+
+	data["has_hair_color"] = has_flag(mob_species, HAS_HAIR_COLOR)
+
 	data["h_style"] = pref.h_style
 	data["r_hair"] = pref.r_hair
 	data["g_hair"] = pref.g_hair
@@ -1522,6 +1401,24 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	data["r_facial"] = pref.r_facial
 	data["g_facial"] = pref.g_facial
 	data["b_facial"] = pref.b_facial
+
+	data["grad_style"] = pref.grad_style
+	data["r_grad"] = pref.r_grad
+	data["g_grad"] = pref.g_grad
+	data["b_grad"] = pref.b_grad
+
+	data["ear_style"] = pref.ear_style
+	data["r_ears"] = pref.r_ears
+	data["g_ears"] = pref.g_ears
+	data["b_ears"] = pref.b_ears
+
+	data["r_ears2"] = pref.r_ears2
+	data["g_ears2"] = pref.g_ears2
+	data["b_ears2"] = pref.b_ears2
+
+	data["r_ears3"] = pref.r_ears3
+	data["g_ears3"] = pref.g_ears3
+	data["b_ears3"] = pref.b_ears3
 
 	return data
 
@@ -1537,6 +1434,11 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	for(var/path in pref.get_available_styles(facial_hair_styles_list))
 		UNTYPED_LIST_ADD(available_facial_styles, path)
 	data["available_facial_styles"] = available_facial_styles
+
+	var/list/available_ear_styles = list()
+	for(var/path in pref.get_available_styles(ear_styles_list))
+		UNTYPED_LIST_ADD(available_ear_styles, path)
+	data["available_ear_styles"] = available_ear_styles
 
 	return data
 
@@ -1564,6 +1466,27 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 		)
 
 	data["facial_styles"] = facial_styles
+
+	var/list/grad_styles = list()
+	for(var/name in GLOB.hair_gradients)
+		var/icon_state = GLOB.hair_gradients[name]
+		grad_styles[name] = list(
+			"name" = name,
+			"icon" = REF('icons/mob/hair_gradients.dmi'),
+			"icon_state" = icon_state,
+		)
+	data["grad_styles"] = grad_styles
+
+	var/list/ear_styles = list()
+	for(var/path in ear_styles_list)
+		var/datum/sprite_accessory/S = ear_styles_list[path]
+		ear_styles[S.name] = list(
+			"name" = S.name,
+			"type" = S.type,
+			"icon" = REF(S.icon),
+			"icon_state" = S.icon_state,
+		)
+	data["ear_styles"] = ear_styles
 
 	return data
 
@@ -1605,4 +1528,49 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 				pref.r_facial = hex2num(copytext(new_facial, 2, 4))
 				pref.g_facial = hex2num(copytext(new_facial, 4, 6))
 				pref.b_facial = hex2num(copytext(new_facial, 6, 8))
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("set_grad_style")
+			// Note: Must pass in NAME not icon_state
+			var/new_grad_style = params["grad_style"]
+			if(new_grad_style in GLOB.hair_gradients)
+				pref.grad_style = new_grad_style
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("set_grad_color")
+			var/new_grad = input(ui.user, "Choose your character's gradient colour:", "Character Preference", rgb(pref.r_grad, pref.g_grad, pref.b_grad)) as color|null
+			if(new_grad)
+				pref.r_grad = hex2num(copytext(new_grad, 2, 4))
+				pref.g_grad = hex2num(copytext(new_grad, 4, 6))
+				pref.b_grad = hex2num(copytext(new_grad, 6, 8))
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("set_ear_style")
+			var/new_ear_style = params["ear_style"]
+			if(new_ear_style in pref.get_available_styles(ear_styles_list))
+				pref.ear_style = new_ear_style
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("set_ear_color")
+			var/new_earc = input(ui.user, "Choose your character's ear colour:", "Character Preference", rgb(pref.r_ears, pref.g_ears, pref.b_ears)) as color|null
+			if(new_earc)
+				pref.r_ears = hex2num(copytext(new_earc, 2, 4))
+				pref.g_ears = hex2num(copytext(new_earc, 4, 6))
+				pref.b_ears = hex2num(copytext(new_earc, 6, 8))
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("set_ear_color2")
+			var/new_earc2 = input(ui.user, "Choose your character's ear colour:", "Character Preference", rgb(pref.r_ears2, pref.g_ears2, pref.b_ears2)) as color|null
+			if(new_earc2)
+				pref.r_ears2 = hex2num(copytext(new_earc2, 2, 4))
+				pref.g_ears2 = hex2num(copytext(new_earc2, 4, 6))
+				pref.b_ears2 = hex2num(copytext(new_earc2, 6, 8))
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("set_ear_color3")
+			var/new_earc3 = input(ui.user, "Choose your character's tertiary ear colour:", "Character Preference", rgb(pref.r_ears3, pref.g_ears3, pref.b_ears3)) as color|null
+			if(new_earc3)
+				pref.r_ears3 = hex2num(copytext(new_earc3, 2, 4))
+				pref.g_ears3 = hex2num(copytext(new_earc3, 4, 6))
+				pref.b_ears3 = hex2num(copytext(new_earc3, 6, 8))
 				return TOPIC_REFRESH_UPDATE_PREVIEW

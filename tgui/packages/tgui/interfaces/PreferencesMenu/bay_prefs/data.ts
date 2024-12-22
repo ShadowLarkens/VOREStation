@@ -1,6 +1,8 @@
 import { BooleanLike } from 'tgui-core/react';
 
 export type GeneralData = {
+  has_hair_color: BooleanLike;
+
   h_style: string;
   r_hair: number;
   g_hair: number;
@@ -10,6 +12,24 @@ export type GeneralData = {
   r_facial: number;
   g_facial: number;
   b_facial: number;
+
+  grad_style: string;
+  r_grad: number;
+  g_grad: number;
+  b_grad: number;
+
+  ear_style: string;
+  r_ears: number;
+  g_ears: number;
+  b_ears: number;
+
+  r_ears2: number;
+  g_ears2: number;
+  b_ears2: number;
+
+  r_ears3: number;
+  g_ears3: number;
+  b_ears3: number;
 };
 
 export type GeneralDataStatic = {
@@ -26,8 +46,20 @@ export type GeneralDataStatic = {
   allow_metadata: BooleanLike;
   available_hair_styles: string[];
   available_facial_styles: string[];
+  available_ear_styles: string[];
+};
+
+export type StandardStyle = { name: string; icon: string; icon_state: string };
+
+export type EarStyle = StandardStyle & { type: string };
+
+export type GeneralDataConstant = {
+  hair_styles: Record<string, StandardStyle>;
+  facial_styles: Record<string, StandardStyle>;
+  grad_styles: Record<string, StandardStyle>;
+  ear_styles: Record<string, EarStyle>;
 };
 
 export type LegacyData = Partial<GeneralData>;
-
 export type LegacyStatic = Partial<GeneralDataStatic>;
+export type LegacyConstant = Partial<GeneralDataConstant>;

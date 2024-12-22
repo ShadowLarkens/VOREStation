@@ -1,153 +1,13 @@
-import { PropsWithChildren, useEffect, useState } from 'react';
-import {
-  Button,
-  ColorBox,
-  Dimmer,
-  ImageButton,
-  Section,
-  Stack,
-} from 'tgui-core/components';
+import { useState } from 'react';
+import { Section } from 'tgui-core/components';
 
-import { useBackend } from '../../../backend';
-import { LegacyServerData, ServerData } from '../data';
+import { ServerData } from '../data';
 import { ServerPreferencesFetcher } from '../ServerPreferencesFetcher';
-import { GeneralData, GeneralDataStatic } from './data';
-
-const getImage = async (url: string): Promise<HTMLImageElement> => {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => {
-      resolve(image);
-    };
-    image.onerror = (error) => {
-      reject(error);
-    };
-    image.src = url;
-  });
-};
-
-const ColorizedImage = (props: {
-  iconRef: string;
-  iconState: string;
-  color: string;
-}) => {
-  const { iconRef, iconState, color } = props;
-
-  const [bitmap, setBitmap] = useState<string>('');
-
-  useEffect(() => {
-    let offscreenCanvas: OffscreenCanvas = new OffscreenCanvas(64, 64);
-
-    let ctx = offscreenCanvas.getContext('2d');
-    if (!ctx) {
-      return;
-    }
-
-    const drawImage = async () => {
-      // Pixel art please
-      ctx.imageSmoothingEnabled = false;
-
-      // Load the image from the server
-      let image = await getImage(`${iconRef}?state=${iconState}&dir=2&frame=1`);
-
-      // Draw the image to the canvas
-      ctx.drawImage(image, 0, 0, 64, 64);
-
-      // Draw a square over the image with the color
-      ctx.globalCompositeOperation = 'multiply';
-      ctx.fillStyle = color;
-      ctx.fillRect(0, 0, 64, 64);
-
-      // Use the image as a mask
-      ctx.globalCompositeOperation = 'destination-in';
-      ctx.drawImage(image, 0, 0, 64, 64);
-
-      // Convert to a blob and put in our <img> tag
-      let bitmap = await offscreenCanvas.convertToBlob();
-      setBitmap(URL.createObjectURL(bitmap));
-
-      // Clean up after ourselves
-      ctx.clearRect(0, 0, 64, 64);
-    };
-
-    drawImage();
-
-    return () => {
-      if (bitmap !== '') {
-        URL.revokeObjectURL(bitmap);
-      }
-    };
-  }, [iconRef, iconState, color]);
-
-  return <img src={bitmap} width={64} height={64} />;
-};
-
-const ColorizedImageButton = (
-  props: PropsWithChildren<{
-    iconRef: string;
-    iconState: string;
-    color: string;
-    onClick: () => void;
-    selected?: boolean;
-    tooltip?: string;
-  }>,
-) => {
-  const { iconRef, iconState, color, onClick, selected } = props;
-
-  return (
-    <ImageButton
-      dmIcon="not_a_real_icon.dmi"
-      dmIconState="equally_fake_icon_state"
-      dmFallback={
-        <ColorizedImage iconRef={iconRef} iconState={iconState} color={color} />
-      }
-      onClick={onClick}
-      selected={selected}
-      tooltip={props.tooltip}
-    >
-      {props.children}
-    </ImageButton>
-  );
-};
-
-enum ColorType {
-  First,
-  Second,
-  Third,
-}
-
-const ColorPicker = (props: {
-  onClick: (type: ColorType) => void;
-  color_one: string;
-  color_two?: string | null;
-  color_three?: string | null;
-}) => {
-  const { onClick, color_one, color_two, color_three } = props;
-
-  return (
-    <Stack>
-      <Stack.Item>
-        <Button onClick={() => onClick(ColorType.First)}>
-          First Color: <ColorBox color={color_one} />
-        </Button>
-      </Stack.Item>
-      {!!color_two && (
-        <Stack.Item>
-          <Button onClick={() => onClick(ColorType.Second)}>
-            Second Color: <ColorBox color={color_two} />
-          </Button>
-        </Stack.Item>
-      )}
-      {!!color_three && (
-        <Stack.Item>
-          <Button onClick={() => onClick(ColorType.Third)}>
-            Third Color: <ColorBox color={color_three} />
-          </Button>
-        </Stack.Item>
-      )}
-    </Stack>
-  );
-};
+import { GeneralData, GeneralDataConstant, GeneralDataStatic } from './data';
+import { EarsDimmer, EarsImageButton } from './general/Ears';
+import { FacialDimmer, FacialImageButton } from './general/Facial';
+import { GradientDimmer, GradientImageButton } from './general/Gradient';
+import { HairDimmer, HairImageButton } from './general/Hair';
 
 // ///////////////
 // Main Components
@@ -168,7 +28,7 @@ export const General = (props: {
           <GeneralContent
             data={props.data}
             staticData={props.staticData}
-            serverData={serverData}
+            serverData={serverData.legacy as GeneralDataConstant}
           />
         );
       }}
@@ -179,36 +39,61 @@ export const General = (props: {
 export const GeneralContent = (props: {
   data: GeneralData;
   staticData: GeneralDataStatic;
-  serverData: ServerData;
+  serverData: GeneralDataConstant;
 }) => {
   const { data, staticData, serverData } = props;
   const { real_name } = staticData;
   const [showHairPopup, setShowHairPopup] = useState(false);
   const [showFacialPopup, setShowFacialPopup] = useState(false);
+  const [showGradientPopup, setShowGradientPopup] = useState(false);
+  const [showEarsPopup, setShowEarsPopup] = useState(false);
 
   const hair_color = `rgb(${data.r_hair}, ${data.g_hair}, ${data.b_hair})`;
   const facial_color = `rgb(${data.r_facial}, ${data.g_facial}, ${data.b_facial})`;
+  const grad_color = `rgb(${data.r_grad}, ${data.g_grad}, ${data.b_grad})`;
+
+  const ears_color1 = `rgb(${data.r_ears}, ${data.g_ears}, ${data.b_ears})`;
+  const ears_color2 = `rgb(${data.r_ears2}, ${data.g_ears2}, ${data.b_ears2})`;
+  const ears_color3 = `rgb(${data.r_ears3}, ${data.g_ears3}, ${data.b_ears3})`;
 
   return (
     <Section title={real_name} fill scrollable mt={1} position="relative">
       <HairImageButton
         hairColor={hair_color}
         hairStyle={data.h_style}
-        serverData={serverData.legacy}
+        serverData={serverData}
         onClick={() => setShowHairPopup(true)}
         tooltip={data.h_style}
       >
         Hair
       </HairImageButton>
+      <GradientImageButton
+        color={grad_color}
+        style={data.grad_style}
+        serverData={serverData}
+        onClick={() => setShowGradientPopup(true)}
+        tooltip={data.grad_style}
+      >
+        Gradient
+      </GradientImageButton>
       <FacialImageButton
         hairColor={facial_color}
         hairStyle={data.f_style}
-        serverData={serverData.legacy}
+        serverData={serverData}
         onClick={() => setShowFacialPopup(true)}
         tooltip={data.f_style}
       >
         Facial
       </FacialImageButton>
+      <EarsImageButton
+        color={hair_color}
+        style={data.ear_style}
+        serverData={serverData}
+        onClick={() => setShowEarsPopup(true)}
+        tooltip={data.ear_style}
+      >
+        Ears
+      </EarsImageButton>
       {/* <ImageButton
         dmIcon="icons/mob/hair_gradients.dmi"
         dmIconState="fadeup"
@@ -255,7 +140,7 @@ export const GeneralContent = (props: {
         <HairDimmer
           data={data}
           staticData={staticData}
-          serverData={serverData.legacy}
+          serverData={serverData}
           setShow={setShowHairPopup}
           hairColor={hair_color}
         />
@@ -264,201 +149,31 @@ export const GeneralContent = (props: {
         <FacialDimmer
           data={data}
           staticData={staticData}
-          serverData={serverData.legacy}
+          serverData={serverData}
           setShow={setShowFacialPopup}
           hairColor={facial_color}
         />
       )}
+      {showGradientPopup && (
+        <GradientDimmer
+          data={data}
+          staticData={staticData}
+          serverData={serverData}
+          setShow={setShowGradientPopup}
+          color={grad_color}
+        />
+      )}
+      {showEarsPopup && (
+        <EarsDimmer
+          data={data}
+          staticData={staticData}
+          serverData={serverData}
+          setShow={setShowEarsPopup}
+          color={ears_color1}
+          color2={ears_color2}
+          color3={ears_color3}
+        />
+      )}
     </Section>
-  );
-};
-
-const HairImageButton = (
-  props: PropsWithChildren<{
-    serverData: LegacyServerData;
-    hairStyle: string;
-    hairColor: string;
-    onClick: () => void;
-    tooltip?: string;
-    selected?: boolean;
-  }>,
-) => {
-  const { serverData, hairStyle, hairColor, onClick } = props;
-
-  if (!(hairStyle in serverData.hair_styles)) {
-    return (
-      <ImageButton verticalAlign="top" onClick={onClick}>
-        {props.children}
-      </ImageButton>
-    );
-  }
-
-  const data = serverData.hair_styles[hairStyle];
-  return (
-    <ColorizedImageButton
-      iconRef={data.icon}
-      iconState={data.icon_state + '_s'}
-      color={hairColor}
-      onClick={onClick}
-      tooltip={props.tooltip}
-      selected={props.selected}
-    >
-      {props.children}
-    </ColorizedImageButton>
-  );
-};
-
-const HairDimmer = (props: {
-  setShow: React.Dispatch<React.SetStateAction<boolean>>;
-  data: GeneralData;
-  serverData: LegacyServerData;
-  staticData: GeneralDataStatic;
-  hairColor: string;
-}) => {
-  const { act } = useBackend();
-  const { setShow, data, serverData, staticData, hairColor } = props;
-
-  const hair_styles = staticData.available_hair_styles;
-  hair_styles.sort();
-
-  return (
-    <Dimmer
-      style={{
-        display: 'block',
-        overflowY: 'auto',
-        textIndent: 0,
-        textAlign: 'center',
-        zIndex: 100,
-      }}
-      height="100%"
-      p={1}
-    >
-      <Stack fill justify="space-between">
-        <Stack.Item>
-          <ColorPicker
-            onClick={() => {
-              act('set_hair_color');
-            }}
-            color_one={hairColor}
-          />
-        </Stack.Item>
-        <Stack.Item>
-          <Button onClick={() => setShow(false)} color="bad">
-            Close
-          </Button>
-        </Stack.Item>
-      </Stack>
-
-      {hair_styles.map((hairStyle) => (
-        <HairImageButton
-          key={hairStyle}
-          hairStyle={hairStyle}
-          serverData={serverData}
-          hairColor={hairColor}
-          tooltip={hairStyle}
-          onClick={() => {
-            act('set_hair_style', { hair_style: hairStyle });
-          }}
-          selected={hairStyle === data.h_style}
-        >
-          {hairStyle}
-        </HairImageButton>
-      ))}
-    </Dimmer>
-  );
-};
-
-const FacialImageButton = (
-  props: PropsWithChildren<{
-    serverData: LegacyServerData;
-    hairStyle: string;
-    hairColor: string;
-    onClick: () => void;
-    tooltip?: string;
-    selected?: boolean;
-  }>,
-) => {
-  const { serverData, hairStyle, hairColor, onClick } = props;
-
-  if (!(hairStyle in serverData.facial_styles)) {
-    return (
-      <ImageButton verticalAlign="top" onClick={onClick}>
-        {props.children}
-      </ImageButton>
-    );
-  }
-
-  const data = serverData.facial_styles[hairStyle];
-  return (
-    <ColorizedImageButton
-      iconRef={data.icon}
-      iconState={data.icon_state + '_s'}
-      color={hairColor}
-      onClick={onClick}
-      tooltip={props.tooltip}
-      selected={props.selected}
-    >
-      {props.children}
-    </ColorizedImageButton>
-  );
-};
-
-const FacialDimmer = (props: {
-  setShow: React.Dispatch<React.SetStateAction<boolean>>;
-  data: GeneralData;
-  serverData: LegacyServerData;
-  staticData: GeneralDataStatic;
-  hairColor: string;
-}) => {
-  const { act } = useBackend();
-  const { setShow, data, serverData, staticData, hairColor } = props;
-
-  const hair_styles = staticData.available_facial_styles;
-  hair_styles.sort();
-
-  return (
-    <Dimmer
-      style={{
-        display: 'block',
-        overflowY: 'auto',
-        textIndent: 0,
-        textAlign: 'center',
-        zIndex: 100,
-      }}
-      height="100%"
-      p={1}
-    >
-      <Stack fill justify="space-between">
-        <Stack.Item>
-          <ColorPicker
-            onClick={() => {
-              act('set_facial_hair_color');
-            }}
-            color_one={hairColor}
-          />
-        </Stack.Item>
-        <Stack.Item>
-          <Button onClick={() => setShow(false)} color="bad">
-            Close
-          </Button>
-        </Stack.Item>
-      </Stack>
-
-      {hair_styles.map((hairStyle) => (
-        <FacialImageButton
-          key={hairStyle}
-          hairStyle={hairStyle}
-          serverData={serverData}
-          hairColor={hairColor}
-          tooltip={hairStyle}
-          onClick={() => {
-            act('set_facial_hair_style', { facial_hair_style: hairStyle });
-          }}
-          selected={hairStyle === data.f_style}
-        >
-          {hairStyle}
-        </FacialImageButton>
-      ))}
-    </Dimmer>
   );
 };
