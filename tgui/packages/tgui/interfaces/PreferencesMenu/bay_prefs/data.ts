@@ -1,5 +1,13 @@
 import { BooleanLike } from 'tgui-core/react';
 
+export type BodyMarking = Record<
+  string,
+  {
+    on: BooleanLike;
+    color: string;
+  }
+>;
+
 export type GeneralData = {
   has_hair_color: BooleanLike;
 
@@ -33,6 +41,8 @@ export type GeneralData = {
 
   ear_secondary_style: string | null;
   ear_secondary_colors: string[];
+
+  body_markings: Record<string, BodyMarking>;
 };
 
 export type GeneralDataStatic = {
@@ -56,11 +66,17 @@ export type StandardStyle = { name: string; icon: string; icon_state: string };
 
 export type EarStyle = StandardStyle & { type: string };
 
+export type MarkingStyle = StandardStyle & {
+  genetic: BooleanLike;
+  body_parts: string[];
+};
+
 export type GeneralDataConstant = {
   hair_styles: Record<string, StandardStyle>;
   facial_styles: Record<string, StandardStyle>;
   grad_styles: Record<string, StandardStyle>;
   ear_styles: Record<string, EarStyle>;
+  body_markings: Record<string, MarkingStyle>;
 };
 
 export type LegacyData = Partial<GeneralData>;

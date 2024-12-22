@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Section } from 'tgui-core/components';
+import { ImageButton, Section } from 'tgui-core/components';
 
 import { ServerData } from '../data';
 import { ServerPreferencesFetcher } from '../ServerPreferencesFetcher';
@@ -9,6 +9,7 @@ import { EarsSecondaryDimmer } from './general/EarsSecondary';
 import { FacialDimmer, FacialImageButton } from './general/Facial';
 import { GradientDimmer, GradientImageButton } from './general/Gradient';
 import { HairDimmer, HairImageButton } from './general/Hair';
+import { MarkingsPopup } from './general/Markings';
 
 // ///////////////
 // Main Components
@@ -49,6 +50,7 @@ export const GeneralContent = (props: {
   const [showGradientPopup, setShowGradientPopup] = useState(false);
   const [showEarsPopup, setShowEarsPopup] = useState(false);
   const [showEars2Popup, setShowEars2Popup] = useState(false);
+  const [showMarkingsPopup, setShowMarkingsPopup] = useState(false);
 
   const hair_color = `rgb(${data.r_hair}, ${data.g_hair}, ${data.b_hair})`;
   const facial_color = `rgb(${data.r_facial}, ${data.g_facial}, ${data.b_facial})`;
@@ -106,34 +108,14 @@ export const GeneralContent = (props: {
       >
         Horns
       </EarsImageButton>
-      {/* <ImageButton
-        dmIcon="icons/mob/hair_gradients.dmi"
-        dmIconState="fadeup"
-        onClick={() => setShowHairPopup(!showHairPopup)}
-      >
-        Gradient
-      </ImageButton>
       <ImageButton
-        dmIcon="icons/mob/human_face.dmi"
-        dmIconState="facial_fullbeard_s"
-        onClick={() => setShowHairPopup(!showHairPopup)}
+        verticalAlign="top"
+        tooltip="Body Markings"
+        onClick={() => setShowMarkingsPopup(true)}
       >
-        Facial
+        Markings
       </ImageButton>
-      <ImageButton
-        dmIcon="icons/mob/vore/ears_vr.dmi"
-        dmIconState="kitty"
-        onClick={() => setShowHairPopup(!showHairPopup)}
-      >
-        Ears
-      </ImageButton>
-      <ImageButton
-        dmIcon="icons/mob/vore/ears_vr.dmi"
-        dmIconState="ram_horns_s"
-        onClick={() => setShowHairPopup(!showHairPopup)}
-      >
-        Horns
-      </ImageButton>
+      {/*
       <ImageButton
         dmIcon="icons/mob/human_races/sprite_accessories/taurs.dmi"
         dmIconState="naga_s"
@@ -193,6 +175,14 @@ export const GeneralContent = (props: {
           serverData={serverData}
           setShow={setShowEars2Popup}
           colors={ear_secondary_colors}
+        />
+      )}
+      {showMarkingsPopup && (
+        <MarkingsPopup
+          data={data}
+          staticData={staticData}
+          serverData={serverData}
+          setShow={setShowMarkingsPopup}
         />
       )}
     </Section>

@@ -1354,6 +1354,8 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	data["ear_secondary_style"] = pref.ear_secondary_style
 	data["ear_secondary_colors"] = pref.ear_secondary_colors
 
+	data["body_markings"] = pref.body_markings
+
 	return data
 
 /datum/category_item/player_setup_item/general/body/tgui_static_data(mob/user)
@@ -1422,6 +1424,18 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 			"icon_state" = S.icon_state,
 		)
 	data["ear_styles"] = ear_styles
+
+	var/list/body_markings = list()
+	for(var/path in body_marking_styles_list)
+		var/datum/sprite_accessory/marking/S = body_marking_styles_list[path]
+		body_markings[path] = list(
+			"name" = S.name,
+			"icon" = REF(S.icon),
+			"icon_state" = S.icon_state,
+			"genetic" = S.genetic,
+			"body_parts" = S.body_parts,
+		)
+	data["body_markings"] = body_markings
 
 	return data
 
