@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ImageButton, Section } from 'tgui-core/components';
+import { Box, Button, ImageButton, Section, Stack } from 'tgui-core/components';
 
+import { useBackend } from '../../../backend';
 import { ServerData } from '../data';
 import { ServerPreferencesFetcher } from '../ServerPreferencesFetcher';
 import { GeneralData, GeneralDataConstant, GeneralDataStatic } from './data';
@@ -44,7 +45,9 @@ export const GeneralContent = (props: {
   serverData: GeneralDataConstant;
 }) => {
   const { data, staticData, serverData } = props;
-  const { real_name } = staticData;
+  const { real_name, nickname, be_random_name } = data;
+  const { act } = useBackend();
+
   const [showHairPopup, setShowHairPopup] = useState(false);
   const [showFacialPopup, setShowFacialPopup] = useState(false);
   const [showGradientPopup, setShowGradientPopup] = useState(false);
@@ -62,59 +65,106 @@ export const GeneralContent = (props: {
   const ear_secondary_colors = data.ear_secondary_colors;
 
   return (
-    <Section title={real_name} fill scrollable mt={1} position="relative">
-      <HairImageButton
-        hairColor={hair_color}
-        hairStyle={data.h_style}
-        serverData={serverData}
-        onClick={() => setShowHairPopup(true)}
-        tooltip={data.h_style}
-      >
-        Hair
-      </HairImageButton>
-      <GradientImageButton
-        color={grad_color}
-        style={data.grad_style}
-        serverData={serverData}
-        onClick={() => setShowGradientPopup(true)}
-        tooltip={data.grad_style}
-      >
-        Gradient
-      </GradientImageButton>
-      <FacialImageButton
-        hairColor={facial_color}
-        hairStyle={data.f_style}
-        serverData={serverData}
-        onClick={() => setShowFacialPopup(true)}
-        tooltip={data.f_style}
-      >
-        Facial
-      </FacialImageButton>
-      <EarsImageButton
-        color={ears_color1}
-        style={data.ear_style || 'None'}
-        serverData={serverData}
-        onClick={() => setShowEarsPopup(true)}
-        tooltip={data.ear_style || 'None'}
-      >
-        Ears
-      </EarsImageButton>
-      <EarsImageButton
-        color={ear_secondary_colors[0]}
-        style={data.ear_secondary_style || 'None'}
-        serverData={serverData}
-        onClick={() => setShowEars2Popup(true)}
-        tooltip={data.ear_secondary_style || 'None'}
-      >
-        Horns
-      </EarsImageButton>
-      <ImageButton
-        verticalAlign="top"
-        tooltip="Body Markings"
-        onClick={() => setShowMarkingsPopup(true)}
-      >
-        Markings
-      </ImageButton>
+    <Section
+      title={
+        <>
+          <Button onClick={() => act('rename')} tooltip="Real Name">
+            {real_name}
+          </Button>
+          <Box inline ml={1} mr={1}>
+            -
+          </Box>
+          <Button onClick={() => act('nickname')} tooltip="Nickname">
+            {nickname || 'No Nickname'}
+          </Button>
+          {!!nickname && (
+            <Button
+              icon="times"
+              onClick={() => act('reset_nickname')}
+              tooltip="Reset Nickname"
+            />
+          )}
+          <Button
+            ml={2}
+            onClick={() => act('random_name')}
+            icon="dice"
+            tooltip="Random Name"
+          />
+          <Button.Checkbox
+            checked={be_random_name}
+            selected={be_random_name}
+            onClick={() => act('always_random_name')}
+            tooltip="Always Randomize"
+          />
+        </>
+      }
+      fill
+      scrollable
+      mt={1}
+      position="relative"
+    >
+      <Stack vertical fill>
+        <Stack.Item>
+          <HairImageButton
+            hairColor={hair_color}
+            hairStyle={data.h_style}
+            serverData={serverData}
+            onClick={() => setShowHairPopup(true)}
+            tooltip={data.h_style}
+          >
+            Hair
+          </HairImageButton>
+          <GradientImageButton
+            color={grad_color}
+            style={data.grad_style}
+            serverData={serverData}
+            onClick={() => setShowGradientPopup(true)}
+            tooltip={data.grad_style}
+          >
+            Gradient
+          </GradientImageButton>
+          <Box inline ml={2}>
+            <FacialImageButton
+              hairColor={facial_color}
+              hairStyle={data.f_style}
+              serverData={serverData}
+              onClick={() => setShowFacialPopup(true)}
+              tooltip={data.f_style}
+            >
+              Facial
+            </FacialImageButton>
+          </Box>
+        </Stack.Item>
+        <Stack.Item>
+          <EarsImageButton
+            color={ears_color1}
+            style={data.ear_style || 'None'}
+            serverData={serverData}
+            onClick={() => setShowEarsPopup(true)}
+            tooltip={data.ear_style || 'None'}
+          >
+            Ears
+          </EarsImageButton>
+          <EarsImageButton
+            color={ear_secondary_colors[0]}
+            style={data.ear_secondary_style || 'None'}
+            serverData={serverData}
+            onClick={() => setShowEars2Popup(true)}
+            tooltip={data.ear_secondary_style || 'None'}
+          >
+            Horns
+          </EarsImageButton>
+        </Stack.Item>
+        <Stack.Item>
+          <ImageButton
+            verticalAlign="top"
+            tooltip="Body Markings"
+            onClick={() => setShowMarkingsPopup(true)}
+          >
+            Markings
+          </ImageButton>
+        </Stack.Item>
+      </Stack>
       {/*
       <ImageButton
         dmIcon="icons/mob/human_races/sprite_accessories/taurs.dmi"

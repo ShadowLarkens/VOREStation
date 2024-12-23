@@ -8,7 +8,20 @@ export type BodyMarking = Record<
   }
 >;
 
-export type GeneralData = {
+export type BasicData = {
+  real_name: string;
+  be_random_name: BooleanLike;
+  nickname: string;
+  biological_sex: string;
+  identifying_gender: string;
+  age: number;
+  bday_month: number;
+  bday_day: number;
+  bday_announce: BooleanLike;
+  spawnpoint: string;
+};
+
+export type BodyData = {
   has_hair_color: BooleanLike;
 
   h_style: string;
@@ -45,17 +58,9 @@ export type GeneralData = {
   body_markings: Record<string, BodyMarking>;
 };
 
+export type GeneralData = BasicData & BodyData;
+
 export type GeneralDataStatic = {
-  real_name: string;
-  be_random_name: BooleanLike;
-  nickname: string;
-  biological_sex: string;
-  identifying_gender: string;
-  age: number;
-  bday_month: number;
-  bday_day: number;
-  bday_announce: BooleanLike;
-  spawnpoint: string;
   allow_metadata: BooleanLike;
   available_hair_styles: string[];
   available_facial_styles: string[];

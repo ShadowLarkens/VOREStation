@@ -76,14 +76,17 @@ export const ColorizedImage = (props: {
       // Draw the image to the canvas
       ctx.drawImage(image, 0, 0, 64, 64);
 
-      // Draw a square over the image with the color
-      ctx.globalCompositeOperation = 'multiply';
-      ctx.fillStyle = color || '#ffffff';
-      ctx.fillRect(0, 0, 64, 64);
+      // TODO: Remove when we drop support for 515/IE - 516 special colorization
+      if (Byond.BLINK) {
+        // Draw a square over the image with the color
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = color || '#ffffff';
+        ctx.fillRect(0, 0, 64, 64);
 
-      // Use the image as a mask
-      ctx.globalCompositeOperation = 'destination-in';
-      ctx.drawImage(image, 0, 0, 64, 64);
+        // Use the image as a mask
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.drawImage(image, 0, 0, 64, 64);
+      }
     },
     [iconRef, iconState, color],
   );

@@ -81,14 +81,6 @@
 
 /datum/category_item/player_setup_item/general/basic/content()
 	. = list()
-	. += span_bold("Name:") + " "
-	. += "<a href='byond://?src=\ref[src];rename=1'><b>[pref.real_name]</b></a><br>"
-	. += "<a href='byond://?src=\ref[src];random_name=1'>Randomize Name</A><br>"
-	. += "<a href='byond://?src=\ref[src];always_random_name=1'>Always Random Name: [pref.be_random_name ? "Yes" : "No"]</a><br>"
-	. += span_bold("Nickname:") + " "
-	. += "<a href='byond://?src=\ref[src];nickname=1'><b>[pref.nickname]</b></a>"
-	. += "(<a href='byond://?src=\ref[src];reset_nickname=1'>Clear</A>)"
-	. += "<br>"
 	. += span_bold("Biological Sex:") + " <a href='byond://?src=\ref[src];bio_gender=1'><b>[gender2text(pref.biological_gender)]</b></a><br>"
 	. += span_bold("Pronouns:") + " <a href='byond://?src=\ref[src];id_gender=1'><b>[gender2text(pref.identifying_gender)]</b></a><br>"
 	. += span_bold("Age:") + " <a href='byond://?src=\ref[src];age=1'>[pref.age]</a> <b>Birthday:</b> <a href='byond://?src=\ref[src];bday_month=1'>[pref.bday_month]</a><b>/</b><a href='byond://?src=\ref[src];bday_day=1'>[pref.bday_day]</a> - <b>Announce?:</b> <a href='byond://?src=\ref[src];bday_announce=1'>[pref.bday_announce ? "Yes" : "No"]</a><br>"
@@ -97,7 +89,7 @@
 		. += span_bold("OOC Notes: <a href='byond://?src=\ref[src];edit_ooc_notes=1'>Edit</a><a href='byond://?src=\ref[src];edit_ooc_note_likes=1'>Likes</a><a href='byond://?src=\ref[src];edit_ooc_note_dislikes=1'>Dislikes</a>") + "<br>"
 	. = jointext(.,null)
 
-/datum/category_item/player_setup_item/general/basic/tgui_static_data(mob/user)
+/datum/category_item/player_setup_item/general/basic/tgui_data(mob/user)
 	var/list/data = ..()
 
 	data["real_name"] = pref.real_name
@@ -110,14 +102,162 @@
 	data["bday_day"] = pref.bday_day
 	data["bday_announce"] = pref.bday_announce
 	data["spawnpoint"] = pref.spawnpoint
+
+	return data
+
+/datum/category_item/player_setup_item/general/basic/tgui_static_data(mob/user)
+	var/list/data = ..()
+
 	data["allow_metadata"] = CONFIG_GET(flag/allow_metadata)
 
 	return data
 
+/datum/category_item/player_setup_item/general/basic/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
+	. = ..()
+	if(.)
+		return
+
+	var/mob/user = ui.user
+
+	switch(action)
+		if("rename")
+			var/raw_name = tgui_input_text(user, "Choose your character's name:", "Character Name", pref.real_name)
+			if(!isnull(raw_name))
+				var/new_name = sanitize_name(raw_name, pref.species, is_FBP())
+				if(new_name)
+					pref.real_name = new_name
+					return TOPIC_REFRESH
+				else
+					to_chat(user, span_warning("Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, -, ' and ."))
+					return TOPIC_NOACTION
+
+		if("random_name")
+			pref.real_name = random_name(pref.identifying_gender, pref.species)
+			return TOPIC_REFRESH
+
+		if("always_random_name")
+			pref.be_random_name = !pref.be_random_name
+			return TOPIC_REFRESH
+
+		if("nickname")
+			var/raw_nickname = tgui_input_text(user, "Choose your character's nickname:", "Character Nickname", pref.nickname)
+			if(!isnull(raw_nickname))
+				var/new_nickname = sanitize_name(raw_nickname, pref.species, is_FBP())
+				if(new_nickname)
+					pref.nickname = new_nickname
+					return TOPIC_REFRESH
+				else
+					to_chat(user, span_warning("Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, -, ' and ."))
+					return TOPIC_NOACTION
+
+		if("reset_nickname")
+			var/nick_choice = tgui_alert(usr, "Wipe your Nickname? This will completely remove any chosen nickname(s).","Wipe Nickname",list("Yes","No"))
+			if(nick_choice == "Yes")
+				pref.nickname = null
+			return TOPIC_REFRESH
+
+		if("bio_gender")
+			var/new_gender = tgui_input_list(user, "Choose your character's biological sex:", "Character Preference", get_genders(), pref.biological_gender)
+			if(new_gender)
+				pref.set_biological_gender(new_gender)
+			return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("id_gender")
+			var/new_gender = tgui_input_list(user, "Choose your character's pronouns:", "Character Preference", all_genders_define_list, pref.identifying_gender)
+			if(new_gender)
+				pref.identifying_gender = new_gender
+			return TOPIC_REFRESH
+
+		if("age")
+			var/min_age = get_min_age()
+			var/max_age = get_max_age()
+			var/new_age = tgui_input_number(user, "Choose your character's age:\n([min_age]-[max_age])", "Character Preference", pref.age, max_age, min_age)
+			if(new_age)
+				pref.age = max(min(round(text2num(new_age)), max_age), min_age)
+				return TOPIC_REFRESH
+
+		if("bday_month")
+			var/new_month = tgui_input_number(user, "Choose your character's birth month (number)", "Birthday Month", pref.bday_month, 12, 0)
+			if(new_month)
+				pref.bday_month = new_month
+			else if((tgui_alert(user, "Would you like to clear the birthday entry?","Clear?",list("No","Yes")) == "Yes"))
+				pref.bday_month = 0
+				pref.bday_day = 0
+			return TOPIC_REFRESH
+
+		if("bday_day")
+			if(!pref.bday_month)
+				tgui_alert(user,"You must set a birth month before you can set a day.", "Error", list("Okay"))
+				return
+			var/max_days
+			switch(pref.bday_month)
+				if(1)
+					max_days = 31
+				if(2)
+					max_days = 29
+				if(3)
+					max_days = 31
+				if(4)
+					max_days = 30
+				if(5)
+					max_days = 31
+				if(6)
+					max_days = 30
+				if(7)
+					max_days = 31
+				if(8)
+					max_days = 31
+				if(9)
+					max_days = 30
+				if(10)
+					max_days = 31
+				if(11)
+					max_days = 30
+				if(12)
+					max_days = 31
+
+			var/new_day = tgui_input_number(user, "Choose your character's birth day (number, 1-[max_days])", "Birthday Day", pref.bday_day, max_days, 0)
+			if(new_day)
+				pref.bday_day = new_day
+			else if((tgui_alert(user, "Would you like to clear the birthday entry?","Clear?",list("No","Yes")) == "Yes"))
+				pref.bday_month = 0
+				pref.bday_day = 0
+			return TOPIC_REFRESH
+
+		if("bday_announce")
+			pref.bday_announce = !pref.bday_announce
+			return TOPIC_REFRESH
+
+		if("spawnpoint")
+			var/list/spawnkeys = list()
+			for(var/spawntype in spawntypes)
+				spawnkeys += spawntype
+			var/choice = tgui_input_list(user, "Where would you like to spawn when late-joining?", "Late-Join Choice", spawnkeys)
+			if(!choice || !spawntypes[choice] || !CanUseTopic(user))	return TOPIC_NOACTION
+			pref.spawnpoint = choice
+			return TOPIC_REFRESH
+
+		if("edit_ooc_notes")
+			var/new_metadata = strip_html_simple(tgui_input_text(usr, "Enter any information you'd like others to see, such as Roleplay-preferences. This will not be saved permanently unless you click save in the Character Setup panel!", "Game Preference" , html_decode(pref.metadata), multiline = TRUE,  prevent_enter = TRUE))
+			if(new_metadata)
+				pref.metadata = new_metadata
+		if("edit_ooc_note_likes")
+			var/new_metadata = strip_html_simple(tgui_input_text(usr, "Enter any information you'd like others to see relating to your LIKED roleplay preferences. This will not be saved permanently unless you click save in the Character Setup panel! Type \"!clear\" to empty.", "Game Preference" , html_decode(pref.metadata_likes), multiline = TRUE,  prevent_enter = TRUE))
+			if(new_metadata)
+				if(new_metadata == "!clear")
+					new_metadata = ""
+				pref.metadata_likes = new_metadata
+		if("edit_ooc_note_dislikes")
+			var/new_metadata = strip_html_simple(tgui_input_text(usr, "Enter any information you'd like others to see relating to your DISLIKED roleplay preferences. This will not be saved permanently unless you click save in the Character Setup panel! Type \"!clear\" to empty.", "Game Preference" , html_decode(pref.metadata_dislikes), multiline = TRUE,  prevent_enter = TRUE))
+			if(new_metadata)
+				if(new_metadata == "!clear")
+					new_metadata = ""
+				pref.metadata_dislikes = new_metadata
+
 /datum/category_item/player_setup_item/general/basic/OnTopic(var/href,var/list/href_list, var/mob/user)
 	if(href_list["rename"])
 		var/raw_name = tgui_input_text(user, "Choose your character's name:", "Character Name")
-		if (!isnull(raw_name) && CanUseTopic(user))
+		if (!isnull(raw_name))
 			var/new_name = sanitize_name(raw_name, pref.species, is_FBP())
 			if(new_name)
 				pref.real_name = new_name
@@ -136,7 +276,7 @@
 
 	else if(href_list["nickname"])
 		var/raw_nickname = tgui_input_text(user, "Choose your character's nickname:", "Character Nickname", pref.nickname)
-		if (!isnull(raw_nickname) && CanUseTopic(user))
+		if (!isnull(raw_nickname))
 			var/new_nickname = sanitize_name(raw_nickname, pref.species, is_FBP())
 			if(new_nickname)
 				pref.nickname = new_nickname
@@ -153,13 +293,13 @@
 
 	else if(href_list["bio_gender"])
 		var/new_gender = tgui_input_list(user, "Choose your character's biological sex:", "Character Preference", get_genders(), pref.biological_gender)
-		if(new_gender && CanUseTopic(user))
+		if(new_gender)
 			pref.set_biological_gender(new_gender)
 		return TOPIC_REFRESH_UPDATE_PREVIEW
 
 	else if(href_list["id_gender"])
 		var/new_gender = tgui_input_list(user, "Choose your character's pronouns:", "Character Preference", all_genders_define_list, pref.identifying_gender)
-		if(new_gender && CanUseTopic(user))
+		if(new_gender)
 			pref.identifying_gender = new_gender
 		return TOPIC_REFRESH
 
@@ -167,15 +307,15 @@
 		var/min_age = get_min_age()
 		var/max_age = get_max_age()
 		var/new_age = tgui_input_number(user, "Choose your character's age:\n([min_age]-[max_age])", "Character Preference", pref.age, max_age, min_age)
-		if(new_age && CanUseTopic(user))
+		if(new_age)
 			pref.age = max(min(round(text2num(new_age)), max_age), min_age)
 			return TOPIC_REFRESH
 
 	else if(href_list["bday_month"])
 		var/new_month = tgui_input_number(user, "Choose your character's birth month (number)", "Birthday Month", pref.bday_month, 12, 0)
-		if(new_month && CanUseTopic(user))
+		if(new_month)
 			pref.bday_month = new_month
-		else if((tgui_alert(user, "Would you like to clear the birthday entry?","Clear?",list("No","Yes")) == "Yes") && CanUseTopic(user))
+		else if((tgui_alert(user, "Would you like to clear the birthday entry?","Clear?",list("No","Yes")) == "Yes"))
 			pref.bday_month = 0
 			pref.bday_day = 0
 		return TOPIC_REFRESH
@@ -212,9 +352,9 @@
 				max_days = 31
 
 		var/new_day = tgui_input_number(user, "Choose your character's birth day (number, 1-[max_days])", "Birthday Day", pref.bday_day, max_days, 0)
-		if(new_day && CanUseTopic(user))
+		if(new_day)
 			pref.bday_day = new_day
-		else if((tgui_alert(user, "Would you like to clear the birthday entry?","Clear?",list("No","Yes")) == "Yes") && CanUseTopic(user))
+		else if((tgui_alert(user, "Would you like to clear the birthday entry?","Clear?",list("No","Yes")) == "Yes"))
 			pref.bday_month = 0
 			pref.bday_day = 0
 		return TOPIC_REFRESH
@@ -234,17 +374,17 @@
 
 	else if(href_list["edit_ooc_notes"])
 		var/new_metadata = strip_html_simple(tgui_input_text(usr, "Enter any information you'd like others to see, such as Roleplay-preferences. This will not be saved permanently unless you click save in the Character Setup panel!", "Game Preference" , html_decode(pref.metadata), multiline = TRUE,  prevent_enter = TRUE))
-		if(new_metadata && CanUseTopic(user))
+		if(new_metadata)
 			pref.metadata = new_metadata
 	else if(href_list["edit_ooc_note_likes"])
 		var/new_metadata = strip_html_simple(tgui_input_text(usr, "Enter any information you'd like others to see relating to your LIKED roleplay preferences. This will not be saved permanently unless you click save in the Character Setup panel! Type \"!clear\" to empty.", "Game Preference" , html_decode(pref.metadata_likes), multiline = TRUE,  prevent_enter = TRUE))
-		if(new_metadata && CanUseTopic(user))
+		if(new_metadata)
 			if(new_metadata == "!clear")
 				new_metadata = ""
 			pref.metadata_likes = new_metadata
 	else if(href_list["edit_ooc_note_dislikes"])
 		var/new_metadata = strip_html_simple(tgui_input_text(usr, "Enter any information you'd like others to see relating to your DISLIKED roleplay preferences. This will not be saved permanently unless you click save in the Character Setup panel! Type \"!clear\" to empty.", "Game Preference" , html_decode(pref.metadata_dislikes), multiline = TRUE,  prevent_enter = TRUE))
-		if(new_metadata && CanUseTopic(user))
+		if(new_metadata)
 			if(new_metadata == "!clear")
 				new_metadata = ""
 			pref.metadata_dislikes = new_metadata
