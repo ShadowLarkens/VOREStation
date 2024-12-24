@@ -6,7 +6,6 @@ import {
   Button,
   ColorBox,
   Dimmer,
-  Icon,
   Input,
   LabeledList,
   Section,
@@ -15,7 +14,6 @@ import {
 
 import { GeneralData, GeneralDataConstant, GeneralDataStatic } from '../data';
 import { VisiblePopup } from '../General';
-import { CustomImageButton } from '../helper_components';
 
 export const MarkingsPopup = (props: {
   data: GeneralData;
@@ -29,13 +27,7 @@ export const MarkingsPopup = (props: {
   const { body_markings } = data;
   const { body_markings: available_body_markings } = serverData;
 
-  const body_markings_with_extra_data = Object.entries(body_markings).map(
-    ([name, data]) => ({
-      name,
-      data,
-      serverData: available_body_markings[name],
-    }),
-  );
+  const markings = Object.keys(body_markings);
 
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showExtra, setShowExtra] = useState('');
@@ -47,50 +39,42 @@ export const MarkingsPopup = (props: {
       scrollable
       mt={1}
       buttons={
-        <Button onClick={() => setShow(VisiblePopup.None)} color="bad">
-          Close
-        </Button>
-      }
-    >
-      <Stack vertical>
-        <Stack.Item>
+        <>
           <Button icon="plus" color="good" onClick={() => setShowAddMenu(true)}>
             Add Marking
           </Button>
-        </Stack.Item>
-        <Stack.Item>
-          {body_markings_with_extra_data.map((data) => {
-            return (
-              <CustomImageButton
-                key={data.name}
-                image={<Icon name="marker" size={4} m={1.3} />}
-                tooltip={data.name}
-                onClick={() => {
-                  setShowExtra(data.name);
-                }}
-                buttons={
-                  <>
-                    <Button
-                      color="transparent"
-                      icon="arrow-left"
-                      onClick={() => act('marking_up', { marking: data.name })}
-                    />
-                    <Button
-                      color="transparent"
-                      icon="arrow-right"
-                      onClick={() =>
-                        act('marking_down', { marking: data.name })
-                      }
-                    />
-                  </>
-                }
-              >
-                {data.name}
-              </CustomImageButton>
-            );
-          })}
-        </Stack.Item>
-      </Stack>
+          <Button onClick={() => setShow(VisiblePopup.None)} color="bad">
+            Close
+          </Button>
+        </>
+      }
+    >
+      {markings.map((name) => (
+        <Stack key={name}>
+          <Stack.Item>
+            <Button
+              color="transparent"
+              icon="arrow-up"
+              onClick={() => act('marking_up', { marking: name })}
+            />
+            <Button
+              color="transparent"
+              icon="arrow-down"
+              onClick={() => act('marking_down', { marking: name })}
+            />
+          </Stack.Item>
+          <Stack.Item grow>
+            <Button
+              fluid
+              onClick={() => {
+                setShowExtra(name);
+              }}
+            >
+              {name}
+            </Button>
+          </Stack.Item>
+        </Stack>
+      ))}
       {!!showExtra && (
         <ExtraWindow
           data={data}
