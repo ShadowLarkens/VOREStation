@@ -15,6 +15,17 @@ import {
 import { GeneralData, GeneralDataConstant, GeneralDataStatic } from '../data';
 import { VisiblePopup } from '../General';
 
+const BP_TO_NAME = {
+  r_hand: 'right hand',
+  l_hand: 'left hand',
+  l_arm: 'left arm',
+  r_arm: 'right arm',
+  l_leg: 'left leg',
+  r_leg: 'right leg',
+  l_foot: 'left foot',
+  r_foot: 'right foot',
+};
+
 export const MarkingsPopup = (props: {
   data: GeneralData;
   staticData: GeneralDataStatic;
@@ -177,7 +188,10 @@ export const ExtraWindow = (props: {
             .filter(([zone, value]) => typeof value === 'object')
             .map(
               ([zone, value]: [string, { on: BooleanLike; color: string }]) => (
-                <LabeledList.Item label={capitalize(zone)} key={zone}>
+                <LabeledList.Item
+                  label={capitalize(BP_TO_NAME[zone] || zone)}
+                  key={zone}
+                >
                   <Button
                     onClick={() =>
                       act('zone_marking_color', { marking: name, zone })
