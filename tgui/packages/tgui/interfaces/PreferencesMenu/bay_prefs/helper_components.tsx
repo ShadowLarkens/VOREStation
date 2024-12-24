@@ -1,4 +1,4 @@
-import {
+import React, {
   PropsWithChildren,
   ReactNode,
   useCallback,
@@ -114,6 +114,7 @@ export const CustomImageButton = (
     tooltip?: string;
     selected?: boolean;
     onClick: () => void;
+    buttons?: ReactNode;
   }>,
 ) => {
   return (
@@ -124,6 +125,7 @@ export const CustomImageButton = (
       onClick={props.onClick}
       tooltip={props.tooltip}
       selected={props.selected}
+      buttons={props.buttons}
     >
       {props.children}
     </ImageButton>
@@ -138,6 +140,7 @@ export const ColorizedImageButton = (
     onClick: () => void;
     selected?: boolean;
     tooltip?: string;
+    buttons?: ReactNode;
   }>,
 ) => {
   const { iconRef, iconState, color, onClick, selected } = props;
@@ -150,6 +153,7 @@ export const ColorizedImageButton = (
       onClick={onClick}
       selected={selected}
       tooltip={props.tooltip}
+      buttons={props.buttons}
     >
       {props.children}
     </CustomImageButton>

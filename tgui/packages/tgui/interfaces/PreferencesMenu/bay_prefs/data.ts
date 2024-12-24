@@ -6,7 +6,9 @@ export type BodyMarking = Record<
     on: BooleanLike;
     color: string;
   }
->;
+> & {
+  color: string;
+};
 
 export type BasicData = {
   real_name: string;

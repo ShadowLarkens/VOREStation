@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Button, ImageButton, Section, Stack } from 'tgui-core/components';
+import { Box, Button, Icon, Section, Stack } from 'tgui-core/components';
 
 import { useBackend } from '../../../backend';
 import { ServerData } from '../data';
@@ -11,6 +11,7 @@ import { FacialDimmer, FacialImageButton } from './general/Facial';
 import { GradientDimmer, GradientImageButton } from './general/Gradient';
 import { HairDimmer, HairImageButton } from './general/Hair';
 import { MarkingsPopup } from './general/Markings';
+import { CustomImageButton } from './helper_components';
 
 // ///////////////
 // Main Components
@@ -154,15 +155,15 @@ export const GeneralContent = (props: {
           >
             Horns
           </EarsImageButton>
-        </Stack.Item>
-        <Stack.Item>
-          <ImageButton
-            verticalAlign="top"
-            tooltip="Body Markings"
-            onClick={() => setShowMarkingsPopup(true)}
-          >
-            Markings
-          </ImageButton>
+          <Box inline ml={2}>
+            <CustomImageButton
+              image={<Icon name="marker" size={4} m={1.3} />}
+              tooltip="Body Markings"
+              onClick={() => setShowMarkingsPopup(true)}
+            >
+              Markings
+            </CustomImageButton>
+          </Box>
         </Stack.Item>
       </Stack>
       {/*

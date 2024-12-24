@@ -1,8 +1,20 @@
+import { BooleanLike } from 'common/react';
+import { capitalize } from 'common/string';
 import { useState } from 'react';
-import { Button, Dimmer, Input, Stack } from 'tgui-core/components';
+import { useBackend } from 'tgui/backend';
+import {
+  Button,
+  ColorBox,
+  Dimmer,
+  Icon,
+  Input,
+  LabeledList,
+  Section,
+  Stack,
+} from 'tgui-core/components';
 
 import { GeneralData, GeneralDataConstant, GeneralDataStatic } from '../data';
-import { ColorizedImageButton } from '../helper_components';
+import { CustomImageButton } from '../helper_components';
 
 export const MarkingsPopup = (props: {
   data: GeneralData;
@@ -10,6 +22,7 @@ export const MarkingsPopup = (props: {
   serverData: GeneralDataConstant;
   setShow: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const { act } = useBackend();
   const { data, staticData, serverData, setShow } = props;
 
   const { body_markings } = data;
@@ -24,6 +37,7 @@ export const MarkingsPopup = (props: {
   );
 
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [showExtra, setShowExtra] = useState('');
 
   return (
     <Dimmer
@@ -49,19 +63,45 @@ export const MarkingsPopup = (props: {
         <Stack.Item>
           {body_markings_with_extra_data.map((data) => {
             return (
-              <ColorizedImageButton
+              <CustomImageButton
                 key={data.name}
-                iconRef={data.serverData.icon}
-                iconState={data.serverData.icon_state}
+                image={<Icon name="marker" size={4} m={1.3} />}
                 tooltip={data.name}
-                onClick={() => {}}
+                onClick={() => {
+                  setShowExtra(data.name);
+                }}
+                buttons={
+                  <>
+                    <Button
+                      color="transparent"
+                      icon="arrow-left"
+                      onClick={() => act('marking_up', { marking: data.name })}
+                    />
+                    <Button
+                      color="transparent"
+                      icon="arrow-right"
+                      onClick={() =>
+                        act('marking_down', { marking: data.name })
+                      }
+                    />
+                  </>
+                }
               >
                 {data.name}
-              </ColorizedImageButton>
+              </CustomImageButton>
             );
           })}
         </Stack.Item>
       </Stack>
+      {!!showExtra && (
+        <ExtraWindow
+          data={data}
+          staticData={staticData}
+          serverData={serverData}
+          name={showExtra}
+          setShow={setShowExtra}
+        />
+      )}
       {showAddMenu && (
         <AddMarkingWindow
           data={data}
@@ -74,12 +114,119 @@ export const MarkingsPopup = (props: {
   );
 };
 
+export const ExtraWindow = (props: {
+  data: GeneralData;
+  staticData: GeneralDataStatic;
+  serverData: GeneralDataConstant;
+  name: string;
+  setShow: React.Dispatch<React.SetStateAction<string>>;
+}) => {
+  const { act } = useBackend();
+  const { data, staticData, serverData, name, setShow } = props;
+  const { body_markings } = data;
+  const { body_markings: available_body_markings } = serverData;
+
+  const our_marking = body_markings[name];
+  const our_marking_server = available_body_markings[name];
+
+  if (!our_marking) {
+    setShow('');
+    return <Dimmer>Error: Invalid marking {name}</Dimmer>;
+  }
+
+  return (
+    <Dimmer
+      style={{
+        display: 'block',
+        overflowY: 'auto',
+        textIndent: 0,
+        textAlign: 'center',
+        zIndex: 100,
+      }}
+      height="100%"
+      p={1}
+    >
+      <Section
+        fill
+        title={name + ' Options'}
+        buttons={
+          <Button icon="times" color="bad" onClick={() => setShow('')}>
+            Close
+          </Button>
+        }
+      >
+        <Button
+          onClick={() =>
+            act('toggle_all_marking_selection', { marking: name, toggle: 1 })
+          }
+        >
+          Enable All
+        </Button>
+        <Button
+          onClick={() =>
+            act('toggle_all_marking_selection', { marking: name, toggle: 0 })
+          }
+        >
+          Disable All
+        </Button>
+        <Button
+          onClick={() => act('color_all_marking_selection', { marking: name })}
+        >
+          Change Color Of All
+        </Button>
+        <Button
+          onClick={() => {
+            act('marking_remove', { marking: name });
+            setShow('');
+          }}
+          color="bad"
+          icon="trash"
+        >
+          Delete Marking
+        </Button>
+        <LabeledList>
+          <LabeledList.Item label="Color">
+            <Button onClick={() => act('marking_color', { marking: name })}>
+              {our_marking.color}
+              <ColorBox color={our_marking.color} ml={1} />
+            </Button>
+          </LabeledList.Item>
+          {Object.entries(our_marking)
+            .filter(([zone, value]) => typeof value === 'object')
+            .map(
+              ([zone, value]: [string, { on: BooleanLike; color: string }]) => (
+                <LabeledList.Item label={capitalize(zone)} key={zone}>
+                  <Button
+                    onClick={() =>
+                      act('zone_marking_color', { marking: name, zone })
+                    }
+                  >
+                    {value.color} <ColorBox color={value.color} ml={1} />{' '}
+                  </Button>
+                  <Button.Checkbox
+                    onClick={() =>
+                      act('zone_marking_toggle', { marking: name, zone })
+                    }
+                    checked={value.on}
+                    selected={value.on}
+                    tooltip={value.on ? 'Disable Part' : 'Enable Part'}
+                  />
+                </LabeledList.Item>
+              ),
+            )}
+        </LabeledList>
+      </Section>
+    </Dimmer>
+  );
+};
+
 export const AddMarkingWindow = (props: {
   data: GeneralData;
   staticData: GeneralDataStatic;
   serverData: GeneralDataConstant;
   setShow: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const { act } = useBackend();
   const { data, staticData, serverData, setShow } = props;
   const { body_markings } = serverData;
   const [showList, setShowList] = useState(false);
@@ -107,23 +254,9 @@ export const AddMarkingWindow = (props: {
     >
       <Stack fill>
         <Stack.Item>
-          <Stack vertical>
-            <Stack.Item>
-              <Button icon="times" color="bad" onClick={() => setShow(false)}>
-                Close
-              </Button>
-            </Stack.Item>
-            <Stack.Item>
-              <Button.Checkbox
-                inline
-                selected={showList}
-                checked={showList}
-                onClick={() => setShowList((x) => !x)}
-              >
-                List Mode
-              </Button.Checkbox>
-            </Stack.Item>
-          </Stack>
+          <Button icon="times" color="bad" onClick={() => setShow(false)}>
+            Close
+          </Button>
         </Stack.Item>
         <Stack.Item grow>
           <Stack vertical>
@@ -136,23 +269,18 @@ export const AddMarkingWindow = (props: {
               />
             </Stack.Item>
             <Stack.Item>
-              {showList
-                ? body_markings_list.map(([name, data]) => (
-                    <Button fluid key={name}>
-                      {name}
-                    </Button>
-                  ))
-                : body_markings_list.map(([name, data]) => (
-                    <ColorizedImageButton
-                      key={name}
-                      iconRef={data.icon}
-                      iconState={data.icon_state}
-                      tooltip={name}
-                      onClick={() => {}}
-                    >
-                      {name}
-                    </ColorizedImageButton>
-                  ))}
+              {body_markings_list.map(([name, data]) => (
+                <Button
+                  fluid
+                  key={name}
+                  onClick={() => {
+                    act('add_marking', { new_marking: name });
+                    setShow(false);
+                  }}
+                >
+                  {name}
+                </Button>
+              ))}
             </Stack.Item>
           </Stack>
         </Stack.Item>

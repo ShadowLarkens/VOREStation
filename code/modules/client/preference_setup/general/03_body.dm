@@ -1556,3 +1556,80 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 			pref.ear_secondary_colors.len = clamp(length(pref.ear_secondary_colors), channel, length(GLOB.fancy_sprite_accessory_color_channel_names))
 			pref.ear_secondary_colors[channel] = new_color
 			return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("add_marking")
+			var/list/usable_markings = pref.body_markings.Copy() ^ body_marking_styles_list.Copy()
+			var/new_marking = params["new_marking"]
+			if(new_marking && (new_marking in usable_markings))
+				pref.body_markings[new_marking] = pref.mass_edit_marking_list(new_marking) //New markings start black
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("marking_up")
+			var/M = params["marking"]
+			var/start = pref.body_markings.Find(M)
+			if(start != 1) //If we're not the beginning of the list, swap with the previous element.
+				moveElement(pref.body_markings, start, start-1)
+			else //But if we ARE, become the final element -ahead- of everything else.
+				moveElement(pref.body_markings, start, pref.body_markings.len+1)
+			return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("marking_down")
+			var/M = params["marking"]
+			var/start = pref.body_markings.Find(M)
+			if(start != pref.body_markings.len) //If we're not the end of the list, swap with the next element.
+				moveElement(pref.body_markings, start, start+2)
+			else //But if we ARE, become the first element -behind- everything else.
+				moveElement(pref.body_markings, start, 1)
+			return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("marking_remove")
+			var/M = params["marking"]
+			winshow(ui.user, "prefs_markings_subwindow", FALSE)
+			pref.body_markings -= M
+			return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("marking_color")
+			var/M = params["marking"]
+			if(isnull(pref.body_markings[M]["color"]))
+				if(tgui_alert(ui.user, "You currently have customized marking colors. This will reset each bodypart's color. Are you sure you want to continue?","Reset Bodypart Colors",list("Yes","No")) != "Yes")
+					return TOPIC_NOACTION
+			var/mark_color = input(ui.user, "Choose the [M] color: ", "Character Preference", pref.body_markings[M]["color"]) as color|null
+			if(mark_color)
+				pref.body_markings[M] = pref.mass_edit_marking_list(M,FALSE,TRUE,pref.body_markings[M],color="[mark_color]")
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("toggle_all_marking_selection")
+			var/toggle = text2num(params["toggle"])
+			var/marking = params["marking"]
+			if(pref.body_markings.Find(marking) == 0)
+				return TOPIC_NOACTION
+			pref.body_markings[marking] = pref.mass_edit_marking_list(marking,TRUE,FALSE,pref.body_markings[marking],on=toggle)
+			return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("color_all_marking_selection")
+			var/marking = params["marking"]
+			if(pref.body_markings.Find(marking) == 0)
+				return TOPIC_NOACTION
+			var/mark_color = input(ui.user, "Choose the [marking] color: ", "Character Preference", pref.body_markings[marking]["color"]) as color|null
+			if(mark_color)
+				pref.body_markings[marking] = pref.mass_edit_marking_list(marking,FALSE,TRUE,pref.body_markings[marking],color="[mark_color]")
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("zone_marking_color")
+			var/marking = params["marking"]
+			if(pref.body_markings.Find(marking) == 0)
+				return TOPIC_NOACTION
+			var/zone = params["zone"]
+			pref.body_markings[marking]["color"] = null //turn off the color button outside the submenu
+			var/mark_color = input(ui.user, "Choose the [marking] color: ", "Character Preference", pref.body_markings[marking][zone]["color"]) as color|null
+			if(mark_color)
+				pref.body_markings[marking][zone]["color"] = "[mark_color]"
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("zone_marking_toggle")
+			var/marking = params["marking"]
+			if(pref.body_markings.Find(marking) == 0)
+				return TOPIC_NOACTION
+			var/zone = params["zone"]
+			pref.body_markings[marking][zone]["on"] = !pref.body_markings[marking][zone]["on"]
+			return TOPIC_REFRESH_UPDATE_PREVIEW
