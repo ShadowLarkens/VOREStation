@@ -5,7 +5,13 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { Button, ColorBox, ImageButton, Stack } from 'tgui-core/components';
+import {
+  Button,
+  ColorBox,
+  Image as ImageComp,
+  ImageButton,
+  Stack,
+} from 'tgui-core/components';
 
 export const getImage = async (url: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
@@ -65,6 +71,17 @@ export const ColorizedImage = (props: {
 }) => {
   const { iconRef, iconState, color } = props;
 
+  // TODO: Remove when we drop support for 515/IE - fallback
+  if (Byond.TRIDENT) {
+    return (
+      <ImageComp
+        src={`${iconRef}?state=${iconState}&dir=2&frame=1`}
+        width="64px"
+        height="64px"
+      />
+    );
+  }
+
   const render = useCallback(
     async (canvas: OffscreenCanvas, ctx: OffscreenCanvasRenderingContext2D) => {
       // Pixel art please
@@ -76,17 +93,14 @@ export const ColorizedImage = (props: {
       // Draw the image to the canvas
       ctx.drawImage(image, 0, 0, 64, 64);
 
-      // TODO: Remove when we drop support for 515/IE - 516 special colorization
-      if (Byond.BLINK) {
-        // Draw a square over the image with the color
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.fillStyle = color || '#ffffff';
-        ctx.fillRect(0, 0, 64, 64);
+      // Draw a square over the image with the color
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = color || '#ffffff';
+      ctx.fillRect(0, 0, 64, 64);
 
-        // Use the image as a mask
-        ctx.globalCompositeOperation = 'destination-in';
-        ctx.drawImage(image, 0, 0, 64, 64);
-      }
+      // Use the image as a mask
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.drawImage(image, 0, 0, 64, 64);
     },
     [iconRef, iconState, color],
   );
