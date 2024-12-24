@@ -14,13 +14,14 @@ import {
 } from 'tgui-core/components';
 
 import { GeneralData, GeneralDataConstant, GeneralDataStatic } from '../data';
+import { VisiblePopup } from '../General';
 import { CustomImageButton } from '../helper_components';
 
 export const MarkingsPopup = (props: {
   data: GeneralData;
   staticData: GeneralDataStatic;
   serverData: GeneralDataConstant;
-  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  setShow: React.Dispatch<React.SetStateAction<VisiblePopup>>;
 }) => {
   const { act } = useBackend();
   const { data, staticData, serverData, setShow } = props;
@@ -40,22 +41,19 @@ export const MarkingsPopup = (props: {
   const [showExtra, setShowExtra] = useState('');
 
   return (
-    <Dimmer
-      style={{
-        display: 'block',
-        overflowY: 'auto',
-        textIndent: 0,
-        textAlign: 'center',
-        zIndex: 100,
-      }}
-      height="100%"
-      p={1}
+    <Section
+      title="Markings"
+      fill
+      scrollable
+      mt={1}
+      buttons={
+        <Button onClick={() => setShow(VisiblePopup.None)} color="bad">
+          Close
+        </Button>
+      }
     >
       <Stack vertical>
         <Stack.Item>
-          <Button icon="times" color="bad" onClick={() => setShow(false)}>
-            Close
-          </Button>
           <Button icon="plus" color="good" onClick={() => setShowAddMenu(true)}>
             Add Marking
           </Button>
@@ -110,7 +108,7 @@ export const MarkingsPopup = (props: {
           setShow={setShowAddMenu}
         />
       )}
-    </Dimmer>
+    </Section>
   );
 };
 

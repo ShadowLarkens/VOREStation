@@ -40,21 +40,60 @@ export const General = (props: {
   );
 };
 
+const NameSelection = (props: { data: GeneralData }) => {
+  const { act } = useBackend();
+  const { real_name, nickname, be_random_name } = props.data;
+
+  return (
+    <>
+      <Button onClick={() => act('rename')} tooltip="Real Name">
+        {real_name}
+      </Button>
+      <Box inline ml={1} mr={1}>
+        -
+      </Box>
+      <Button onClick={() => act('nickname')} tooltip="Nickname">
+        {nickname || 'No Nickname'}
+      </Button>
+      {!!nickname && (
+        <Button
+          icon="times"
+          onClick={() => act('reset_nickname')}
+          tooltip="Reset Nickname"
+        />
+      )}
+      <Button
+        ml={2}
+        onClick={() => act('random_name')}
+        icon="dice"
+        tooltip="Random Name"
+      />
+      <Button.Checkbox
+        checked={be_random_name}
+        selected={be_random_name}
+        onClick={() => act('always_random_name')}
+        tooltip="Always Randomize"
+      />
+    </>
+  );
+};
+
+export enum VisiblePopup {
+  None,
+  Hair,
+  Facial,
+  Gradient,
+  Ears,
+  Ears2,
+  Markings,
+}
+
 export const GeneralContent = (props: {
   data: GeneralData;
   staticData: GeneralDataStatic;
   serverData: GeneralDataConstant;
 }) => {
   const { data, staticData, serverData } = props;
-  const { real_name, nickname, be_random_name } = data;
-  const { act } = useBackend();
-
-  const [showHairPopup, setShowHairPopup] = useState(false);
-  const [showFacialPopup, setShowFacialPopup] = useState(false);
-  const [showGradientPopup, setShowGradientPopup] = useState(false);
-  const [showEarsPopup, setShowEarsPopup] = useState(false);
-  const [showEars2Popup, setShowEars2Popup] = useState(false);
-  const [showMarkingsPopup, setShowMarkingsPopup] = useState(false);
 
   const hair_color = `rgb(${data.r_hair}, ${data.g_hair}, ${data.b_hair})`;
   const facial_color = `rgb(${data.r_facial}, ${data.g_facial}, ${data.b_facial})`;
@@ -65,177 +104,151 @@ export const GeneralContent = (props: {
   const ears_color3 = `rgb(${data.r_ears3}, ${data.g_ears3}, ${data.b_ears3})`;
   const ear_secondary_colors = data.ear_secondary_colors;
 
-  return (
-    <Section
-      title={
-        <>
-          <Button onClick={() => act('rename')} tooltip="Real Name">
-            {real_name}
-          </Button>
-          <Box inline ml={1} mr={1}>
-            -
-          </Box>
-          <Button onClick={() => act('nickname')} tooltip="Nickname">
-            {nickname || 'No Nickname'}
-          </Button>
-          {!!nickname && (
-            <Button
-              icon="times"
-              onClick={() => act('reset_nickname')}
-              tooltip="Reset Nickname"
-            />
-          )}
-          <Button
-            ml={2}
-            onClick={() => act('random_name')}
-            icon="dice"
-            tooltip="Random Name"
-          />
-          <Button.Checkbox
-            checked={be_random_name}
-            selected={be_random_name}
-            onClick={() => act('always_random_name')}
-            tooltip="Always Randomize"
-          />
-        </>
-      }
-      fill
-      scrollable
-      mt={1}
-      position="relative"
-    >
-      <Stack vertical fill>
-        <Stack.Item>
-          <HairImageButton
-            hairColor={hair_color}
-            hairStyle={data.h_style}
-            serverData={serverData}
-            onClick={() => setShowHairPopup(true)}
-            tooltip={data.h_style}
-          >
-            Hair
-          </HairImageButton>
-          <GradientImageButton
-            color={grad_color}
-            style={data.grad_style}
-            serverData={serverData}
-            onClick={() => setShowGradientPopup(true)}
-            tooltip={data.grad_style}
-          >
-            Gradient
-          </GradientImageButton>
-          <Box inline ml={2}>
-            <FacialImageButton
-              hairColor={facial_color}
-              hairStyle={data.f_style}
-              serverData={serverData}
-              onClick={() => setShowFacialPopup(true)}
-              tooltip={data.f_style}
-            >
-              Facial
-            </FacialImageButton>
-          </Box>
-        </Stack.Item>
-        <Stack.Item>
-          <EarsImageButton
-            color={ears_color1}
-            style={data.ear_style || 'None'}
-            serverData={serverData}
-            onClick={() => setShowEarsPopup(true)}
-            tooltip={data.ear_style || 'None'}
-          >
-            Ears
-          </EarsImageButton>
-          <EarsImageButton
-            color={ear_secondary_colors[0]}
-            style={data.ear_secondary_style || 'None'}
-            serverData={serverData}
-            onClick={() => setShowEars2Popup(true)}
-            tooltip={data.ear_secondary_style || 'None'}
-          >
-            Horns
-          </EarsImageButton>
-          <Box inline ml={2}>
-            <CustomImageButton
-              image={<Icon name="marker" size={4} m={1.3} />}
-              tooltip="Body Markings"
-              onClick={() => setShowMarkingsPopup(true)}
-            >
-              Markings
-            </CustomImageButton>
-          </Box>
-        </Stack.Item>
-      </Stack>
-      {/*
-      <ImageButton
-        dmIcon="icons/mob/human_races/sprite_accessories/taurs.dmi"
-        dmIconState="naga_s"
-        onClick={() => setShowHairPopup(!showHairPopup)}
-      >
-        Tail
-      </ImageButton>
-      <ImageButton
-        dmIcon="icons/mob/human_races/sprite_accessories/wings.dmi"
-        dmIconState="succubus-red"
-        onClick={() => setShowHairPopup(!showHairPopup)}
-      >
-        Wing
-      </ImageButton> */}
-      {showHairPopup && (
+  const [visiblePopup, setVisiblePopup] = useState<VisiblePopup>(
+    VisiblePopup.None,
+  );
+
+  switch (visiblePopup) {
+    case VisiblePopup.Hair: {
+      return (
         <HairDimmer
           data={data}
           staticData={staticData}
           serverData={serverData}
-          setShow={setShowHairPopup}
+          setShow={setVisiblePopup}
           hairColor={hair_color}
         />
-      )}
-      {showFacialPopup && (
+      );
+    }
+    case VisiblePopup.Facial: {
+      return (
         <FacialDimmer
           data={data}
           staticData={staticData}
           serverData={serverData}
-          setShow={setShowFacialPopup}
+          setShow={setVisiblePopup}
           hairColor={facial_color}
         />
-      )}
-      {showGradientPopup && (
+      );
+    }
+    case VisiblePopup.Gradient: {
+      return (
         <GradientDimmer
           data={data}
           staticData={staticData}
           serverData={serverData}
-          setShow={setShowGradientPopup}
+          setShow={setVisiblePopup}
           color={grad_color}
         />
-      )}
-      {showEarsPopup && (
+      );
+    }
+    case VisiblePopup.Ears: {
+      return (
         <EarsDimmer
           data={data}
           staticData={staticData}
           serverData={serverData}
-          setShow={setShowEarsPopup}
+          setShow={setVisiblePopup}
           color={ears_color1}
           color2={ears_color2}
           color3={ears_color3}
         />
-      )}
-      {showEars2Popup && (
+      );
+    }
+    case VisiblePopup.Ears2: {
+      return (
         <EarsSecondaryDimmer
           data={data}
           staticData={staticData}
           serverData={serverData}
-          setShow={setShowEars2Popup}
+          setShow={setVisiblePopup}
           colors={ear_secondary_colors}
         />
-      )}
-      {showMarkingsPopup && (
+      );
+    }
+    case VisiblePopup.Markings: {
+      return (
         <MarkingsPopup
           data={data}
           staticData={staticData}
           serverData={serverData}
-          setShow={setShowMarkingsPopup}
+          setShow={setVisiblePopup}
         />
-      )}
-    </Section>
-  );
+      );
+    }
+    default: {
+      return (
+        <Section
+          title={<NameSelection data={data} />}
+          fill
+          scrollable
+          mt={1}
+          position="relative"
+        >
+          <Stack vertical fill>
+            <Stack.Item>
+              <HairImageButton
+                hairColor={hair_color}
+                hairStyle={data.h_style}
+                serverData={serverData}
+                onClick={() => setVisiblePopup(VisiblePopup.Hair)}
+                tooltip={data.h_style}
+              >
+                Hair
+              </HairImageButton>
+              <GradientImageButton
+                color={grad_color}
+                style={data.grad_style}
+                serverData={serverData}
+                onClick={() => setVisiblePopup(VisiblePopup.Gradient)}
+                tooltip={data.grad_style}
+              >
+                Gradient
+              </GradientImageButton>
+              <Box inline ml={2}>
+                <FacialImageButton
+                  hairColor={facial_color}
+                  hairStyle={data.f_style}
+                  serverData={serverData}
+                  onClick={() => setVisiblePopup(VisiblePopup.Facial)}
+                  tooltip={data.f_style}
+                >
+                  Facial
+                </FacialImageButton>
+              </Box>
+            </Stack.Item>
+            <Stack.Item>
+              <EarsImageButton
+                color={ears_color1}
+                style={data.ear_style || 'None'}
+                serverData={serverData}
+                onClick={() => setVisiblePopup(VisiblePopup.Ears)}
+                tooltip={data.ear_style || 'None'}
+              >
+                Ears
+              </EarsImageButton>
+              <EarsImageButton
+                color={ear_secondary_colors[0]}
+                style={data.ear_secondary_style || 'None'}
+                serverData={serverData}
+                onClick={() => setVisiblePopup(VisiblePopup.Ears2)}
+                tooltip={data.ear_secondary_style || 'None'}
+              >
+                Horns
+              </EarsImageButton>
+              <Box inline ml={2}>
+                <CustomImageButton
+                  image={<Icon name="marker" size={4} m={1.3} />}
+                  tooltip="Body Markings"
+                  onClick={() => setVisiblePopup(VisiblePopup.Markings)}
+                >
+                  Markings
+                </CustomImageButton>
+              </Box>
+            </Stack.Item>
+          </Stack>
+        </Section>
+      );
+    }
+  }
 };

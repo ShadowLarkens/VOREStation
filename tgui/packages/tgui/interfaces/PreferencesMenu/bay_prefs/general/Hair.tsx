@@ -1,8 +1,9 @@
 import { PropsWithChildren } from 'react';
 import { useBackend } from 'tgui/backend';
-import { Button, Dimmer, ImageButton, Stack } from 'tgui-core/components';
+import { Button, ImageButton, Section } from 'tgui-core/components';
 
 import { GeneralData, GeneralDataConstant, GeneralDataStatic } from '../data';
+import { VisiblePopup } from '../General';
 import { ColorizedImageButton, ColorPicker } from '../helper_components';
 
 export const HairImageButton = (
@@ -41,7 +42,7 @@ export const HairImageButton = (
 };
 
 export const HairDimmer = (props: {
-  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  setShow: React.Dispatch<React.SetStateAction<VisiblePopup>>;
   data: GeneralData;
   serverData: GeneralDataConstant;
   staticData: GeneralDataStatic;
@@ -54,33 +55,24 @@ export const HairDimmer = (props: {
   hair_styles.sort();
 
   return (
-    <Dimmer
-      style={{
-        display: 'block',
-        overflowY: 'auto',
-        textIndent: 0,
-        textAlign: 'center',
-        zIndex: 100,
-      }}
-      height="100%"
-      p={1}
+    <Section
+      title="Hair"
+      fill
+      scrollable
+      mt={1}
+      buttons={
+        <Button onClick={() => setShow(VisiblePopup.None)} color="bad">
+          Close
+        </Button>
+      }
     >
       {!!data.has_hair_color && (
-        <Stack fill justify="space-between">
-          <Stack.Item>
-            <ColorPicker
-              onClick={() => {
-                act('set_hair_color');
-              }}
-              color_one={hairColor}
-            />
-          </Stack.Item>
-          <Stack.Item>
-            <Button onClick={() => setShow(false)} color="bad">
-              Close
-            </Button>
-          </Stack.Item>
-        </Stack>
+        <ColorPicker
+          onClick={() => {
+            act('set_hair_color');
+          }}
+          color_one={hairColor}
+        />
       )}
 
       {hair_styles.map((hairStyle) => (
@@ -98,6 +90,6 @@ export const HairDimmer = (props: {
           {hairStyle}
         </HairImageButton>
       ))}
-    </Dimmer>
+    </Section>
   );
 };

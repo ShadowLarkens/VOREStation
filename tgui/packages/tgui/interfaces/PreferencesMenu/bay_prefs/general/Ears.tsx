@@ -1,8 +1,9 @@
 import { PropsWithChildren } from 'react';
 import { useBackend } from 'tgui/backend';
-import { Button, Dimmer, ImageButton, Stack } from 'tgui-core/components';
+import { Button, ImageButton, Section } from 'tgui-core/components';
 
 import { GeneralData, GeneralDataConstant, GeneralDataStatic } from '../data';
+import { VisiblePopup } from '../General';
 import {
   ColorizedImageButton,
   ColorPicker,
@@ -50,7 +51,7 @@ export const EarsImageButton = (
 };
 
 export const EarsDimmer = (props: {
-  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  setShow: React.Dispatch<React.SetStateAction<VisiblePopup>>;
   data: GeneralData;
   serverData: GeneralDataConstant;
   staticData: GeneralDataStatic;
@@ -66,44 +67,35 @@ export const EarsDimmer = (props: {
   styles.sort();
 
   return (
-    <Dimmer
-      style={{
-        display: 'block',
-        overflowY: 'auto',
-        textIndent: 0,
-        textAlign: 'center',
-        zIndex: 100,
-      }}
-      height="100%"
-      p={1}
+    <Section
+      title="Ears"
+      fill
+      scrollable
+      mt={1}
+      buttons={
+        <Button onClick={() => setShow(VisiblePopup.None)} color="bad">
+          Close
+        </Button>
+      }
     >
-      <Stack fill justify="space-between">
-        <Stack.Item>
-          <ColorPicker
-            onClick={(type: ColorType) => {
-              switch (type) {
-                case ColorType.First:
-                  act('set_ear_color');
-                  break;
-                case ColorType.Second:
-                  act('set_ear_color2');
-                  break;
-                case ColorType.Third:
-                  act('set_ear_color3');
-                  break;
-              }
-            }}
-            color_one={color || '#FFFFFF'}
-            color_two={color2 || '#FFFFFF'}
-            color_three={color3 || '#FFFFFF'}
-          />
-        </Stack.Item>
-        <Stack.Item>
-          <Button onClick={() => setShow(false)} color="bad">
-            Close
-          </Button>
-        </Stack.Item>
-      </Stack>
+      <ColorPicker
+        onClick={(type: ColorType) => {
+          switch (type) {
+            case ColorType.First:
+              act('set_ear_color');
+              break;
+            case ColorType.Second:
+              act('set_ear_color2');
+              break;
+            case ColorType.Third:
+              act('set_ear_color3');
+              break;
+          }
+        }}
+        color_one={color || '#FFFFFF'}
+        color_two={color2 || '#FFFFFF'}
+        color_three={color3 || '#FFFFFF'}
+      />
 
       {styles.map((style) => (
         <EarsImageButton
@@ -121,6 +113,6 @@ export const EarsDimmer = (props: {
           {style}
         </EarsImageButton>
       ))}
-    </Dimmer>
+    </Section>
   );
 };
