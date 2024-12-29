@@ -3,6 +3,7 @@ import { capitalize } from 'common/string';
 import { useState } from 'react';
 import { useBackend } from 'tgui/backend';
 import {
+  Box,
   Button,
   ColorBox,
   Dimmer,
@@ -60,6 +61,7 @@ export const MarkingsPopup = (props: {
         </>
       }
     >
+      {markings.length === 0 && <Box>No Markings Selected.</Box>}
       {markings.map((name) => (
         <Stack key={name}>
           <Stack.Item>

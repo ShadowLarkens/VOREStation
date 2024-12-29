@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { useBackend } from 'tgui/backend';
-import { Button, ImageButton, Section } from 'tgui-core/components';
+import { Box, Button, ImageButton, Section } from 'tgui-core/components';
 
 import { GeneralData, GeneralDataConstant, GeneralDataStatic } from '../data';
 import { VisiblePopup } from '../General';
@@ -29,6 +29,9 @@ export const EarsImageButton = (
         onClick={onClick}
         tooltip={props.tooltip}
         selected={props.selected}
+        dmIcon="not_a_real_icon"
+        dmIconState="not_a_real_icon"
+        dmFallback={<Box width="64px" height="64px" />}
       >
         {props.children}
       </ImageButton>
