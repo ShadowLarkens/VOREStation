@@ -88,25 +88,14 @@ export enum VisiblePopup {
   Markings,
 }
 
-export const GeneralContent = (props: {
+export const GeneralPopup = (props: {
   data: GeneralData;
   staticData: GeneralDataStatic;
   serverData: GeneralDataConstant;
+  visiblePopup: VisiblePopup;
+  setVisiblePopup: React.Dispatch<React.SetStateAction<VisiblePopup>>;
 }) => {
-  const { data, staticData, serverData } = props;
-
-  const hair_color = `rgb(${data.r_hair}, ${data.g_hair}, ${data.b_hair})`;
-  const facial_color = `rgb(${data.r_facial}, ${data.g_facial}, ${data.b_facial})`;
-  const grad_color = `rgb(${data.r_grad}, ${data.g_grad}, ${data.b_grad})`;
-
-  const ears_color1 = `rgb(${data.r_ears}, ${data.g_ears}, ${data.b_ears})`;
-  const ears_color2 = `rgb(${data.r_ears2}, ${data.g_ears2}, ${data.b_ears2})`;
-  const ears_color3 = `rgb(${data.r_ears3}, ${data.g_ears3}, ${data.b_ears3})`;
-  const ear_secondary_colors = data.ear_secondary_colors;
-
-  const [visiblePopup, setVisiblePopup] = useState<VisiblePopup>(
-    VisiblePopup.None,
-  );
+  const { data, staticData, serverData, visiblePopup, setVisiblePopup } = props;
 
   switch (visiblePopup) {
     case VisiblePopup.Hair: {
@@ -116,7 +105,6 @@ export const GeneralContent = (props: {
           staticData={staticData}
           serverData={serverData}
           setShow={setVisiblePopup}
-          hairColor={hair_color}
         />
       );
     }
@@ -127,7 +115,6 @@ export const GeneralContent = (props: {
           staticData={staticData}
           serverData={serverData}
           setShow={setVisiblePopup}
-          hairColor={facial_color}
         />
       );
     }
@@ -138,7 +125,6 @@ export const GeneralContent = (props: {
           staticData={staticData}
           serverData={serverData}
           setShow={setVisiblePopup}
-          color={grad_color}
         />
       );
     }
@@ -149,9 +135,6 @@ export const GeneralContent = (props: {
           staticData={staticData}
           serverData={serverData}
           setShow={setVisiblePopup}
-          color={ears_color1}
-          color2={ears_color2}
-          color3={ears_color3}
         />
       );
     }
@@ -162,7 +145,6 @@ export const GeneralContent = (props: {
           staticData={staticData}
           serverData={serverData}
           setShow={setVisiblePopup}
-          colors={ear_secondary_colors}
         />
       );
     }
@@ -176,79 +158,107 @@ export const GeneralContent = (props: {
         />
       );
     }
-    default: {
-      return (
-        <Section
-          title={<NameSelection data={data} />}
-          fill
-          scrollable
-          mt={1}
-          position="relative"
-        >
-          <Stack vertical fill>
-            <Stack.Item>
-              <HairImageButton
-                hairColor={hair_color}
-                hairStyle={data.h_style}
-                serverData={serverData}
-                onClick={() => setVisiblePopup(VisiblePopup.Hair)}
-                tooltip={data.h_style}
-              >
-                Hair
-              </HairImageButton>
-              <GradientImageButton
-                color={grad_color}
-                style={data.grad_style}
-                serverData={serverData}
-                onClick={() => setVisiblePopup(VisiblePopup.Gradient)}
-                tooltip={data.grad_style}
-              >
-                Gradient
-              </GradientImageButton>
-              <Box inline ml={2}>
-                <FacialImageButton
-                  hairColor={facial_color}
-                  hairStyle={data.f_style}
-                  serverData={serverData}
-                  onClick={() => setVisiblePopup(VisiblePopup.Facial)}
-                  tooltip={data.f_style}
-                >
-                  Facial
-                </FacialImageButton>
-              </Box>
-            </Stack.Item>
-            <Stack.Item>
-              <EarsImageButton
-                color={ears_color1}
-                style={data.ear_style || 'None'}
-                serverData={serverData}
-                onClick={() => setVisiblePopup(VisiblePopup.Ears)}
-                tooltip={data.ear_style || 'None'}
-              >
-                Ears
-              </EarsImageButton>
-              <EarsImageButton
-                color={ear_secondary_colors[0]}
-                style={data.ear_secondary_style || 'None'}
-                serverData={serverData}
-                onClick={() => setVisiblePopup(VisiblePopup.Ears2)}
-                tooltip={data.ear_secondary_style || 'None'}
-              >
-                Horns
-              </EarsImageButton>
-              <Box inline ml={2}>
-                <CustomImageButton
-                  image={<Icon name="marker" size={4} m={1.3} />}
-                  tooltip="Body Markings"
-                  onClick={() => setVisiblePopup(VisiblePopup.Markings)}
-                >
-                  Markings
-                </CustomImageButton>
-              </Box>
-            </Stack.Item>
-          </Stack>
-        </Section>
-      );
-    }
   }
+};
+
+export const GeneralContent = (props: {
+  data: GeneralData;
+  staticData: GeneralDataStatic;
+  serverData: GeneralDataConstant;
+}) => {
+  const { data, staticData, serverData } = props;
+
+  const hair_color = `rgb(${data.r_hair}, ${data.g_hair}, ${data.b_hair})`;
+  const facial_color = `rgb(${data.r_facial}, ${data.g_facial}, ${data.b_facial})`;
+  const grad_color = `rgb(${data.r_grad}, ${data.g_grad}, ${data.b_grad})`;
+
+  const ears_color1 = `rgb(${data.r_ears}, ${data.g_ears}, ${data.b_ears})`;
+  const ear_secondary_colors = data.ear_secondary_colors;
+
+  const [visiblePopup, setVisiblePopup] = useState<VisiblePopup>(
+    VisiblePopup.None,
+  );
+
+  if (visiblePopup !== VisiblePopup.None) {
+    return (
+      <GeneralPopup
+        {...props}
+        visiblePopup={visiblePopup}
+        setVisiblePopup={setVisiblePopup}
+      />
+    );
+  }
+
+  return (
+    <Section
+      title={<NameSelection data={data} />}
+      fill
+      scrollable
+      mt={1}
+      position="relative"
+    >
+      <Stack vertical fill>
+        <Stack.Item>
+          <HairImageButton
+            hairColor={hair_color}
+            hairStyle={data.h_style}
+            serverData={serverData}
+            onClick={() => setVisiblePopup(VisiblePopup.Hair)}
+            tooltip={data.h_style}
+          >
+            Hair
+          </HairImageButton>
+          <GradientImageButton
+            color={grad_color}
+            style={data.grad_style}
+            serverData={serverData}
+            onClick={() => setVisiblePopup(VisiblePopup.Gradient)}
+            tooltip={data.grad_style}
+          >
+            Gradient
+          </GradientImageButton>
+          <Box inline ml={2}>
+            <FacialImageButton
+              hairColor={facial_color}
+              hairStyle={data.f_style}
+              serverData={serverData}
+              onClick={() => setVisiblePopup(VisiblePopup.Facial)}
+              tooltip={data.f_style}
+            >
+              Facial
+            </FacialImageButton>
+          </Box>
+        </Stack.Item>
+        <Stack.Item>
+          <EarsImageButton
+            color={ears_color1}
+            style={data.ear_style || 'None'}
+            serverData={serverData}
+            onClick={() => setVisiblePopup(VisiblePopup.Ears)}
+            tooltip={data.ear_style || 'None'}
+          >
+            Ears
+          </EarsImageButton>
+          <EarsImageButton
+            color={ear_secondary_colors[0]}
+            style={data.ear_secondary_style || 'None'}
+            serverData={serverData}
+            onClick={() => setVisiblePopup(VisiblePopup.Ears2)}
+            tooltip={data.ear_secondary_style || 'None'}
+          >
+            Horns
+          </EarsImageButton>
+          <Box inline ml={2}>
+            <CustomImageButton
+              image={<Icon name="marker" size={4} m={1.3} />}
+              tooltip="Body Markings"
+              onClick={() => setVisiblePopup(VisiblePopup.Markings)}
+            >
+              Markings
+            </CustomImageButton>
+          </Box>
+        </Stack.Item>
+      </Stack>
+    </Section>
+  );
 };

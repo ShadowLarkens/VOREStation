@@ -46,10 +46,10 @@ export const HairDimmer = (props: {
   data: GeneralData;
   serverData: GeneralDataConstant;
   staticData: GeneralDataStatic;
-  hairColor: string;
 }) => {
   const { act } = useBackend();
-  const { setShow, data, serverData, staticData, hairColor } = props;
+  const { setShow, data, serverData, staticData } = props;
+  const hairColor = `rgb(${data.r_hair}, ${data.g_hair}, ${data.b_hair})`;
 
   const hair_styles = staticData.available_hair_styles;
   hair_styles.sort();

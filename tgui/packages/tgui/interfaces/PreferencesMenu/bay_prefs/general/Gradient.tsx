@@ -46,10 +46,10 @@ export const GradientDimmer = (props: {
   data: GeneralData;
   serverData: GeneralDataConstant;
   staticData: GeneralDataStatic;
-  color: string;
 }) => {
   const { act } = useBackend();
-  const { setShow, data, serverData, staticData, color } = props;
+  const { setShow, data, serverData, staticData } = props;
+  const color = `rgb(${data.r_grad}, ${data.g_grad}, ${data.b_grad})`;
 
   const grad_styles = Object.keys(serverData.grad_styles);
   grad_styles.sort();

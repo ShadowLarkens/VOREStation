@@ -12,10 +12,11 @@ export const EarsSecondaryDimmer = (props: {
   data: GeneralData;
   serverData: GeneralDataConstant;
   staticData: GeneralDataStatic;
-  colors: string[];
 }) => {
   const { act } = useBackend();
-  const { setShow, data, serverData, staticData, colors } = props;
+  const { setShow, data, serverData, staticData } = props;
+
+  const colors = data.ear_secondary_colors;
 
   const color1 = colors[0] || null;
   const color2 = colors[1] || null;
