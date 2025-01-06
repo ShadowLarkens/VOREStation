@@ -1,0 +1,5 @@
+@use '../base.scss';
+
+.MechaSection > div:first-child {
+  border-bottom: base.em(2px) solid #00aa00;
+}
