@@ -27,32 +27,18 @@ export type BodyData = {
   has_hair_color: BooleanLike;
 
   h_style: string;
-  r_hair: number;
-  g_hair: number;
-  b_hair: number;
+  hair_color: string;
 
   f_style: string;
-  r_facial: number;
-  g_facial: number;
-  b_facial: number;
+  facial_color: string;
 
   grad_style: string;
-  r_grad: number;
-  g_grad: number;
-  b_grad: number;
+  grad_color: string;
 
   ear_style: string | null;
-  r_ears: number;
-  g_ears: number;
-  b_ears: number;
-
-  r_ears2: number;
-  g_ears2: number;
-  b_ears2: number;
-
-  r_ears3: number;
-  g_ears3: number;
-  b_ears3: number;
+  ears_color1: string;
+  ears_color2: string;
+  ears_color3: string;
 
   ear_secondary_style: string | null;
   ear_secondary_colors: string[];

@@ -168,11 +168,11 @@ export const GeneralContent = (props: {
 }) => {
   const { data, staticData, serverData } = props;
 
-  const hair_color = `rgb(${data.r_hair}, ${data.g_hair}, ${data.b_hair})`;
-  const facial_color = `rgb(${data.r_facial}, ${data.g_facial}, ${data.b_facial})`;
-  const grad_color = `rgb(${data.r_grad}, ${data.g_grad}, ${data.b_grad})`;
+  const hair_color = data.hair_color;
+  const facial_color = data.facial_color;
+  const grad_color = data.grad_color;
 
-  const ears_color1 = `rgb(${data.r_ears}, ${data.g_ears}, ${data.b_ears})`;
+  const ears_color1 = data.ears_color1;
   const ear_secondary_colors = data.ear_secondary_colors;
 
   const [visiblePopup, setVisiblePopup] = useState<VisiblePopup>(

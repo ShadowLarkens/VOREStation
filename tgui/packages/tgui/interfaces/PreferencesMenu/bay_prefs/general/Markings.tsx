@@ -1,5 +1,3 @@
-import { BooleanLike } from 'common/react';
-import { capitalize } from 'common/string';
 import { useState } from 'react';
 import { useBackend } from 'tgui/backend';
 import {
@@ -12,6 +10,8 @@ import {
   Section,
   Stack,
 } from 'tgui-core/components';
+import { BooleanLike } from 'tgui-core/react';
+import { capitalize } from 'tgui-core/string';
 
 import { GeneralData, GeneralDataConstant, GeneralDataStatic } from '../data';
 import { VisiblePopup } from '../General';

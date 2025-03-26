@@ -549,7 +549,7 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 
 			return TOPIC_REFRESH_UPDATE_PREVIEW
 
-	if(href_list["digitigrade"])
+	else if(href_list["digitigrade"])
 		pref.digitigrade = !pref.digitigrade
 
 		return TOPIC_REFRESH_UPDATE_PREVIEW
@@ -1106,32 +1106,18 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	data["has_hair_color"] = has_flag(mob_species, HAS_HAIR_COLOR)
 
 	data["h_style"] = pref.h_style
-	data["r_hair"] = pref.r_hair
-	data["g_hair"] = pref.g_hair
-	data["b_hair"] = pref.b_hair
+	data["hair_color"] = pref.read_preference(/datum/preference/color/human/hair_color)
 
 	data["f_style"] = pref.f_style
-	data["r_facial"] = pref.r_facial
-	data["g_facial"] = pref.g_facial
-	data["b_facial"] = pref.b_facial
+	data["facial_color"] = pref.read_preference(/datum/preference/color/human/facial_color)
 
 	data["grad_style"] = pref.grad_style
-	data["r_grad"] = pref.r_grad
-	data["g_grad"] = pref.g_grad
-	data["b_grad"] = pref.b_grad
+	data["grad_color"] = pref.read_preference(/datum/preference/color/human/grad_color)
 
 	data["ear_style"] = pref.ear_style
-	data["r_ears"] = pref.r_ears
-	data["g_ears"] = pref.g_ears
-	data["b_ears"] = pref.b_ears
-
-	data["r_ears2"] = pref.r_ears2
-	data["g_ears2"] = pref.g_ears2
-	data["b_ears2"] = pref.b_ears2
-
-	data["r_ears3"] = pref.r_ears3
-	data["g_ears3"] = pref.g_ears3
-	data["b_ears3"] = pref.b_ears3
+	data["ears_color1"] = pref.read_preference(/datum/preference/color/human/ears_color1)
+	data["ears_color2"] = pref.read_preference(/datum/preference/color/human/ears_color2)
+	data["ears_color3"] = pref.read_preference(/datum/preference/color/human/ears_color3)
 
 	data["ear_secondary_style"] = pref.ear_secondary_style
 	data["ear_secondary_colors"] = pref.ear_secondary_colors
@@ -1238,7 +1224,7 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 		if("set_hair_color")
 			if(!has_flag(mob_species, HAS_HAIR_COLOR))
 				return TOPIC_NOACTION
-			var/new_hair = tgui_color_picker(user, "Choose your character's hair colour:", "Character Preference", pref.read_preference(/datum/preference/color/human/hair_color))
+			var/new_hair = tgui_color_picker(ui.user, "Choose your character's hair colour:", "Character Preference", pref.read_preference(/datum/preference/color/human/hair_color))
 			if(new_hair && has_flag(mob_species, HAS_HAIR_COLOR))
 				pref.update_preference_by_type(/datum/preference/color/human/hair_color, new_hair)
 				return TOPIC_REFRESH_UPDATE_PREVIEW
@@ -1252,9 +1238,9 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 		if("set_facial_hair_color")
 			if(!has_flag(mob_species, HAS_HAIR_COLOR))
 				return TOPIC_NOACTION
-			var/new_facial = tgui_color_picker(user, "Choose your character's facial-hair colour:", "Character Preference", pref.read_preference(/datum/preference/color/human/facial_color))
+			var/new_facial = tgui_color_picker(ui.user, "Choose your character's facial-hair colour:", "Character Preference", pref.read_preference(/datum/preference/color/human/facial_color))
 			if(new_facial && has_flag(mob_species, HAS_HAIR_COLOR))
-					pref.update_preference_by_type(/datum/preference/color/human/facial_color, new_facial)
+				pref.update_preference_by_type(/datum/preference/color/human/facial_color, new_facial)
 				return TOPIC_REFRESH_UPDATE_PREVIEW
 
 		if("set_grad_style")
@@ -1267,7 +1253,7 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 		if("set_grad_color")
 			if(!has_flag(mob_species, HAS_HAIR_COLOR))
 				return TOPIC_NOACTION
-			var/new_grad = tgui_color_picker(user, "Choose your character's secondary hair color:", "Character Preference", pref.read_preference(/datum/preference/color/human/grad_color))
+			var/new_grad = tgui_color_picker(ui.user, "Choose your character's secondary hair color:", "Character Preference", pref.read_preference(/datum/preference/color/human/grad_color))
 			if(new_grad && has_flag(mob_species, HAS_HAIR_COLOR))
 				pref.update_preference_by_type(/datum/preference/color/human/grad_color, new_grad)
 				return TOPIC_REFRESH_UPDATE_PREVIEW
@@ -1282,22 +1268,22 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 				return TOPIC_REFRESH_UPDATE_PREVIEW
 
 		if("set_ear_color")
-			var/new_earc = tgui_color_picker(user, "Choose your character's ear colour:", "Character Preference",
-			pref.read_preference(/datum/preference/color/human/ears_color1))
+			var/new_earc = tgui_color_picker(ui.user, "Choose your character's ear colour:", "Character Preference",
+				pref.read_preference(/datum/preference/color/human/ears_color1))
 			if(new_earc)
 				pref.update_preference_by_type(/datum/preference/color/human/ears_color1, new_earc)
 				return TOPIC_REFRESH_UPDATE_PREVIEW
 
 		if("set_ear_color2")
-			var/new_earc2 = tgui_color_picker(user, "Choose your character's secondary ear colour:", "Character Preference",
-			pref.read_preference(/datum/preference/color/human/ears_color2))
+			var/new_earc2 = tgui_color_picker(ui.user, "Choose your character's secondary ear colour:", "Character Preference",
+				pref.read_preference(/datum/preference/color/human/ears_color2))
 			if(new_earc2)
 				pref.update_preference_by_type(/datum/preference/color/human/ears_color2, new_earc2)
 				return TOPIC_REFRESH_UPDATE_PREVIEW
 
 		if("set_ear_color3")
-		var/new_earc3 = tgui_color_picker(user, "Choose your character's tertiary ear colour:", "Character Preference",
-			pref.read_preference(/datum/preference/color/human/ears_color3))
+			var/new_earc3 = tgui_color_picker(ui.user, "Choose your character's tertiary ear colour:", "Character Preference",
+				pref.read_preference(/datum/preference/color/human/ears_color3))
 			if(new_earc3)
 				pref.update_preference_by_type(/datum/preference/color/human/ears_color3, new_earc3)
 				return TOPIC_REFRESH_UPDATE_PREVIEW
@@ -1312,13 +1298,13 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 				return TOPIC_REFRESH_UPDATE_PREVIEW
 
 		if("set_ear_secondary_color")
-			var/channel = text2num(href_list["ear_secondary_color"])
+			var/channel = text2num(params["ear_secondary_color"])
 			// very important sanity check; this makes sure someone can't crash the server by setting channel to some insanely high value
 			if(channel > GLOB.fancy_sprite_accessory_color_channel_names.len)
 				return TOPIC_NOACTION
 			// this would say 'secondary ears' but you'd get 'choose your character's primary secondary ear colour' which sounds silly
 			var/new_color = tgui_color_picker(
-				user,
+				ui.user,
 				"Choose your character's [lowertext(GLOB.fancy_sprite_accessory_color_channel_names[channel])] ear colour:",
 				"Secondary Ear Coloration",
 				LAZYACCESS(pref.ear_secondary_colors, channel) || "#ffffff",
