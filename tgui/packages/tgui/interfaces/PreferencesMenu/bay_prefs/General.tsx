@@ -217,17 +217,15 @@ export const GeneralContent = (props: {
           >
             Gradient
           </GradientImageButton>
-          <Box inline ml={2}>
-            <FacialImageButton
-              hairColor={facial_color}
-              hairStyle={data.f_style}
-              serverData={serverData}
-              onClick={() => setVisiblePopup(VisiblePopup.Facial)}
-              tooltip={data.f_style}
-            >
-              Facial
-            </FacialImageButton>
-          </Box>
+          <FacialImageButton
+            hairColor={facial_color}
+            hairStyle={data.f_style}
+            serverData={serverData}
+            onClick={() => setVisiblePopup(VisiblePopup.Facial)}
+            tooltip={data.f_style}
+          >
+            Facial
+          </FacialImageButton>
         </Stack.Item>
         <Stack.Item>
           <EarsImageButton
@@ -248,15 +246,13 @@ export const GeneralContent = (props: {
           >
             Horns
           </EarsImageButton>
-          <Box inline ml={2}>
-            <CustomImageButton
-              image={<Icon name="marker" size={4} m={1.3} />}
-              tooltip="Body Markings"
-              onClick={() => setVisiblePopup(VisiblePopup.Markings)}
-            >
-              Markings
-            </CustomImageButton>
-          </Box>
+          <CustomImageButton
+            image={<Icon name="marker" size={4} m={1.3} />}
+            tooltip="Body Markings"
+            onClick={() => setVisiblePopup(VisiblePopup.Markings)}
+          >
+            Markings
+          </CustomImageButton>
         </Stack.Item>
       </Stack>
     </Section>

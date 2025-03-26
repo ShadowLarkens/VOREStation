@@ -1196,10 +1196,15 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	var/list/body_markings = list()
 	for(var/path in body_marking_styles_list)
 		var/datum/sprite_accessory/marking/S = body_marking_styles_list[path]
+
+		var/icon_state = S.icon_state
+		if(LAZYLEN(S.body_parts))
+			icon_state += "-[S.body_parts[1]]"
+
 		body_markings[path] = list(
 			"name" = S.name,
 			"icon" = REF(S.icon),
-			"icon_state" = S.icon_state,
+			"icon_state" = icon_state,
 			"genetic" = S.genetic,
 			"body_parts" = S.body_parts,
 		)

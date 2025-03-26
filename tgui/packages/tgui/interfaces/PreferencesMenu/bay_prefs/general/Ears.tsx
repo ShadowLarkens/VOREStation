@@ -61,9 +61,9 @@ export const EarsDimmer = (props: {
 }) => {
   const { act } = useBackend();
   const { setShow, data, serverData, staticData } = props;
-  const color = `rgb(${data.r_ears}, ${data.g_ears}, ${data.b_ears})`;
-  const color2 = `rgb(${data.r_ears2}, ${data.g_ears2}, ${data.b_ears2})`;
-  const color3 = `rgb(${data.r_ears3}, ${data.g_ears3}, ${data.b_ears3})`;
+  const color = data.ears_color1;
+  const color2 = data.ears_color2;
+  const color3 = data.ears_color3;
 
   let styles = staticData.available_ear_styles;
   styles.sort();

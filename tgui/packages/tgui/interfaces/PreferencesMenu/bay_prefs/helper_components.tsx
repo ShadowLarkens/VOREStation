@@ -5,13 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import {
-  Button,
-  ColorBox,
-  Image as ImageComp,
-  ImageButton,
-  Stack,
-} from 'tgui-core/components';
+import { Button, ColorBox, ImageButton, Stack } from 'tgui-core/components';
 
 export const getImage = async (url: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
@@ -67,28 +61,28 @@ export const CanvasBackedImage = (props: {
 export const ColorizedImage = (props: {
   iconRef: string;
   iconState: string;
+  preRender?: (ctx: OffscreenCanvasRenderingContext2D) => Promise<void>;
+  postRender?: (ctx: OffscreenCanvasRenderingContext2D) => Promise<void>;
   color?: string | null;
 }) => {
-  const { iconRef, iconState, color } = props;
-
-  // TODO: Remove when we drop support for 515/IE - fallback
-  if (Byond.TRIDENT) {
-    return (
-      <ImageComp
-        src={`${iconRef}?state=${iconState}&dir=2&frame=1`}
-        width="64px"
-        height="64px"
-      />
-    );
-  }
+  const { iconRef, iconState, color, preRender, postRender } = props;
 
   const render = useCallback(
     async (canvas: OffscreenCanvas, ctx: OffscreenCanvasRenderingContext2D) => {
       // Pixel art please
       ctx.imageSmoothingEnabled = false;
 
+      if (preRender) await preRender(ctx);
+
       // Load the image from the server
-      let image = await getImage(`${iconRef}?state=${iconState}&dir=2&frame=1`);
+      let image;
+      try {
+        image = await getImage(`${iconRef}?state=${iconState}&dir=2&frame=1`);
+      } catch (e) {
+        ctx.fillStyle = '#ff0000';
+        ctx.fillRect(0, 0, 64, 64);
+        return;
+      }
 
       // Draw the image to the canvas
       ctx.drawImage(image, 0, 0, 64, 64);
@@ -101,8 +95,15 @@ export const ColorizedImage = (props: {
       // Use the image as a mask
       ctx.globalCompositeOperation = 'destination-in';
       ctx.drawImage(image, 0, 0, 64, 64);
+
+      // Color background white
+      // ctx.globalCompositeOperation = 'source-out';
+      // ctx.fillStyle = '#ffffff';
+      // ctx.fillRect(0, 0, 64, 64);
+
+      if (postRender) await postRender(ctx);
     },
-    [iconRef, iconState, color],
+    [iconRef, iconState, color, preRender, postRender],
   );
 
   return <CanvasBackedImage render={render} />;
@@ -126,6 +127,7 @@ export const CustomImageButton = (
       tooltip={props.tooltip}
       selected={props.selected}
       buttons={props.buttons}
+      verticalAlign="top"
     >
       {props.children}
     </ImageButton>
@@ -138,17 +140,33 @@ export const ColorizedImageButton = (
     iconState: string;
     color?: string | null;
     onClick: () => void;
+    preRender?: (ctx: OffscreenCanvasRenderingContext2D) => Promise<void>;
+    postRender?: (ctx: OffscreenCanvasRenderingContext2D) => Promise<void>;
     selected?: boolean;
     tooltip?: string;
     buttons?: ReactNode;
   }>,
 ) => {
-  const { iconRef, iconState, color, onClick, selected } = props;
+  const {
+    iconRef,
+    iconState,
+    color,
+    onClick,
+    selected,
+    preRender,
+    postRender,
+  } = props;
 
   return (
     <CustomImageButton
       image={
-        <ColorizedImage iconRef={iconRef} iconState={iconState} color={color} />
+        <ColorizedImage
+          iconRef={iconRef}
+          iconState={iconState}
+          color={color}
+          preRender={preRender}
+          postRender={postRender}
+        />
       }
       onClick={onClick}
       selected={selected}

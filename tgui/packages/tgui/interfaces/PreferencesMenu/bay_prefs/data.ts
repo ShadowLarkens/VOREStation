@@ -61,6 +61,8 @@ export type EarStyle = StandardStyle & { type: string };
 
 export type MarkingStyle = StandardStyle & {
   genetic: BooleanLike;
+  icon: string;
+  icon_state: string;
   body_parts: string[];
 };
 
