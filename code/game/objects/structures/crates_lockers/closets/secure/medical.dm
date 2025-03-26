@@ -49,7 +49,7 @@
 		/obj/item/storage/box/freezer = 3,
 		/obj/item/storage/belt/medical) //VOREStation Add
 
-/obj/structure/closet/secure_closet/medical3/Initialize()
+/obj/structure/closet/secure_closet/medical3/Initialize(mapload)
 	if(prob(50))
 		starts_with += /obj/item/storage/backpack/medic
 	else
@@ -144,7 +144,7 @@
 		/obj/item/clothing/under/rank/neo_cmo_skirt,
 		/obj/item/clothing/under/rank/neo_cmo_turtle,
 		/obj/item/clothing/under/rank/neo_cmo_turtle_skirt,
-		/obj/item/clothing/under/rank/neo_cmo_gorka,
+		/obj/item/clothing/under/rank/neo_gorka/cmo,
 		/obj/item/radio/headset/heads/cmo,
 		/obj/item/radio/headset/alt/heads/cmo,
 		/obj/item/radio/headset/earbud/heads/cmo,
@@ -164,7 +164,7 @@
 		/obj/item/reagent_containers/glass/beaker/vial, //VOREStation Add
 		/obj/item/storage/belt/medical) //VOREStation Add
 
-/obj/structure/closet/secure_closet/CMO/Initialize()
+/obj/structure/closet/secure_closet/CMO/Initialize(mapload)
 	if(prob(50))
 		starts_with += /obj/item/storage/backpack/medic
 	else

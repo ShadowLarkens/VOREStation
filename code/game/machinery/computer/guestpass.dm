@@ -59,7 +59,7 @@
 			expired = 1
 	return ..()
 
-/obj/item/card/id/guest/Initialize()
+/obj/item/card/id/guest/Initialize(mapload)
 	. = ..()
 	START_PROCESSING(SSobj, src)
 	update_icon()
@@ -101,8 +101,8 @@
 	var/list/internal_log = list()
 	var/mode = 0  // 0 - making pass, 1 - viewing logs
 
-/obj/machinery/computer/guestpass/New()
-	..()
+/obj/machinery/computer/guestpass/Initialize(mapload)
+	. = ..()
 	uid = "[rand(100,999)]-G[rand(10,99)]"
 
 
@@ -136,7 +136,7 @@
 	if(giver)
 		to_chat(usr, span_notice("You remove \the [giver] from \the [src]."))
 		giver.loc = get_turf(src)
-		if(!usr.get_active_hand() && istype(usr,/mob/living/carbon/human))
+		if(!usr.get_active_hand() && ishuman(usr))
 			usr.put_in_hands(giver)
 		else
 			giver.loc = src.loc

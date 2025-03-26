@@ -100,6 +100,10 @@ var/list/channel_to_radio_key = new
 		if(S.speaking && (S.speaking.flags & NO_STUTTER || S.speaking.flags & SIGNLANG))
 			continue
 
+		if(disabilities & CENSORED)
+			S.message = censor_swears(S.message) // Googlybonkers
+			. = 1
+
 		if((HULK in mutations) && health >= 25 && length(S.message))
 			S.message = "[uppertext(S.message)]!!!"
 			verb = pick("yells","roars","hollers")
@@ -113,12 +117,15 @@ var/list/channel_to_radio_key = new
 			S.message = stutter(S.message)
 			verb = pick("stammers","stutters")
 			. = 1
-		//VOREStation Edit Start
 		if(muffled)
 			verb = pick("muffles")
 			whispering = 1
 			. = 1
-		//VOREStation Edit End
+		if(disabilities & WINGDINGS)
+			verb = pick("gibbers","gabbers","gahoos","gazonks") // Yeah lets just be stupid
+			S.message = Gibberish(S.message, 100) // Googlybonkers
+			S.message = span_wingdings((S.message))
+			. = 1
 
 	message_data[1] = message_pieces
 	message_data[2] = verb
@@ -171,7 +178,7 @@ var/list/channel_to_radio_key = new
 	//Maybe they are using say/whisper to do a quick emote, so do those
 	switch(copytext(message, 1, 2))
 		if("*") return emote(copytext(message, 2))
-		if("^") return custom_emote(1, copytext(message, 2))
+		if("^") return custom_emote(VISIBLE_MESSAGE, copytext(message, 2))
 
 	//Parse the radio code and consume it
 	if(message_mode)
@@ -311,7 +318,7 @@ var/list/channel_to_radio_key = new
 	//Handle nonverbal languages here
 	for(var/datum/multilingual_say_piece/S in message_pieces)
 		if((S.speaking.flags & NONVERBAL) || (S.speaking.flags & INAUDIBLE))
-			custom_emote(1, "[pick(S.speaking.signlang_verb)].")
+			custom_emote(VISIBLE_MESSAGE, "[pick(S.speaking.signlang_verb)].")
 			do_sound = FALSE
 
 	//These will contain the main receivers of the message

@@ -59,7 +59,7 @@
 
 /obj/machinery/organ_printer/attackby(var/obj/item/O, var/mob/user)
 	if(default_deconstruction_screwdriver(user, O))
-		updateUsrDialog()
+		updateUsrDialog(user)
 		return
 	if(default_deconstruction_crowbar(user, O))
 		return
@@ -78,7 +78,7 @@
 		add_overlay("bioprinter_working")
 	//VOREStation Edit End
 
-/obj/machinery/organ_printer/Initialize()
+/obj/machinery/organ_printer/Initialize(mapload)
 	. = ..()
 	default_apply_parts()
 
@@ -271,7 +271,7 @@
 	icon_state = "bioprinter"
 	circuit = /obj/item/circuitboard/bioprinter
 
-/obj/machinery/organ_printer/flesh/full/Initialize()
+/obj/machinery/organ_printer/flesh/full/Initialize(mapload)
 	. = ..()
 	container = new /obj/item/reagent_containers/glass/bottle/biomass(src)
 
@@ -338,7 +338,7 @@
 	var/matter_amount_per_sheet = 10
 	var/matter_type = MAT_STEEL
 
-/obj/machinery/organ_printer/robot/full/New()
+/obj/machinery/organ_printer/robot/full/Initialize(mapload)
 	. = ..()
 	stored_matter = max_stored_matter
 

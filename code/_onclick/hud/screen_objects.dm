@@ -291,40 +291,40 @@
 					var/mob/living/carbon/C = usr
 					if(C.legcuffed)
 						to_chat(C, span_notice("You are legcuffed! You cannot run until you get [C.legcuffed] removed!"))
-						C.m_intent = "walk"	//Just incase
+						C.m_intent = I_WALK	//Just incase
 						C.hud_used.move_intent.icon_state = "walking"
 						return 1
 				var/mob/living/L = usr
 				switch(L.m_intent)
-					if("run")
-						L.m_intent = "walk"
+					if(I_RUN)
+						L.m_intent = I_WALK
 						L.hud_used.move_intent.icon_state = "walking"
-					if("walk")
-						L.m_intent = "run"
+					if(I_WALK)
+						L.m_intent = I_RUN
 						L.hud_used.move_intent.icon_state = "running"
 		if("m_intent")
 			if(!usr.m_int)
 				switch(usr.m_intent)
-					if("run")
+					if(I_RUN)
 						usr.m_int = "13,14"
-					if("walk")
+					if(I_WALK)
 						usr.m_int = "14,14"
 					if("face")
 						usr.m_int = "15,14"
 			else
 				usr.m_int = null
-		if("walk")
-			usr.m_intent = "walk"
+		if(I_WALK)
+			usr.m_intent = I_WALK
 			usr.m_int = "14,14"
 		if("face")
 			usr.m_intent = "face"
 			usr.m_int = "15,14"
-		if("run")
-			usr.m_intent = "run"
+		if(I_RUN)
+			usr.m_intent = I_RUN
 			usr.m_int = "13,14"
 		if("Reset Machine")
 			usr.unset_machine()
-		if("internal")
+		if("internal") //dear god this entire thing needs to be rewritten this is literally assaulting my eyes with how awful it is. FUCK.
 			if(iscarbon(usr))
 				var/mob/living/carbon/C = usr
 				if(!C.stat && !C.stunned && !C.paralysis && !C.restrained())
@@ -368,6 +368,12 @@
 									nicename |= "hardsuit"
 									tankcheck |= Rig.air_supply
 
+							var/obj/item/clothing/suit/space/void/Void = C.get_voidsuit()
+							if(Void && Void.tank)
+								from = "in"
+								nicename |= "hardsuit"
+								tankcheck |= Void.tank
+
 							for(var/i=1, i<tankcheck.len+1, ++i)
 								if(istype(tankcheck[i], /obj/item/tank))
 									var/obj/item/tank/t = tankcheck[i]
@@ -390,7 +396,7 @@
 												contents.Add(0)
 
 										// No races breath this, but never know about downstream servers.
-										if ("carbon dioxide")
+										if (GAS_CO2)
 											if(t.air_contents.gas[GAS_CO2] && !t.air_contents.gas[GAS_PHORON])
 												contents.Add(t.air_contents.gas[GAS_CO2])
 											else
@@ -532,15 +538,15 @@
 					to_chat(R, "You haven't selected a module yet.")
 
 		if("module1")
-			if(istype(usr, /mob/living/silicon/robot))
+			if(isrobot(usr))
 				usr:toggle_module(1)
 
 		if("module2")
-			if(istype(usr, /mob/living/silicon/robot))
+			if(isrobot(usr))
 				usr:toggle_module(2)
 
 		if("module3")
-			if(istype(usr, /mob/living/silicon/robot))
+			if(isrobot(usr))
 				usr:toggle_module(3)
 
 		if("AI Core")
@@ -707,17 +713,20 @@
 	plane = PLANE_PLAYER_HUD_ABOVE
 	var/client/holder
 
-/obj/screen/splash/New(client/C, visible)
+INITIALIZE_IMMEDIATE(/obj/screen/splash)
+/obj/screen/splash/Initialize(mapload, visible)
 	. = ..()
 
-	holder = C
+	if(!isclient(loc))
+		return INITIALIZE_HINT_QDEL
+
+	holder = loc
 
 	if(!visible)
 		alpha = 0
 
 	if(!lobby_image)
-		qdel(src)
-		return
+		return INITIALIZE_HINT_QDEL
 
 	icon = lobby_image.icon
 	icon_state = lobby_image.icon_state
@@ -776,6 +785,7 @@
 	var/obj/screen/mapper/extras_holder/extras_holder
 
 /obj/screen/movable/mapper_holder/Initialize(mapload, newowner)
+	. = ..()
 	owner = newowner
 
 	mask_full = new(src) // Full white square mask
@@ -863,8 +873,8 @@
 	mouse_opacity = 0
 	var/obj/screen/movable/mapper_holder/parent
 
-/obj/screen/mapper/New()
-	..()
+/obj/screen/mapper/Initialize(mapload)
+	. = ..()
 	parent = loc
 
 /obj/screen/mapper/Destroy()

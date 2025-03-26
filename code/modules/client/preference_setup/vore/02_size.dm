@@ -1,6 +1,4 @@
 // Body weight limits on a character.
-#define WEIGHT_MIN 70
-#define WEIGHT_MAX 500
 #define WEIGHT_CHANGE_MIN 0
 #define WEIGHT_CHANGE_MAX 100
 
@@ -16,6 +14,7 @@
 	var/voice_freq = 0
 	var/voice_sound = "beep-boop"
 	var/custom_speech_bubble = "default"
+	var/custom_footstep = "Default"
 
 // Definition of the stuff for Sizing
 /datum/category_item/player_setup_item/vore/size
@@ -32,6 +31,7 @@
 	pref.voice_freq			= save_data["voice_freq"]
 	pref.voice_sound		= save_data["voice_sound"]
 	pref.custom_speech_bubble	= save_data["custom_speech_bubble"]
+	pref.custom_footstep	= save_data["custom_footstep"]
 
 /datum/category_item/player_setup_item/vore/size/save_character(list/save_data)
 	save_data["size_multiplier"]	= pref.size_multiplier
@@ -43,6 +43,7 @@
 	save_data["voice_freq"]			= pref.voice_freq
 	save_data["voice_sound"]		= pref.voice_sound
 	save_data["custom_speech_bubble"]		= pref.custom_speech_bubble
+	save_data["custom_footstep"]	= pref.custom_footstep
 
 /datum/category_item/player_setup_item/vore/size/sanitize_character()
 	pref.weight_vr			= sanitize_integer(pref.weight_vr, WEIGHT_MIN, WEIGHT_MAX, initial(pref.weight_vr))
@@ -56,6 +57,8 @@
 		pref.size_multiplier = initial(pref.size_multiplier)
 	if(!(pref.custom_speech_bubble in selectable_speech_bubbles))
 		pref.custom_speech_bubble = "default"
+	if(!(pref.custom_footstep))
+		pref.custom_footstep = "Default"
 
 /datum/category_item/player_setup_item/vore/size/copy_to_mob(var/mob/living/carbon/human/character)
 	character.weight			= pref.weight_vr
@@ -70,6 +73,7 @@
 	else
 		character.voice_sounds_list = get_talk_sound(pref.voice_sound)
 	character.custom_speech_bubble = pref.custom_speech_bubble
+	character.custom_footstep = pref.custom_footstep
 
 /datum/category_item/player_setup_item/vore/size/content(var/mob/user)
 	. += "<br>"
@@ -80,6 +84,7 @@
 	. += span_bold("Voice Sounds:") + " <a href='byond://?src=\ref[src];voice_sounds_list=1'>[pref.voice_sound]</a><br>"
 	. += "<a href='byond://?src=\ref[src];voice_test=1'><b>Test Selected Voice</b></a><br>"
 	. += span_bold("Custom Speech Bubble:") + " <a href='byond://?src=\ref[src];customize_speech_bubble=1'>[pref.custom_speech_bubble]</a><br>"
+	. += span_bold("Custom Footstep Sounds:") + "<a href='byond://?src=\ref[src];customize_footsteps=1'>[pref.custom_footstep]</a><br>"
 	. += "<br>"
 	. += span_bold("Relative Weight:") + " <a href='byond://?src=\ref[src];weight=1'>[pref.weight_vr]</a><br>"
 	. += span_bold("Weight Gain Rate:") + " <a href='byond://?src=\ref[src];weight_gain=1'>[pref.weight_gain]</a><br>"
@@ -87,13 +92,13 @@
 
 /datum/category_item/player_setup_item/vore/size/OnTopic(var/href, var/list/href_list, var/mob/user)
 	if(href_list["size_multiplier"])
-		var/new_size = tgui_input_number(user, "Choose your character's size, ranging from 25% to 200%", "Set Size", null, 200, 25)
-		if (!ISINRANGE(new_size,25,200))
+		var/new_size = tgui_input_number(user, "Choose your character's size, ranging from [RESIZE_MINIMUM * 100]% to [RESIZE_MAXIMUM * 100]%", "Set Size", pref.size_multiplier * 100, RESIZE_MAXIMUM * 100, RESIZE_MINIMUM * 100)
+		if (!ISINRANGE(new_size, RESIZE_MINIMUM * 100, RESIZE_MAXIMUM * 100))
 			pref.size_multiplier = 1
 			to_chat(user, span_notice("Invalid size."))
 			return TOPIC_REFRESH_UPDATE_PREVIEW
 		else if(new_size)
-			pref.size_multiplier = (new_size/100)
+			pref.size_multiplier = (new_size / 100)
 			return TOPIC_REFRESH_UPDATE_PREVIEW
 
 	else if(href_list["toggle_fuzzy"])
@@ -106,9 +111,9 @@
 
 	else if(href_list["weight"])
 		var/new_weight = tgui_input_number(user, "Choose your character's relative body weight.\n\
-			This measurement should be set relative to a normal 5'10'' person's body and not the actual size of your character.\n\
-			If you set your weight to 500 because you're a naga or have metal implants then complain that you're a blob I\n\
-			swear to god I will find you and I will punch you for not reading these directions!\n\
+			Note: Scifi characters come in all shapes and sizes in this game, and not all follow the traditional shape of a human. Like a naga or a taur or a giant will weigh a\n\
+			lot more than what this allows, or a micro will weigh a lot less. Just ignore all of that for a second and PRETEND the weight you're setting is visually for an \n\
+			average human. This is the best solution we have at the moment.!\n\
 			([WEIGHT_MIN]-[WEIGHT_MAX])", "Character Preference", null, WEIGHT_MAX, WEIGHT_MIN, round_value=FALSE)
 		if(new_weight)
 			var/unit_of_measurement = tgui_alert(user, "Is that number in pounds (lb) or kilograms (kg)?", "Confirmation", list("Pounds", "Kilograms"))
@@ -141,7 +146,7 @@
 
 	else if(href_list["voice_freq"])
 		var/list/preset_voice_freqs = list("high" = MAX_VOICE_FREQ, "middle-high" = 56250, "middle" = 42500, "middle-low"= 28750, "low" = MIN_VOICE_FREQ, "custom" = 1, "random" = 0)
-		var/choice = tgui_input_list(usr, "What would you like to set your voice frequency to? ([MIN_VOICE_FREQ] - [MAX_VOICE_FREQ])", "Voice Frequency", preset_voice_freqs)
+		var/choice = tgui_input_list(user, "What would you like to set your voice frequency to? ([MIN_VOICE_FREQ] - [MAX_VOICE_FREQ])", "Voice Frequency", preset_voice_freqs)
 		if(!choice)
 			return
 		choice = preset_voice_freqs[choice]
@@ -173,19 +178,26 @@
 			"goon speak pugg",
 			"goon speak roach",
 			"goon speak skelly")
-		var/choice = tgui_input_list(usr, "Which set of sounds would you like to use for your character's speech sounds?", "Voice Sounds", possible_voice_types)
+		var/choice = tgui_input_list(user, "Which set of sounds would you like to use for your character's speech sounds?", "Voice Sounds", possible_voice_types)
 		if(!choice)
 			pref.voice_sound = "beep-boop"
 		else
 			pref.voice_sound = choice
 		return TOPIC_REFRESH
 	else if(href_list["customize_speech_bubble"])
-		var/choice = tgui_input_list(usr, "What speech bubble style do you want to use? (default for automatic selection)", "Custom Speech Bubble", selectable_speech_bubbles)
+		var/choice = tgui_input_list(user, "What speech bubble style do you want to use? (default for automatic selection)", "Custom Speech Bubble", selectable_speech_bubbles)
 		if(!choice)
 			pref.custom_speech_bubble = "default"
 		else
 			pref.custom_speech_bubble = choice
 		return TOPIC_REFRESH
+
+	else if(href_list["customize_footsteps"])
+		var/list/footstep_choice = selectable_footstep
+		var/choice = tgui_input_list(user, "What footstep sounds would your character make?", "Custom Foostep Sounds", footstep_choice)
+		if(choice)
+			pref.custom_footstep = footstep_choice[choice]
+			return TOPIC_REFRESH
 
 	else if(href_list["voice_test"])
 		var/sound/S
@@ -225,7 +237,5 @@
 
 	return ..();
 
-#undef WEIGHT_MIN
-#undef WEIGHT_MAX
 #undef WEIGHT_CHANGE_MIN
 #undef WEIGHT_CHANGE_MAX

@@ -1,7 +1,7 @@
 /client/proc/modify_robot(var/mob/living/silicon/robot/target in silicon_mob_list)
 	set name = "Modify Robot"
 	set desc = "Allows to add or remove modules to/from robots."
-	set category = "Admin"
+	set category = "Admin.Silicon"
 	if(!check_rights(R_ADMIN|R_FUN|R_VAREDIT|R_EVENT))
 		return
 
@@ -13,7 +13,7 @@
 /datum/eventkit/modify_robot
 	var/mob/living/silicon/robot/target
 	var/mob/living/silicon/robot/source
-	var/mob/living/silicon/ai/selected_ai
+	var/selected_ai
 	var/ion_law	= "IonLaw"
 	var/zeroth_law = "ZerothLaw"
 	var/inherent_law = "InherentLaw"
@@ -45,13 +45,13 @@
 
 /datum/eventkit/modify_robot/ui_assets(mob/user)
 	return list(
-		get_asset_datum(/datum/asset/spritesheet/robot_icons)
+		get_asset_datum(/datum/asset/spritesheet_batched/robot_icons)
 	)
 
 /datum/eventkit/modify_robot/tgui_data(mob/user)
 	. = list()
 	// Target section for general data
-	var/datum/asset/spritesheet/robot_icons/spritesheet = get_asset_datum(/datum/asset/spritesheet/robot_icons)
+	var/datum/asset/spritesheet_batched/robot_icons/spritesheet = get_asset_datum(/datum/asset/spritesheet_batched/robot_icons)
 
 	if(target)
 		.["target"] = list()
@@ -144,7 +144,7 @@
 			continue
 		active_ais += list(list("displayText" = "[ai]", "value" = "\ref[ai]"))
 	.["active_ais"] = active_ais
-	.["selected_ai"] = selected_ai ? selected_ai.name : null
+	.["selected_ai"] = selected_ai ? selected_ai : null
 
 	var/list/channels = list()
 	for(var/ch_name in target.law_channels())
@@ -349,8 +349,8 @@
 				target.radio.keyslot = new /obj/item/encryptionkey/syndicate(target)
 				target.radio.syndie = 1
 			target.module.channels += list("[selected_radio_channel]" = 1)
-			target.radio.channels[selected_radio_channel] += target.module.channels[selected_radio_channel]
-			target.radio.secure_radio_connections[selected_radio_channel] += radio_controller.add_object(target.radio, radiochannels[selected_radio_channel],  RADIO_CHAT)
+			target.radio.channels[selected_radio_channel] = target.module.channels[selected_radio_channel]
+			target.radio.secure_radio_connections[selected_radio_channel] = radio_controller.add_object(target.radio, radiochannels[selected_radio_channel],  RADIO_CHAT)
 			return TRUE
 		if("rem_channel")
 			var/selected_radio_channel = params["channel"]
@@ -363,7 +363,7 @@
 				target.radio.syndie = 0
 			target.radio.channels = list()
 			for(var/n_chan in target.module.channels)
-				target.radio.channels[n_chan] -= target.module.channels[n_chan]
+				target.radio.channels[n_chan] = target.module.channels[n_chan]
 			radio_controller.remove_object(target.radio, radiochannels[selected_radio_channel])
 			target.radio.secure_radio_connections -= selected_radio_channel
 			return TRUE
@@ -589,7 +589,7 @@
 		target_items += list(list("name" = item.name, "ref" = "\ref[item]", "icon" = icon2html(item, user, sourceonly=TRUE), "desc" = item.desc))
 	return target_items
 
-/datum/eventkit/modify_robot/proc/get_module_source(var/mob/user, var/datum/asset/spritesheet/robot_icons/spritesheet)
+/datum/eventkit/modify_robot/proc/get_module_source(var/mob/user, var/datum/asset/spritesheet_batched/robot_icons/spritesheet)
 	var/list/source_list = list()
 	source_list["model"] = source.module
 	source_list["sprite"] = sanitize_css_class_name("[source.sprite_datum.type]")
@@ -785,4 +785,4 @@
 	return (is_admin(user) && !target.is_slaved()) || is_special_role(user)
 
 /datum/eventkit/modify_robot/proc/is_special_role(var/mob/user)
-	return user.mind.special_role ? TRUE : FALSE
+	return user.mind?.special_role ? TRUE : FALSE

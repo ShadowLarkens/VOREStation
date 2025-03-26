@@ -18,10 +18,10 @@
 	var/blast_light = 2
 	var/blast_flash = 3
 
-/obj/item/plastique/New()
+/obj/item/plastique/Initialize(mapload)
+	. = ..()
 	wires = new(src)
 	image_overlay = image('icons/obj/assemblies.dmi', "plastic-explosive2")
-	..()
 
 /obj/item/plastique/Destroy()
 	qdel(wires)
@@ -82,7 +82,7 @@
 		if (istype(target, /turf/simulated/wall))
 			var/turf/simulated/wall/W = target
 			W.dismantle_wall(1,1,1)
-		else if(istype(target, /mob/living))
+		else if(isliving(target))
 			target.ex_act(2) // c4 can't gib mobs anymore.
 		else
 			target.ex_act(1)

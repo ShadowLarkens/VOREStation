@@ -8,8 +8,8 @@
 	var/codelen = 4
 	locked = 1
 
-/obj/structure/closet/crate/secure/loot/New()
-	..()
+/obj/structure/closet/crate/secure/loot/Initialize(mapload)
+	. = ..()
 	var/list/digits = list("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
 
 	for(var/i in 1 to codelen)
@@ -148,12 +148,12 @@
 vorestation edit end */
 
 
-/obj/structure/closet/crate/secure/loot/togglelock(mob/user as mob)
+/obj/structure/closet/crate/secure/loot/togglelock(mob/user)
 	if(!locked)
 		return
 
 	to_chat(user, span_notice("The crate is locked with a Deca-code lock."))
-	var/input = tgui_input_text(usr, "Enter [codelen] digits. All digits must be unique.", "Deca-Code Lock", "")
+	var/input = tgui_input_text(user, "Enter [codelen] digits. All digits must be unique.", "Deca-Code Lock", "")
 	if(!Adjacent(user))
 		return
 	var/list/sanitised = list()

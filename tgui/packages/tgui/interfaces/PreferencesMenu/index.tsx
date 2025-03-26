@@ -1,4 +1,3 @@
-import { exhaustiveCheck } from 'common/exhaustive';
 import { useBackend } from 'tgui/backend';
 
 import { CharacterPreferenceWindow } from './CharacterPreferenceWindow';
@@ -25,7 +24,5 @@ export const PreferencesMenu = (props) => {
           startingPage={GamePreferencesSelectedPage.Keybindings}
         />
       );
-    default:
-      exhaustiveCheck(window);
   }
 };

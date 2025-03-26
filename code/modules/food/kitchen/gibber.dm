@@ -23,7 +23,7 @@
 /obj/machinery/gibber/autogibber
 	var/turf/input_plate
 
-/obj/machinery/gibber/autogibber/Initialize()
+/obj/machinery/gibber/autogibber/Initialize(mapload)
 	. = ..()
 	for(var/i in cardinal)
 		var/obj/machinery/mineral/input/input_obj = locate( /obj/machinery/mineral/input, get_step(src.loc, i) )
@@ -57,8 +57,8 @@
 			M.gib()
 
 
-/obj/machinery/gibber/New()
-	..()
+/obj/machinery/gibber/Initialize(mapload)
+	. = ..()
 	add_overlay("grjam")
 
 /obj/machinery/gibber/update_icon()
@@ -127,11 +127,11 @@
 		to_chat(user, span_danger("The gibber is locked and running, wait for it to finish."))
 		return
 
-	if(!(istype(victim, /mob/living/carbon)) && !(istype(victim, /mob/living/simple_mob)) )
+	if(!(iscarbon(victim)) && !(isanimal(victim)) )
 		to_chat(user, span_danger("This is not suitable for the gibber!"))
 		return
 
-	if(istype(victim,/mob/living/carbon/human) && !emagged)
+	if(ishuman(victim) && !emagged)
 		to_chat(user, span_danger("The gibber safety guard is engaged!"))
 		return
 
@@ -195,7 +195,7 @@
 
 	var/list/byproducts = occupant?.butchery_loot?.Copy()
 
-	if(istype(src.occupant,/mob/living/carbon/human))
+	if(ishuman(src.occupant))
 		var/mob/living/carbon/human/H = occupant
 		slab_name = src.occupant.real_name
 		slab_type = H.isSynthetic() ? /obj/item/stack/material/steel : H.species.meat_type

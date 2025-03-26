@@ -17,9 +17,9 @@
 
 	client?.stop_thinking()
 	if(use_me)
-		usr.emote_vr("me",4,message)
+		emote_vr("me",4,message)
 	else
-		usr.emote_vr(message)
+		emote_vr(message)
 
 /mob/verb/me_verb_subtle_custom(message as message) // Literally same as above but with mode_selection set to true
 	set name = "Subtle (Custom)"
@@ -35,9 +35,9 @@
 
 	client?.stop_thinking()
 	if(use_me)
-		usr.emote_vr("me",4,message,TRUE)
+		emote_vr("me",4,message,TRUE)
 	else
-		usr.emote_vr(message)
+		emote_vr(message)
 
 /mob/proc/custom_emote_vr(var/m_type=1,var/message = null,var/mode_selection = FALSE) //This would normally go in emote.dm
 	if(stat || !use_me && usr == src)
@@ -195,8 +195,8 @@
 				continue
 			if(src.client && M && !(get_z(src) == get_z(M)))
 				message = span_multizsay("[message]")
-			if(isobserver(M) && (!(M.client?.prefs?.read_preference(/datum/preference/toggle/ghost_see_whisubtle) || (isbelly(M.loc) && src == M.loc:owner)) || \
-			!client?.prefs?.read_preference(/datum/preference/toggle/whisubtle_vis) && !M.client?.holder))
+			if(isobserver(M) && (!M.read_preference(/datum/preference/toggle/ghost_see_whisubtle) || \
+			(!(read_preference(/datum/preference/toggle/whisubtle_vis) || (isbelly(M.loc) && src == M.loc:owner)) && !M.client?.holder)))
 				spawn(0)
 					M.show_message(undisplayed_message, 2)
 			else
@@ -218,14 +218,14 @@
 /proc/sanitize_or_reflect(message,user)
 	//Way too long to send
 	if(length(message) > MAX_HUGE_MESSAGE_LEN)
-		fail_to_chat(user)
+		fail_chat_message(user)
 		return
 
 	message = sanitize(message, max_length = MAX_HUGE_MESSAGE_LEN)
 
 	//Came back still too long to send
 	if(length(message) > MAX_MESSAGE_LEN)
-		fail_to_chat(user,message)
+		fail_chat_message(user,message)
 		return null
 	else
 		return message
@@ -233,11 +233,11 @@
 // returns true if it failed
 /proc/reflect_if_needed(message, user)
 	if(length(message) > MAX_HUGE_MESSAGE_LEN)
-		fail_to_chat(user)
+		fail_chat_message(user)
 		return TRUE
 	return FALSE
 
-/proc/fail_to_chat(user,message)
+/proc/fail_chat_message(user,message)
 	if(!message)
 		to_chat(user, span_danger("Your message was NOT SENT, either because it was FAR too long, or sanitized to nothing at all."))
 		return
@@ -260,7 +260,7 @@
 			to_chat(src, span_warning("You cannot speak in IC (muted)."))
 			return
 	if (!message)
-		message = tgui_input_text(usr, "Type a message to say.","Psay")
+		message = tgui_input_text(src, "Type a message to say.","Psay")
 	message = sanitize_or_reflect(message,src)
 	if (!message)
 		return
@@ -335,7 +335,7 @@
 			if(M.read_preference(/datum/preference/toggle/subtle_sounds))
 				M << sound('sound/talksounds/subtle_sound.ogg', volume = 50)
 		for (var/mob/G in player_list)
-			if (istype(G, /mob/new_player))
+			if (isnewplayer(G))
 				continue
 			else if(isobserver(G) &&  G.client?.prefs?.read_preference(/datum/preference/toggle/ghost_ears) && \
 			G.client?.prefs?.read_preference(/datum/preference/toggle/ghost_see_whisubtle))
@@ -357,7 +357,7 @@
 			to_chat(src, span_warning("You cannot speak in IC (muted)."))
 			return
 	if (!message)
-		message = tgui_input_text(usr, "Type a message to emote.","Pme")
+		message = tgui_input_text(src, "Type a message to emote.","Pme")
 	message = sanitize_or_reflect(message,src)
 	if (!message)
 		return
@@ -432,7 +432,7 @@
 			if(M.read_preference(/datum/preference/toggle/subtle_sounds))
 				M << sound('sound/talksounds/subtle_sound.ogg', volume = 50)
 		for (var/mob/G in player_list)
-			if (istype(G, /mob/new_player))
+			if (isnewplayer(G))
 				continue
 			else if(isobserver(G) && G.client?.prefs?.read_preference(/datum/preference/toggle/ghost_ears) && \
 			G.client?.prefs?.read_preference(/datum/preference/toggle/ghost_see_whisubtle))
@@ -452,7 +452,7 @@
 			to_chat(src, span_warning("You cannot speak in IC (muted)."))
 			return
 	if(!message)
-		message = tgui_input_text(usr, "Type a message to narrate.","Narrate")
+		message = tgui_input_text(src, "Type a message to narrate.","Narrate")
 	message = sanitize_or_reflect(message,src)
 	if(!message)
 		return

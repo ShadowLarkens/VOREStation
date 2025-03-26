@@ -70,17 +70,15 @@ var/global/list/obj/machinery/message_server/message_servers = list()
 			//Messages having theese tokens will be rejected by server. Case sensitive
 	var/spamfilter_limit = MESSAGE_SERVER_DEFAULT_SPAM_LIMIT	//Maximal amount of tokens
 
-/obj/machinery/message_server/New()
+/obj/machinery/message_server/Initialize(mapload)
+	. = ..()
 	message_servers += src
 	decryptkey = GenerateKey()
 	send_pda_message("System Administrator", "system", "This is an automated message. The messaging system is functioning correctly.")
-	..()
-	return
 
 /obj/machinery/message_server/Destroy()
 	message_servers -= src
-	..()
-	return
+	return ..()
 
 /obj/machinery/message_server/examine(mob/user, distance, infix, suffix)
 	. = ..()
@@ -107,7 +105,7 @@ var/global/list/obj/machinery/message_server/message_servers = list()
 	var/result
 	for (var/token in spamfilter)
 		if (findtextEx(message,token))
-			message = "<font color=\"red\">[message]</font>"	//Rejected messages will be indicated by red color.
+			message = span_red("[message]")	//Rejected messages will be indicated by red color.
 			result = token										//Token caused rejection (if there are multiple, last will be chosen>.
 	pda_msgs += new/datum/data_pda_msg(recipient,sender,message)
 	return result
@@ -142,7 +140,7 @@ var/global/list/obj/machinery/message_server/message_servers = list()
 
 
 /obj/machinery/message_server/attack_hand(user as mob)
-//	to_chat(user, "<font color='blue'>There seem to be some parts missing from this server. They should arrive on the station in a few days, give or take a few CentCom delays.</font>")
+//	to_chat(user, span_blue("There seem to be some parts missing from this server. They should arrive on the station in a few days, give or take a few CentCom delays."))
 	to_chat(user, span_filter_notice("You toggle PDA message passing from [active ? "On" : "Off"] to [active ? "Off" : "On"]."))
 	active = !active
 	update_icon()
@@ -263,10 +261,11 @@ var/obj/machinery/blackbox_recorder/blackbox
 	var/list/datum/feedback_variable/feedback = new()
 
 	//Only one can exist in the world!
-/obj/machinery/blackbox_recorder/New()
+/obj/machinery/blackbox_recorder/Initialize(mapload)
+	. = ..()
 	if(blackbox)
 		if(istype(blackbox,/obj/machinery/blackbox_recorder))
-			qdel(src)
+			return INITIALIZE_HINT_QDEL
 	blackbox = src
 
 /obj/machinery/blackbox_recorder/Destroy()
@@ -289,7 +288,7 @@ var/obj/machinery/blackbox_recorder/blackbox
 		BR.messages_admin = messages_admin
 		if(blackbox != BR)
 			blackbox = BR
-	..()
+	. = ..()
 
 /obj/machinery/blackbox_recorder/proc/find_feedback_datum(var/variable)
 	for(var/datum/feedback_variable/FV in feedback)
@@ -348,22 +347,23 @@ var/obj/machinery/blackbox_recorder/blackbox
 
 	round_end_data_gathering() //round_end time logging and some other data processing
 	establish_db_connection()
-	if(!dbcon.IsConnected()) return
+	if(!SSdbcore.IsConnected()) return
 	var/round_id
 
-	var/DBQuery/query = dbcon.NewQuery("SELECT MAX(round_id) AS round_id FROM erro_feedback")
+	var/datum/db_query/query = SSdbcore.NewQuery("SELECT MAX(round_id) AS round_id FROM erro_feedback")
 	query.Execute()
 	while(query.NextRow())
 		round_id = query.item[1]
-
+	qdel(query)
 	if(!isnum(round_id))
 		round_id = text2num(round_id)
 	round_id++
 
 	for(var/datum/feedback_variable/FV in feedback)
 		var/sql = "INSERT INTO erro_feedback VALUES (null, Now(), [round_id], \"[FV.get_variable()]\", [FV.get_value()], \"[FV.get_details()]\")"
-		var/DBQuery/query_insert = dbcon.NewQuery(sql)
+		var/datum/db_query/query_insert = SSdbcore.NewQuery(sql)
 		query_insert.Execute()
+		qdel(query_insert)
 
 // Sanitize inputs to avoid SQL injection attacks
 /proc/sql_sanitize_text(var/text)

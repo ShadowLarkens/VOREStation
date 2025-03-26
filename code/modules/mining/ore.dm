@@ -148,7 +148,7 @@
 	icon_state = "slag"
 	material = null
 
-/obj/item/ore/Initialize()
+/obj/item/ore/Initialize(mapload)
 	. = ..()
 	randpixel_xy()
 
@@ -175,7 +175,7 @@
 	name = "ore chunk"
 	desc = "A conglomerate of ore."
 	icon = 'icons/obj/mining_ore_vr.dmi'
-	icon_state = "strange"
+	icon_state = "ore2"
 	randpixel = 8
 	w_class = ITEMSIZE_SMALL
 	var/list/stored_ore = list(

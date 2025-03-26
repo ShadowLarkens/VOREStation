@@ -14,10 +14,10 @@ SUBSYSTEM_DEF(planets)
 	var/static/list/needs_sun_update = list()
 	var/static/list/needs_temp_update = list()
 
-/datum/controller/subsystem/planets/Initialize(timeofday)
+/datum/controller/subsystem/planets/Initialize()
 	admin_notice(span_danger("Initializing planetary weather."), R_DEBUG)
 	createPlanets()
-	..()
+	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/planets/proc/createPlanets()
 	var/list/planet_datums = using_map.planet_datums_to_make
@@ -25,7 +25,9 @@ SUBSYSTEM_DEF(planets)
 		var/datum/planet/NP = new P()
 		planets.Add(NP)
 		for(var/Z in NP.expected_z_levels)
-			if(Z > z_to_planet.len)
+			if(!isnum(Z))
+				Z = GLOB.map_templates_loaded[Z]
+			if(Z > length(z_to_planet))
 				z_to_planet.len = Z
 			if(z_to_planet[Z])
 				admin_notice(span_danger("Z[Z] is shared by more than one planet!"), R_DEBUG)
@@ -45,7 +47,6 @@ SUBSYSTEM_DEF(planets)
 		else if(istype(T, /turf/simulated) && T.is_outdoors())
 			P.planet_floors += T
 			P.weather_holder.apply_to_turf(T)
-			P.sun_holder.apply_to_turf(T)
 
 /datum/controller/subsystem/planets/proc/removeTurf(var/turf/T,var/is_edge)
 	if(z_to_planet.len >= T.z)
@@ -108,6 +109,7 @@ SUBSYSTEM_DEF(planets)
 
 	var/new_color = P.sun["color"]
 	P.sun_holder.update_color(new_color)
+	SSlighting.update_sunlight(SSlighting.get_pshandler_planet(P))
 
 /datum/controller/subsystem/planets/proc/updateTemp(var/datum/planet/P)
 	//Set new temperatures

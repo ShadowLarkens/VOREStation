@@ -41,7 +41,7 @@
 			continue
 		if(A.flag_check(RAD_SHIELDED))
 			continue
-		if(istype(C,/mob/living/carbon/human))
+		if(ishuman(C))
 			var/mob/living/carbon/human/H = C
 			var/chance = 5.0
 			chance -= (chance / 100) * C.getarmor(null, "rad")
@@ -52,6 +52,7 @@
 				else
 					randmutg(H) // Applies good mutation
 					domutcheck(H,null,MUTCHK_FORCED)
+				H.UpdateAppearance()
 
 /datum/event/radiation_storm/end()
 	revoke_maint_all_access()

@@ -10,6 +10,7 @@
 	icon = DRINK_ICON_FILE
 	var/base_icon = "square" // Base icon name
 	volume = 30
+	icon_state = "square"
 
 	var/list/filling_states // List of percentages full that have icons
 
@@ -17,7 +18,8 @@
 
 	var/rim_pos
 
-	center_of_mass = list("x"=16, "y"=10)
+	center_of_mass_x = 16
+	center_of_mass_y = 10
 
 	amount_per_transfer_from_this = 5
 	possible_transfer_amounts = list(5,10,15,30)
@@ -63,7 +65,7 @@
 				return 1
 	return 0
 
-/obj/item/reagent_containers/food/drinks/glass2/Initialize()
+/obj/item/reagent_containers/food/drinks/glass2/Initialize(mapload)
 	. = ..()
 	icon_state = base_icon
 

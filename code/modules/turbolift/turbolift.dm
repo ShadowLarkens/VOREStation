@@ -9,7 +9,7 @@
 	var/floor_wait_delay = 85                           // Time to wait at floor stops.
 	var/obj/structure/lift/panel/control_panel_interior // Lift control panel.
 	var/doors_closing = 0								// Whether doors are in the process of closing
-	var/list/music = null								// Elevator music to set on areas
+	var/list/music = list('sound/music/elevator.ogg')	// Elevator music to set on areas
 	var/priority_mode = FALSE							// Flag to block buttons from calling the elevator if in priority mode.
 	var/fire_mode = FALSE								// Flag to indicate firefighter mode is active.
 
@@ -192,7 +192,7 @@
 
 	for(var/turf/T in destination)
 		for(var/atom/movable/AM in T)
-			if(istype(AM, /mob/living) && !(AM.is_incorporeal()))
+			if(isliving(AM) && !(AM.is_incorporeal()))
 				var/mob/living/M = AM
 				M.gib()
 			else if(AM.simulated && !(istype(AM, /mob/observer)) && !(AM.is_incorporeal()))

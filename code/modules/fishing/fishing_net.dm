@@ -22,7 +22,7 @@
 
 	var/list/accepted_mobs = list(/mob/living/simple_mob/animal/passive/fish)
 
-/obj/item/material/fishing_net/Initialize()
+/obj/item/material/fishing_net/Initialize(mapload)
 	. = ..()
 	update_icon()
 
@@ -146,7 +146,7 @@
 		for(var/D in accepted_mobs)
 			if(istype(A, D))
 				var/mob/M = A
-				if(istype(M, /mob/living/carbon/human) && M.size_multiplier > 0.5)
+				if(ishuman(M) && M.size_multiplier > 0.5)
 					accept = FALSE
 				else if(A == user)
 					accept = FALSE

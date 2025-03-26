@@ -33,7 +33,7 @@ SUBSYSTEM_DEF(supply)
 		else
 			qdel(P)
 
-	. = ..()
+	return SS_INIT_SUCCESS
 
 // Supply shuttle ticker - handles supply point regeneration. Just add points over time.
 /datum/controller/subsystem/supply/fire()
@@ -119,7 +119,19 @@ SUBSYSTEM_DEF(supply)
 						EC.contents[EC.contents.len]["quantity"] = cashmoney.worth
 						EC.value += EC.contents[EC.contents.len]["value"]
 
-
+					if(istype(A, /obj/item/reagent_containers/glass/bottle/vaccine))
+						var/obj/item/reagent_containers/glass/bottle/vaccine/sale_bottle = A
+						if(!istype(CR, /obj/structure/closet/crate/freezer))
+							EC.contents = list(
+								"error" = "Error: Product was improperly packaged. Send conents in freezer crate to preserve contents for transport."
+							)
+						else if(sale_bottle.reagents.reagent_list.len != 1 || sale_bottle.reagents.get_reagent_amount(REAGENT_ID_VACCINE) < sale_bottle.volume)
+							EC.contents = list(
+								"error" = "Error: Tainted product in batch. Was opened, contaminated, or was full. Payment rendered null under terms of agreement."
+							)
+						else
+							EC.contents[EC.contents.len]["value"] = 5
+							EC.value += EC.contents[EC.contents.len]["value"]
 
 			// Make a log of it, but it wasn't shipped properly, and so isn't worth anything
 			else

@@ -15,12 +15,11 @@
 		to_chat(src, span_warning("You need to be closer to do that."))
 		return
 
-	if ( ! (istype(src, /mob/living/carbon/human) || \
-			istype(src, /mob/living/silicon)) )
+	if ( ! (ishuman(src) || issilicon(src)) )
 		to_chat(src, span_warning("If you even have a tongue, it doesn't work that way."))
 		return
 
-	if (istype(M, /mob/living/carbon/human))
+	if (ishuman(M))
 		var/mob/living/carbon/human/H = M
 		var/obj/item/organ/external/affecting = H.get_organ(src.zone_sel.selecting)
 
@@ -60,7 +59,7 @@
 
 		else
 			visible_message(span_infoplain(span_bold("\The [src]") + " starts licking the wounds on [M]'s [affecting.name] clean."), \
-					             span_notice("You start licking the wounds on [M]'s [affecting.name] clean.") )
+								span_notice("You start licking the wounds on [M]'s [affecting.name] clean.") )
 
 			for (var/datum/wound/W in affecting.wounds)
 
@@ -77,11 +76,11 @@
 
 				else
 					visible_message(span_notice("\The [src] [pick("slathers \a [W.desc] on [M]'s [affecting.name] with their spit.",
-																			   "drags their tongue across \a [W.desc] on [M]'s [affecting.name].",
-																			   "drips saliva onto \a [W.desc] on [M]'s [affecting.name].",
-																			   "uses their tongue to disinfect \a [W.desc] on [M]'s [affecting.name].",
-																			   "licks \a [W.desc] on [M]'s [affecting.name], cleaning it.")]"), \
-					                        	span_notice("You treat \a [W.desc] on [M]'s [affecting.name] with your antiseptic saliva.") )
+																"drags their tongue across \a [W.desc] on [M]'s [affecting.name].",
+																"drips saliva onto \a [W.desc] on [M]'s [affecting.name].",
+																"uses their tongue to disinfect \a [W.desc] on [M]'s [affecting.name].",
+																"licks \a [W.desc] on [M]'s [affecting.name], cleaning it.")]"), \
+												span_notice("You treat \a [W.desc] on [M]'s [affecting.name] with your antiseptic saliva.") )
 					adjust_nutrition(-20)
 					W.salve()
 					W.bandage()

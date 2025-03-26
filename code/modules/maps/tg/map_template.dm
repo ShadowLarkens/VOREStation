@@ -1,6 +1,7 @@
 /datum/map_template
 	var/name = "Default Template Name"
 	var/desc = "Some text should go here. Maybe."
+	var/name_alias // Override to what this map gets registered as in map_templates_loaded
 	var/template_group = null // If this is set, no more than one template in the same group will be spawned, per submap seeding.
 	var/width = 0
 	var/height = 0
@@ -15,11 +16,12 @@
 	var/discard_prob = 0 // If non-zero, there is a chance that the map seeding algorithm will skip this template when selecting potential templates to use.
 
 /datum/map_template/New(path = null, rename = null)
+	SHOULD_CALL_PARENT(TRUE)
+	. = ..()
 	if(path)
 		mappath = path
 	if(mappath)
-		spawn(1)
-			preload_size(mappath)
+		preload_size(mappath)
 	if(rename)
 		name = rename
 
@@ -44,9 +46,8 @@
 	var/list/obj/structure/cable/cables = list()
 	var/list/obj/machinery/atmospherics/atmos_machines = list()
 	var/list/turf/turfs = block(locate(bounds[MAP_MINX], bounds[MAP_MINY], bounds[MAP_MINZ]),
-	                   			locate(bounds[MAP_MAXX], bounds[MAP_MAXY], bounds[MAP_MAXZ]))
+								locate(bounds[MAP_MAXX], bounds[MAP_MAXY], bounds[MAP_MAXZ]))
 	for(var/turf/B as anything in turfs)
-		atoms += B
 		areas |= B.loc
 		for(var/A in B)
 			atoms += A
@@ -57,7 +58,7 @@
 	atoms |= areas
 
 	admin_notice(span_danger("Initializing newly created atom(s) in submap."), R_DEBUG)
-	SSatoms.InitializeAtoms(atoms)
+	SSatoms.InitializeAtoms(areas + turfs + atoms)
 
 	admin_notice(span_danger("Initializing atmos pipenets and machinery in submap."), R_DEBUG)
 	SSmachines.setup_atmos_machinery(atmos_machines)
@@ -84,6 +85,7 @@
 		x = round((world.maxx - width)/2)
 		y = round((world.maxy - height)/2)
 
+	on_map_preload(world.maxz + 1) //VOREStation Edit
 	var/datum/bapi_parsed_map/map = load_map_bapi(mappath, x, y, no_changeturf = TRUE)
 	var/list/bounds = map.bounds
 	if(!bounds)

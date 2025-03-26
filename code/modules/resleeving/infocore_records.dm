@@ -98,11 +98,13 @@
 		init_from_mob(copyfrom, add_to_db, ckeylock)
 
 /datum/transhuman/body_record/Destroy()
-	mydna = null
+	qdel_null(mydna.dna)
+	qdel_null(mydna)
 	client_ref = null
 	mind_ref = null
 	limb_data.Cut()
 	organ_data.Cut()
+	..()
 	return QDEL_HINT_HARDDEL // For now at least there is no easy way to clear references to this in machines etc.
 
 /datum/transhuman/body_record/proc/init_from_mob(var/mob/living/carbon/human/M, var/add_to_db = 0, var/ckeylock = 0, var/database_key)
@@ -133,7 +135,7 @@
 
 	//The DNA2 stuff
 	mydna = new ()
-	mydna.dna = M.dna.Clone()
+	qdel_swap(mydna.dna, M.dna.Clone())
 	mydna.ckey = M.ckey
 	mydna.id = copytext(md5(M.real_name), 2, 6)
 	mydna.name = M.dna.real_name
@@ -165,7 +167,7 @@
 	for(var/org in organ_data)
 		var/obj/item/organ/I = M.internal_organs_by_name[org]
 
-		 //Who knows? Missing lungs maybe on synths, etc.
+		//Who knows? Missing lungs maybe on synths, etc.
 		if(!I)
 			continue
 
@@ -195,7 +197,7 @@
 
 
 /**
- * Make a deep copy of this record so it can be saved on a disk without mofidications
+ * Make a deep copy of this record so it can be saved on a disk without modifications
  * to the original affecting the copy.
  * Just to be clear, this has nothing to do do with acutal biological cloning, body printing, resleeving,
  * or anything like that! This is the computer science concept of "cloning" a data structure!
@@ -204,7 +206,7 @@
 	ASSERT(!QDELETED(orig))
 	ASSERT(istype(orig))
 	src.mydna = new ()
-	src.mydna.dna = orig.mydna.dna.Clone()
+	qdel_swap(src.mydna.dna, orig.mydna.dna.Clone())
 	src.mydna.ckey = orig.mydna.ckey
 	src.mydna.id = orig.mydna.id
 	src.mydna.name = orig.mydna.name
@@ -218,9 +220,13 @@
 	src.speciesname = orig.speciesname
 	src.bodygender = orig.bodygender
 	src.body_oocnotes = orig.body_oocnotes
+	src.body_ooclikes = orig.body_ooclikes
+	src.body_oocdislikes = orig.body_oocdislikes
 	src.limb_data = orig.limb_data.Copy()
 	src.organ_data = orig.organ_data.Copy()
 	src.genetic_modifiers = orig.genetic_modifiers.Copy()
 	src.toocomplex = orig.toocomplex
 	src.sizemult = orig.sizemult
 	src.aflags = orig.aflags
+	src.breath_type = orig.breath_type
+	src.weight = orig.weight

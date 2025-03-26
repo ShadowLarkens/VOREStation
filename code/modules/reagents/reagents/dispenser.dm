@@ -331,6 +331,22 @@
 				new /obj/effect/decal/cleanable/greenglow(T)
 			return
 
+/datum/reagent/radium/concentrated
+	name = REAGENT_CONCENTRATEDRADIUM
+	id = REAGENT_ID_CONCENTRATEDRADIUM
+	description = "Concentrated Radium is a more potent variant of regular radium, able to pierce and irradiate a subject through their skin."
+	taste_mult = 0	//Apparently radium is tasteless
+	reagent_state = SOLID
+	color = "#C7C7C7"
+
+/datum/reagent/radium/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
+	if(issmall(M)) removed *= 2
+	M.apply_effect(10 * removed, IRRADIATE, 0) // Radium may increase your chances to cure a disease
+
+/datum/reagent/radium/affect_touch(var/mob/living/carbon/M, var/alien, var/removed)
+	if(issmall(M)) removed *= 2
+	M.apply_effect(10 * removed, IRRADIATE, 0) // Radium may increase your chances to cure a disease
+
 /datum/reagent/acid
 	name = REAGENT_SACID
 	id = REAGENT_ID_SACID
@@ -394,7 +410,7 @@
 		M.take_organ_damage(0, removed * power * 0.2) //burn damage, since it causes chemical burns. Acid doesn't make bones shatter, like brute trauma would.
 		return
 	if(!M.unacidable && removed > 0)
-		if(istype(M, /mob/living/carbon/human) && volume >= meltdose)
+		if(ishuman(M) && volume >= meltdose)
 			var/mob/living/carbon/human/H = M
 			var/obj/item/organ/external/affecting = H.get_organ(BP_HEAD)
 			if(affecting)

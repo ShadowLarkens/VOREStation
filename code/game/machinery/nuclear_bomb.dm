@@ -22,11 +22,11 @@ var/bomb_set
 	var/safety_wire
 	var/timing_wire
 	var/removal_stage = 0 // 0 is no removal, 1 is covers removed, 2 is covers open,
-	                      // 3 is sealant open, 4 is unwrenched, 5 is removed from bolts.
+	  					// 3 is sealant open, 4 is unwrenched, 5 is removed from bolts.
 	use_power = USE_POWER_OFF
 
-/obj/machinery/nuclearbomb/New()
-	..()
+/obj/machinery/nuclearbomb/Initialize(mapload)
+	. = ..()
 	r_code = "[rand(10000, 99999.0)]"//Creates a random code upon object spawn.
 	wires["Red"] = 0
 	wires["Blue"] = 0
@@ -52,7 +52,7 @@ var/bomb_set
 		for(var/mob/M in viewers(1, src))
 			if((M.client && M.machine == src))
 				attack_hand(M)
-	return
+	return ..()
 
 /obj/machinery/nuclearbomb/attackby(obj/item/O as obj, mob/user as mob)
 	if(O.has_tool_quality(TOOL_SCREWDRIVER))
@@ -186,7 +186,7 @@ var/bomb_set
 			if(yes_code)
 				message = "*****"
 		dat += text("<HR>\n>[]<BR>\n<A href='byond://?src=\ref[];type=1'>1</A>-<A href='byond://?src=\ref[];type=2'>2</A>-<A href='byond://?src=\ref[];type=3'>3</A><BR>\n<A href='byond://?src=\ref[];type=4'>4</A>-<A href='byond://?src=\ref[];type=5'>5</A>-<A href='byond://?src=\ref[];type=6'>6</A><BR>\n<A href='byond://?src=\ref[];type=7'>7</A>-<A href='byond://?src=\ref[];type=8'>8</A>-<A href='byond://?src=\ref[];type=9'>9</A><BR>\n<A href='byond://?src=\ref[];type=R'>R</A>-<A href='byond://?src=\ref[];type=0'>0</A>-<A href='byond://?src=\ref[];type=E'>E</A><BR>\n</TT>", message, src, src, src, src, src, src, src, src, src, src, src, src)
-		user << browse(dat, "window=nuclearbomb;size=300x400")
+		user << browse("<html>[dat]</html>", "window=nuclearbomb;size=300x400")
 		onclose(user, "nuclearbomb")
 	else if(deployable)
 		if(removal_stage < 5)
@@ -412,9 +412,9 @@ var/bomb_set
 
 #undef NUKERANGE
 
-/obj/item/disk/nuclear/New()
-	..()
-	nuke_disks |= src
+/obj/item/disk/nuclear/Initialize(mapload)
+	. = ..()
+	nuke_disks += src
 
 /obj/item/disk/nuclear/Destroy()
 	if(!nuke_disks.len && blobstart.len > 0)

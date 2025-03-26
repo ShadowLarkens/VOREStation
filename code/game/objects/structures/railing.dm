@@ -30,7 +30,7 @@
 	if(climbable)
 		verbs += /obj/structure/proc/climb_on
 
-/obj/structure/railing/Initialize()
+/obj/structure/railing/Initialize(mapload)
 	. = ..()
 	if(src.anchored)
 		update_icon(0)
@@ -233,7 +233,7 @@
 	// Handle harm intent grabbing/tabling.
 	if(istype(W, /obj/item/grab) && get_dist(src,user)<2)
 		var/obj/item/grab/G = W
-		if (istype(G.affecting, /mob/living))
+		if (isliving(G.affecting))
 			var/mob/living/M = G.affecting
 			var/obj/occupied = turf_is_crowded()
 			if(occupied)
@@ -277,7 +277,6 @@
 		if(3.0)
 			qdel(src)
 			return
-		else
 	return
 
 // Duplicated from structures.dm, but its a bit different.

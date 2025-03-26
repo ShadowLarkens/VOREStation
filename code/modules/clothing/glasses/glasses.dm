@@ -6,7 +6,7 @@ SEE_MOBS  // can see all mobs, no matter what
 SEE_OBJS  // can see all objs, no matter what
 SEE_TURFS // can see all turfs (and areas), no matter what
 SEE_PIXELS// if an object is located on an unlit area, but some of its pixels are
-          // in a lit area (via pixel_x,y or smooth movement), can see those pixels
+  			// in a lit area (via pixel_x,y or smooth movement), can see those pixels
 BLIND     // can't see anything
 */
 ///////////////////////////////////////////////////////////////////////
@@ -97,8 +97,8 @@ BLIND     // can't see anything
 	vision_flags = SEE_TURFS
 	enables_planes = list(VIS_FULLBRIGHT, VIS_MESONS)
 
-/obj/item/clothing/glasses/meson/New()
-	..()
+/obj/item/clothing/glasses/meson/Initialize(mapload)
+	. = ..()
 	overlay = global_hud.meson
 
 /obj/item/clothing/glasses/meson/prescription
@@ -142,8 +142,8 @@ BLIND     // can't see anything
 	actions_types = list(/datum/action/item_action/toggle_goggles)
 	item_flags = AIRTIGHT
 
-/obj/item/clothing/glasses/science/New()
-	..()
+/obj/item/clothing/glasses/science/Initialize(mapload)
+	. = ..()
 	overlay = global_hud.science
 
 /obj/item/clothing/glasses/goggles
@@ -172,8 +172,8 @@ BLIND     // can't see anything
 	species_restricted = list("Vox")
 	flags = PHORONGUARD
 
-/obj/item/clothing/glasses/night/New()
-	..()
+/obj/item/clothing/glasses/night/Initialize(mapload)
+	. = ..()
 	overlay = global_hud.nvg
 
 /obj/item/clothing/glasses/eyepatch
@@ -190,7 +190,7 @@ BLIND     // can't see anything
 	set name = "Switch Eyepatch"
 	set category = "Object"
 	set src in usr
-	if(!istype(usr, /mob/living)) return
+	if(!isliving(usr)) return
 	if(usr.stat) return
 
 	eye = !eye
@@ -214,7 +214,7 @@ BLIND     // can't see anything
 	set name = "Switch Eyepatch"
 	set category = "Object"
 	set src in usr
-	if(!istype(usr, /mob/living)) return
+	if(!isliving(usr)) return
 	if(usr.stat) return
 
 	eye = !eye
@@ -242,8 +242,8 @@ BLIND     // can't see anything
 	vision_flags = SEE_OBJS
 	enables_planes = list(VIS_FULLBRIGHT)
 
-/obj/item/clothing/glasses/material/New()
-	..()
+/obj/item/clothing/glasses/material/Initialize(mapload)
+	. = ..()
 	overlay = global_hud.material
 
 /obj/item/clothing/glasses/material/prescription
@@ -264,8 +264,8 @@ BLIND     // can't see anything
 	flash_protection = FLASH_PROTECTION_REDUCED
 	enables_planes = list(VIS_FULLBRIGHT, VIS_MESONS)
 
-/obj/item/clothing/glasses/graviton/New()
-	..()
+/obj/item/clothing/glasses/graviton/Initialize(mapload)
+	. = ..()
 	overlay = global_hud.material
 
 /obj/item/clothing/glasses/regular
@@ -353,21 +353,21 @@ BLIND     // can't see anything
 	icon_state = "salesman"
 	var/ar = 0
 
-/obj/item/clothing/glasses/sunglasses/bigshot/examine(mob/user as mob)
+/obj/item/clothing/glasses/sunglasses/bigshot/examine(mob/user)
 	. = ..()
-	. += to_chat(usr, span_notice("Alt-click to toggle modes."))
+	. += to_chat(user, span_notice("Alt-click to toggle modes."))
 
-/obj/item/clothing/glasses/sunglasses/bigshot/AltClick()
+/obj/item/clothing/glasses/sunglasses/bigshot/AltClick(mob/user)
 	set src in usr
-	if(usr.canmove && !usr.stat && !usr.restrained())
+	if(user.canmove && !user.stat && !user.restrained())
 		if(src.ar)
 			src.ar = !src.ar
 			icon_state = initial(icon_state)
-			to_chat(usr, "You press a small button on \the [src] and deactivate the AR mode.")
+			to_chat(user, "You press a small button on \the [src] and deactivate the AR mode.")
 		else
 			src.ar = !src.ar
 			icon_state = "[initial(icon_state)]_fzz"
-			to_chat(usr, "You press a small button on \the [src] and activate the AR mode.")
+			to_chat(user, "You press a small button on \the [src] and activate the AR mode.")
 		update_clothing_icon()
 
 /obj/item/clothing/glasses/welding
@@ -496,12 +496,12 @@ BLIND     // can't see anything
 			flash_protection = FLASH_PROTECTION_NONE
 			enables_planes = away_planes
 			away_planes = null
-			to_chat(usr, "You switch the [src] to HUD mode.")
+			to_chat(user, "You switch the [src] to HUD mode.")
 		else
 			flash_protection = initial(flash_protection)
 			away_planes = enables_planes
 			enables_planes = null
-			to_chat(usr, "You switch \the [src] to flash protection mode.")
+			to_chat(user, "You switch \the [src] to flash protection mode.")
 		update_icon()
 		user << activation_sound
 		user.recalculate_vis()
@@ -538,7 +538,7 @@ BLIND     // can't see anything
 	flash_protection = FLASH_PROTECTION_REDUCED
 
 /obj/item/clothing/glasses/thermal/emp_act(severity)
-	if(istype(src.loc, /mob/living/carbon/human))
+	if(ishuman(src.loc))
 		var/mob/living/carbon/human/M = src.loc
 		to_chat(M, span_red("The Optical Thermal Scanner overloads and blinds you!"))
 		if(M.glasses == src)
@@ -551,8 +551,8 @@ BLIND     // can't see anything
 					M.disabilities &= ~NEARSIGHTED
 	..()
 
-/obj/item/clothing/glasses/thermal/New()
-	..()
+/obj/item/clothing/glasses/thermal/Initialize(mapload)
+	. = ..()
 	overlay = global_hud.thermal
 
 /obj/item/clothing/glasses/thermal/syndi	//These are now a traitor item, concealed as mesons.	-Pete

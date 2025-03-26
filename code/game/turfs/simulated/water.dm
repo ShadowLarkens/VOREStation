@@ -21,10 +21,8 @@
 
 	var/reagent_type = REAGENT_ID_WATER
 
-/turf/simulated/floor/water/Initialize()
+/turf/simulated/floor/water/Initialize(mapload)
 	. = ..()
-	var/decl/flooring/F = get_flooring_data(/decl/flooring/water)
-	footstep_sounds = F?.footstep_sounds
 	update_icon()
 	handle_fish()
 
@@ -97,7 +95,7 @@
 	return return_air() // Otherwise their head is above the water, so get the air from the atmosphere instead.
 
 /turf/simulated/floor/water/Entered(atom/movable/AM, atom/oldloc)
-	if(istype(AM, /mob/living))
+	if(isliving(AM))
 		var/mob/living/L = AM
 		L.update_water()
 		if(L.check_submerged() <= 0)
@@ -108,7 +106,7 @@
 	..()
 
 /turf/simulated/floor/water/Exited(atom/movable/AM, atom/newloc)
-	if(istype(AM, /mob/living))
+	if(isliving(AM))
 		var/mob/living/L = AM
 		L.update_water()
 		if(L.check_submerged() <= 0)
@@ -232,7 +230,7 @@ var/list/shoreline_icon_cache = list()
 
 /turf/simulated/floor/water/contaminated/Entered(atom/movable/AM, atom/oldloc)
 	..()
-	if(istype(AM, /mob/living))
+	if(isliving(AM))
 		var/mob/living/L = AM
 		if(L.isSynthetic())
 			return
@@ -254,7 +252,7 @@ var/list/shoreline_icon_cache = list()
 	return "bloodshallow"
 
 /turf/simulated/floor/water/blood/Entered(atom/movable/AM, atom/oldloc)
-	if(istype(AM, /mob/living))
+	if(isliving(AM))
 		var/mob/living/L = AM
 		L.update_water()
 		if(L.check_submerged() <= 0)

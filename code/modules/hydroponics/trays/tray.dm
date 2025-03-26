@@ -175,7 +175,7 @@
 			nymph.visible_message(span_notice(span_bold("[nymph]") + " rolls around in [src] for a bit."),span_notice("You roll around in [src] for a bit."))
 		return
 
-/obj/machinery/portable_atmospherics/hydroponics/Initialize()
+/obj/machinery/portable_atmospherics/hydroponics/Initialize(mapload)
 	..()
 	if(!ov_lowhealth)	 //VOREStation Add
 		setup_overlays() //VOREStation Add
@@ -235,6 +235,17 @@
 		mutchance *= GY.lasermod
 		if(prob(mutchance))
 			yield_mod = min(10,yield_mod+rand(1,2))
+			return
+	else if(istype(Proj, /obj/item/projectile/energy/floraprune))
+		var/obj/item/projectile/energy/floraprune/GP = Proj
+		mutchance *= GP.lasermod
+		if(prob(mutchance) && seed)
+			var/c = safepick(seed.chems)
+			if(length(seed.chems) > 1 && c)
+				var/turf/T = get_turf(loc)
+				seed = seed.diverge()
+				T.visible_message(span_infoplain(span_bold("\The [seed.display_name]") + " quivers!"))
+				seed.chems -= c
 			return
 
 	..()
@@ -424,7 +435,7 @@
 
 	if(usr.incapacitated())
 		return
-	if(ishuman(usr) || istype(usr, /mob/living/silicon/robot))
+	if(ishuman(usr) || isrobot(usr))
 		if(labelled)
 			to_chat(usr, span_filter_notice("You remove the label."))
 			labelled = null
@@ -440,7 +451,7 @@
 
 	if(usr.incapacitated())
 		return
-	if(ishuman(usr) || istype(usr, /mob/living/silicon/robot))
+	if(ishuman(usr) || isrobot(usr))
 		var/new_light = tgui_input_list(usr, "Specify a light level.", "Light Level", list(0,1,2,3,4,5,6,7,8,9,10))
 		if(new_light)
 			tray_light = new_light
@@ -615,15 +626,15 @@
 
 	return
 
-/obj/machinery/portable_atmospherics/hydroponics/attack_tk(mob/user as mob)
+/obj/machinery/portable_atmospherics/hydroponics/attack_tk(mob/user)
 	if(dead)
 		remove_dead(user)
 	else if(harvest)
 		harvest(user)
 
-/obj/machinery/portable_atmospherics/hydroponics/attack_hand(mob/user as mob)
+/obj/machinery/portable_atmospherics/hydroponics/attack_hand(mob/user)
 
-	if(istype(usr,/mob/living/silicon))
+	if(istype(user,/mob/living/silicon))
 		return
 	if(frozen == 1)
 		to_chat(user, span_warning("Disable the cryogenic freezing first!"))
@@ -688,7 +699,7 @@
 	if(usr.incapacitated())
 		return
 
-	if(ishuman(usr) || istype(usr, /mob/living/silicon/robot))
+	if(ishuman(usr) || isrobot(usr))
 		close_lid(usr)
 	return
 

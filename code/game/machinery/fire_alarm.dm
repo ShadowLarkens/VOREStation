@@ -43,7 +43,7 @@ FIRE ALARM
 	. = ..()
 	. += "Current security level: [seclevel]"
 
-/obj/machinery/firealarm/Initialize()
+/obj/machinery/firealarm/Initialize(mapload)
 	. = ..()
 	if(!pixel_x && !pixel_y)
 		offset_alarm()
@@ -233,7 +233,7 @@ Just a object used in constructing fire alarms
 	ASSERT(isarea(A))
 	var/d1
 	var/d2
-	if(istype(user, /mob/living/carbon/human) || istype(user, /mob/living/silicon/ai))
+	if(ishuman(user) || isAI(user))
 
 		if(A.party)
 			d1 = text("<A href='byond://?src=\ref[];reset=1'>No Party :(</A>", src)
@@ -284,7 +284,7 @@ Just a object used in constructing fire alarms
 	..()
 	if(usr.stat || stat & (BROKEN|NOPOWER))
 		return
-	if((usr.contents.Find(src) || ((get_dist(src, usr) <= 1) && istype(loc, /turf))) || (istype(usr, /mob/living/silicon/ai)))
+	if((usr.contents.Find(src) || ((get_dist(src, usr) <= 1) && istype(loc, /turf))) || (isAI(usr)))
 		usr.machine = src
 		if(href_list["reset"])
 			reset()
@@ -296,7 +296,7 @@ Just a object used in constructing fire alarms
 			var/tp = text2num(href_list["tp"])
 			time += tp
 			time = min(max(round(time), 0), 120)
-		updateUsrDialog()
+		updateUsrDialog(usr)
 
 		add_fingerprint(usr)
 	else

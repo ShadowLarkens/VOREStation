@@ -67,6 +67,8 @@
 								"Vehicle",
 								"Rigsuit",
 								"Phazon",
+								"Pinnace",
+								"Baron",
 								"Gopher", // VOREStation Add
 								"Polecat", // VOREStation Add
 								"Weasel", // VOREStation Add
@@ -81,7 +83,7 @@
 								"Misc",
 								)
 
-/obj/machinery/mecha_part_fabricator/Initialize()
+/obj/machinery/mecha_part_fabricator/Initialize(mapload)
 	. = ..()
 
 // Go through all materials, and add them to the possible storage, but hide them unless we contain them.
@@ -183,6 +185,10 @@
 					category_override += "Durand"
 				if(mech_types & EXOSUIT_MODULE_PHAZON)
 					category_override += "Phazon"
+				if(mech_types & EXOSUIT_MODULE_PINNACE)
+					category_override += "Pinnace"
+				if(mech_types & EXOSUIT_MODULE_BARON)
+					category_override += "Baron"
 
 	var/list/part = list(
 		"name" = D.name,

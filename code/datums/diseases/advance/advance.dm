@@ -1,10 +1,19 @@
 GLOBAL_LIST_EMPTY(archive_diseases)
 
 GLOBAL_LIST_INIT(advance_cures, list(
-	REAGENT_ID_SODIUMCHLORIDE, REAGENT_ID_SUGAR, REAGENT_ID_ORANGEJUICE,
-	REAGENT_ID_SPACEACILLIN, REAGENT_ID_GLUCOSE, REAGENT_ID_ETHANOL,
-	REAGENT_ID_LEPORAZINE, REAGENT_ID_IMPEDREZENE, REAGENT_ID_HEPANEPHRODAXON,
-	REAGENT_ID_SILVER, REAGENT_ID_GOLD
+	REAGENT_ID_SPACEACILLIN,
+	REAGENT_ID_ORANGEJUICE,
+	REAGENT_ID_ETHANOL,
+	REAGENT_ID_GLUCOSE,
+	REAGENT_ID_COPPER,
+	REAGENT_ID_LEAD,
+	REAGENT_ID_LITHIUM,
+	REAGENT_ID_RADIUM,
+	REAGENT_ID_MERCURY,
+	REAGENT_ID_BLISS,
+	REAGENT_ID_MUTAGEN,
+	REAGENT_ID_PHORON,
+	REAGENT_ID_SACID
 ))
 
 /datum/disease/advance
@@ -13,6 +22,7 @@ GLOBAL_LIST_INIT(advance_cures, list(
 	form = "Advance Disease"
 	agent = "advance microbes"
 	max_stages = 5
+	disease_flags = CURABLE|CAN_CARRY|CAN_RESIST|CAN_NOT_POPULATE
 	spread_text = "Unknown"
 	viable_mobtypes = list(/mob/living/carbon/human)
 
@@ -222,11 +232,11 @@ GLOBAL_LIST_INIT(advance_cures, list(
 			severity = "Unknown"
 
 /datum/disease/advance/proc/GenerateCure(list/properties = list())
-    if(properties && length(properties))
-        var/res = clamp(properties["resistance"] - (length(symptoms) / 2), 1, length(GLOB.advance_cures))
-        cures = list(GLOB.advance_cures[res])
-        cure_text = cures[1]
-    return
+	if(properties && length(properties))
+		var/res = clamp(properties["resistance"] - (length(symptoms) / 2), 1, length(GLOB.advance_cures))
+		cures = list(GLOB.advance_cures[res])
+		cure_text = cures[1]
+	return
 
 // Randomly generate a symptom, has a chance to lose or gain a symptom.
 /datum/disease/advance/proc/Evolve(min_level, max_level)

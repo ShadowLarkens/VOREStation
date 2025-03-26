@@ -100,7 +100,7 @@
 	if(!ticker)
 		tgui_alert_async(usr, "Wait until the game starts")
 		return
-	if(istype(M, /mob/living/carbon/human))
+	if(ishuman(M))
 		log_admin("[key_name(src)] has robotized [M.key].")
 		spawn(10)
 			M:Robotize()
@@ -120,13 +120,13 @@
 		tgui_alert_async(usr, "That mob doesn't seem to exist, close the panel and try again.")
 		return
 
-	if(istype(M, /mob/new_player))
+	if(isnewplayer(M))
 		tgui_alert_async(usr, "The mob must not be a new_player.")
 		return
 
 	log_admin("[key_name(src)] has animalized [M.key].")
 	spawn(10)
-		M.Animalize()
+		M.Animalize(usr)
 
 
 /client/proc/makepAI()
@@ -239,15 +239,16 @@
 
 	dellog += "</ol>"
 
-	usr << browse(dellog.Join(), "window=dellog")
+	usr << browse("<html>[dellog.Join()]</html>", "window=dellog")
 
 /client/proc/cmd_display_init_log()
 	set category = "Debug.Investigate"
 	set name = "Display Initialize() Log"
 	set desc = "Displays a list of things that didn't handle Initialize() properly"
 
-	if(!check_rights(R_DEBUG))	return
-	src << browse(replacetext(SSatoms.InitLog(), "\n", "<br>"), "window=initlog")
+	if(!check_rights(R_DEBUG))
+		return
+	src << browse("<html>[replacetext(SSatoms.InitLog(), "\n", "<br>")]</html>", "window=initlog")
 
 /*
 /client/proc/cmd_display_overlay_log()
@@ -268,7 +269,7 @@
 		lines += "[entry] => [num2text(data[STAT_ENTRY_TIME], 10)]ms ([data[STAT_ENTRY_COUNT]]) (avg:[num2text(data[STAT_ENTRY_TIME]/(data[STAT_ENTRY_COUNT] || 1), 99)])"
 
 	if (user)
-		user << browse("<ol><li>[lines.Join("</li><li>")]</li></ol>", "window=[url_encode("stats:\ref[stats]")]")
+		user << browse("<html><ol><li>[lines.Join("</li><li>")]</li></ol></html>", "window=[url_encode("stats:\ref[stats]")]")
 	else
 		. = lines.Join("\n")
 
@@ -279,7 +280,7 @@
 	if (!ticker)
 		tgui_alert_async(usr, "Wait until the game starts")
 		return
-	if (istype(M, /mob/living/carbon/human))
+	if (ishuman(M))
 		var/mob/living/carbon/human/H = M
 		if (H.wear_id)
 			var/obj/item/card/id/id = H.wear_id
@@ -616,7 +617,7 @@
 	if(istype(M, /mob/living/carbon))
 		M.dna.SetSEState(block,!M.dna.GetSEState(block))
 		domutcheck(M,null,MUTCHK_FORCED)
-		M.update_mutations()
+		M.UpdateAppearance()
 		var/state="[M.dna.GetSEState(block)?"on":"off"]"
 		var/blockname=assigned_blocks[block]
 		message_admins("[key_name_admin(src)] has toggled [M.key]'s [blockname] block [state]!")
@@ -695,3 +696,44 @@
 				var/log = "[key_name(src)] changed [planet.name]'s time to [planet.current_time.show_time("hh:mm")]."
 				message_admins(log)
 				log_admin(log)
+
+/client/proc/cmd_regenerate_asset_cache()
+	set category = "Debug.Assets"
+	set name = "Regenerate Asset Cache"
+	set desc = "Clears the asset cache and regenerates it immediately."
+	if(!CONFIG_GET(flag/cache_assets))
+		to_chat(usr, span_warning("Asset caching is disabled in the config!"))
+		return
+	var/regenerated = 0
+	for(var/datum/asset/A as() in subtypesof(/datum/asset))
+		if(!initial(A.cross_round_cachable))
+			continue
+		if(A == initial(A._abstract))
+			continue
+		var/datum/asset/asset_datum = GLOB.asset_datums[A]
+		asset_datum.regenerate()
+		regenerated++
+	to_chat(usr, span_notice("Regenerated [regenerated] asset\s."))
+
+/client/proc/cmd_clear_smart_asset_cache()
+	set category = "Debug.Assets"
+	set name = "Clear Smart Asset Cache"
+	set desc = "Clears the smart asset cache."
+	if(!CONFIG_GET(flag/smart_cache_assets))
+		to_chat(usr, span_warning("Smart asset caching is disabled in the config!"))
+		return
+	var/cleared = 0
+	for(var/datum/asset/spritesheet_batched/A as() in subtypesof(/datum/asset/spritesheet_batched))
+		if(A == initial(A._abstract))
+			continue
+		fdel("[ASSET_CROSS_ROUND_SMART_CACHE_DIRECTORY]/spritesheet_cache.[initial(A.name)].json")
+		cleared++
+	to_chat(usr, span_notice("Cleared [cleared] asset\s."))
+
+// For spriters with long world loads, allows to reload test robot sprites
+/client/proc/cmd_reload_robot_sprite_test()
+	set category = "Debug.Sprites"
+	set name = "Reload Robot Test Sprites"
+	set desc = "Reloads the dmis from the test folder and creates the test datums."
+
+	SSrobot_sprites.reload_test_sprites()

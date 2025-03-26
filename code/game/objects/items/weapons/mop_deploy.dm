@@ -15,7 +15,8 @@
 	var/mopcount = 0
 
 
-/obj/item/mop_deploy/New()
+/obj/item/mop_deploy/Initialize(mapload)
+	. = ..()
 	create_reagents(5)
 	START_PROCESSING(SSobj, src)
 
@@ -56,13 +57,14 @@
 	user.drop_from_inventory(src)
 	spawn(1) if(!QDELETED(src)) qdel(src)
 
-/obj/item/mop_deploy/dropped()
+/obj/item/mop_deploy/dropped(mob/user)
+	..()
 	spawn(1) if(!QDELETED(src)) qdel(src)
 
 /obj/item/mop_deploy/process()
 	if(!creator || loc != creator || !creator.item_is_in_hands(src))
 		// Tidy up a bit.
-		if(istype(loc,/mob/living))
+		if(isliving(loc))
 			var/mob/living/carbon/human/host = loc
 			if(istype(host))
 				for(var/obj/item/organ/external/organ in host.organs)

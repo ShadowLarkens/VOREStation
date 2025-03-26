@@ -43,7 +43,7 @@
 	pickup_sound = 'sound/items/pickup/weldingtool.ogg'
 	tool_qualities = list(TOOL_WELDER)
 
-/obj/item/weldingtool/Initialize()
+/obj/item/weldingtool/Initialize(mapload)
 	. = ..()
 //	var/random_fuel = min(rand(10,20),max_fuel)
 	var/datum/reagents/R = new/datum/reagents(max_fuel)
@@ -111,32 +111,19 @@
 			to_chat(user, span_notice("You secure the welder."))
 		else
 			to_chat(user, span_notice("The welder can now be attached and modified."))
-		src.add_fingerprint(user)
+		add_fingerprint(user)
 		return
 
 	if((!status) && (istype(W,/obj/item/stack/rods)))
 		var/obj/item/stack/rods/R = W
 		R.use(1)
-		var/obj/item/flamethrower/F = new/obj/item/flamethrower(user.loc)
-		src.loc = F
+		var/obj/item/flamethrower/F = new/obj/item/flamethrower(get_turf(user))
+		user.drop_from_inventory(src,F)
 		F.weldtool = src
-		if (user.client)
-			user.client.screen -= src
-		if (user.r_hand == src)
-			user.remove_from_mob(src)
-		else
-			user.remove_from_mob(src)
-		src.master = F
-		src.layer = initial(src.layer)
-		user.remove_from_mob(src)
-		if (user.client)
-			user.client.screen -= src
-		src.loc = F
-		src.add_fingerprint(user)
+		add_fingerprint(user)
 		return
 
 	..()
-	return
 
 /obj/item/weldingtool/process()
 	if(welding)
@@ -147,7 +134,7 @@
 			setWelding(0)
 		else			//Only start fires when its on and has enough fuel to actually keep working
 			var/turf/location = src.loc
-			if(istype(location, /mob/living))
+			if(isliving(location))
 				var/mob/living/M = location
 				if(M.item_is_in_hands(src))
 					location = get_turf(M)
@@ -322,7 +309,7 @@
 		return 1
 	var/safety = user.eyecheck()
 	safety = between(-1, safety + eye_safety_modifier, 2)
-	if(istype(user, /mob/living/carbon/human))
+	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
 		var/obj/item/organ/internal/eyes/E = H.internal_organs_by_name[O_EYES]
 		if(!E)
@@ -493,13 +480,13 @@
 	always_process = TRUE
 	var/obj/item/weldpack/mounted_pack = null
 
-/obj/item/weldingtool/tubefed/New(location)
-	..()
-	if(istype(location, /obj/item/weldpack))
-		var/obj/item/weldpack/holder = location
+/obj/item/weldingtool/tubefed/Initialize(mapload)
+	. = ..()
+	if(istype(loc, /obj/item/weldpack))
+		var/obj/item/weldpack/holder = loc
 		mounted_pack = holder
 	else
-		qdel(src)
+		return INITIALIZE_HINT_QDEL
 
 /obj/item/weldingtool/tubefed/Destroy()
 	mounted_pack.nozzle = null
@@ -508,7 +495,7 @@
 
 /obj/item/weldingtool/tubefed/process()
 	if(mounted_pack)
-		if(!istype(mounted_pack.loc,/mob/living/carbon/human))
+		if(!ishuman(mounted_pack.loc))
 			mounted_pack.return_nozzle()
 		else
 			var/mob/living/carbon/human/H = mounted_pack.loc
@@ -556,11 +543,12 @@
 	acti_sound = 'sound/effects/sparks4.ogg'
 	deac_sound = 'sound/effects/sparks4.ogg'
 
-/obj/item/weldingtool/electric/unloaded/New()
+/obj/item/weldingtool/electric/unloaded/Initialize(mapload)
 	cell_type = null
+	. = ..()
 
-/obj/item/weldingtool/electric/New()
-	..()
+/obj/item/weldingtool/electric/Initialize(mapload)
+	. = ..()
 	if(cell_type == null)
 		update_icon()
 	else if(cell_type)
@@ -678,7 +666,7 @@
 	eye_safety_modifier = 2
 	always_process = TRUE
 
-/obj/item/weldingtool/electric/mounted/exosuit/Initialize()
+/obj/item/weldingtool/electric/mounted/exosuit/Initialize(mapload)
 	. = ..()
 
 	if(istype(loc, /obj/item/mecha_parts/mecha_equipment))

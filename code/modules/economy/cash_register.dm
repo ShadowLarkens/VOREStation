@@ -25,8 +25,9 @@
 
 
 // Claim machine ID
-/obj/machinery/cash_register/New()
+/obj/machinery/cash_register/Initialize(mapload)
 	machine_id = "[station_name()] RETAIL #[num_financial_terminals++]"
+	. = ..()
 	cash_stored = rand(10, 70)*10
 	transaction_devices += src // Global reference list to be properly set up by /proc/setup_economy()
 
@@ -64,7 +65,7 @@
 
 
 /obj/machinery/cash_register/interact(mob/user as mob)
-	var/dat = "<h2>Cash Register<hr></h2>"
+	var/dat = "<html><h2>Cash Register<hr></h2>"
 	if (locked)
 		dat += "<a href='byond://?src=\ref[src];choice=toggle_lock'>Unlock</a><br>"
 		dat += "Linked account: " + span_bold("[linked_account ? linked_account.owner_name : "None"]") + "<br>"
@@ -85,7 +86,7 @@
 	if(transaction_logs.len)
 		dat += locked ? "<br>" : "<a href='byond://?src=\ref[src];choice=reset_log'>Reset Log</a><br>"
 		dat += "<br>"
-	dat += "<i>Device ID:</i> [machine_id]"
+	dat += "<i>Device ID:</i> [machine_id]</html>"
 	user << browse(dat, "window=cash_register;size=350x500")
 	onclose(user, "cash_register")
 
@@ -486,20 +487,20 @@
 	manipulating = 1
 	if(!anchored)
 		user.visible_message("\The [user] begins securing \the [src] to the floor.",
-	                         "You begin securing \the [src] to the floor.")
+							"You begin securing \the [src] to the floor.")
 	else
 		user.visible_message(span_warning("\The [user] begins unsecuring \the [src] from the floor."),
-	                         "You begin unsecuring \the [src] from the floor.")
+							"You begin unsecuring \the [src] from the floor.")
 	playsound(src, W.usesound, 50, 1)
 	if(!do_after(user, 20 * W.toolspeed))
 		manipulating = 0
 		return
 	if(!anchored)
 		user.visible_message(span_notice("\The [user] has secured \the [src] to the floor."),
-	                         span_notice("You have secured \the [src] to the floor."))
+							span_notice("You have secured \the [src] to the floor."))
 	else
 		user.visible_message(span_warning("\The [user] has unsecured \the [src] from the floor."),
-	                         span_notice("You have unsecured \the [src] from the floor."))
+							span_notice("You have unsecured \the [src] from the floor."))
 	anchored = !anchored
 	manipulating = 0
 	return

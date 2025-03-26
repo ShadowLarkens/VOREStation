@@ -11,10 +11,7 @@
 	origin_tech = list(TECH_MAGNET = 2, TECH_BIO = 2, TECH_ILLEGAL = 1)
 	pickup_sound = 'sound/items/pickup/device.ogg'
 	drop_sound = 'sound/items/drop/device.ogg'
-
-/obj/item/bodysnatcher/New()
-	..()
-	flags |= NOBLUDGEON //So borgs don't spark.
+	flags = NOBLUDGEON
 
 /obj/item/bodysnatcher/attack(mob/living/M, mob/living/user)
 	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
@@ -47,7 +44,7 @@
 			user.visible_message(span_warning("[user] pushes the device up their forehead and [M]'s head, the device beginning to let out a series of light beeps!"),span_notice("You begin swap minds with [M]!"))
 			if(do_after(user,35 SECONDS,M))
 				if(user.mind && M.mind && M.stat != DEAD && user.stat != DEAD)
-					log_and_message_admins("[user.ckey] used a Bodysnatcher to swap bodies with [M.ckey]")
+					log_and_message_admins("[user.ckey] used a Bodysnatcher to swap bodies with [M.ckey]", user)
 					to_chat(user,span_notice("Your minds have been swapped! Have a nice day."))
 					var/datum/mind/user_mind = user.mind
 					var/datum/mind/prey_mind = M.mind

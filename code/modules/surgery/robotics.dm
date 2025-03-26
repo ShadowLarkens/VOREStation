@@ -69,6 +69,41 @@
 // Open Hatch Surgery
 ///////////////////////////////////////////////////////////////
 
+/datum/surgery_step/robotics/insertion_preparation
+	surgery_name = "Rewire Internals"
+	allowed_tools = list(
+		/obj/item/multitool = 100
+	)
+
+	min_duration = 30
+	max_duration = 40
+
+/datum/surgery_step/robotics/insertion_preparation/can_use(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
+	if(..())
+		var/obj/item/organ/external/affected = target.get_organ(target_zone)
+		return affected && affected.open == 1
+
+/datum/surgery_step/robotics/insertion_preparation/begin_step(mob/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
+	var/obj/item/organ/external/affected = target.get_organ(target_zone)
+	user.visible_message(span_filter_notice("[user] starts to modify the wiring in [target]'s [affected.name] with \the [tool]."),
+		span_filter_notice("You start to modify the wiring in [target]'s [affected.name] with \the [tool]."))
+	..()
+
+/datum/surgery_step/robotics/insertion_preparation/end_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
+	var/obj/item/organ/external/affected = target.get_organ(target_zone)
+	user.visible_message(span_notice("[user] modifies the wiring in [target]'s [affected.name] with \the [tool]."), \
+		span_notice("You modify the wiring in [target]'s [affected.name] with \the [tool]."))
+	affected.open = 2
+
+/datum/surgery_step/robotics/insertion_preparation/fail_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
+	var/obj/item/organ/external/affected = target.get_organ(target_zone)
+	user.visible_message(span_warning("[user]'s [tool.name] slips, failing to modify the wiring in [target]'s [affected.name]."),
+		span_warning("Your [tool] slips, failing to modify the wiring in [target]'s [affected.name]."))
+
+///////////////////////////////////////////////////////////////
+// Open Hatch Surgery
+///////////////////////////////////////////////////////////////
+
 /datum/surgery_step/robotics/open_hatch
 	surgery_name = "Open Hatch"
 	allowed_tools = list(
@@ -89,19 +124,19 @@
 /datum/surgery_step/robotics/open_hatch/begin_step(mob/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	var/obj/item/organ/external/affected = target.get_organ(target_zone)
 	user.visible_message(span_filter_notice("[user] starts to pry open the maintenance hatch on [target]'s [affected.name] with \the [tool]."),
-	span_filter_notice("You start to pry open the maintenance hatch on [target]'s [affected.name] with \the [tool]."))
+		span_filter_notice("You start to pry open the maintenance hatch on [target]'s [affected.name] with \the [tool]."))
 	..()
 
 /datum/surgery_step/robotics/open_hatch/end_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	var/obj/item/organ/external/affected = target.get_organ(target_zone)
 	user.visible_message(span_notice("[user] opens the maintenance hatch on [target]'s [affected.name] with \the [tool]."), \
-	 span_notice("You open the maintenance hatch on [target]'s [affected.name] with \the [tool]."))
+		span_notice("You open the maintenance hatch on [target]'s [affected.name] with \the [tool]."))
 	affected.open = 3
 
 /datum/surgery_step/robotics/open_hatch/fail_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	var/obj/item/organ/external/affected = target.get_organ(target_zone)
 	user.visible_message(span_warning("[user]'s [tool.name] slips, failing to open the hatch on [target]'s [affected.name]."),
-	span_warning("Your [tool] slips, failing to open the hatch on [target]'s [affected.name]."))
+		span_warning("Your [tool] slips, failing to open the hatch on [target]'s [affected.name]."))
 
 ///////////////////////////////////////////////////////////////
 // Close Hatch Surgery
@@ -491,20 +526,18 @@
 	var/obj/item/mmi/M = tool
 	// VOREstation edit begin - Select the proper mmi holder subtype based on the brain inserted
 	var/obj/item/organ/internal/mmi_holder/holder = null
+	user.drop_from_inventory(M)
+	M.loc = holder
 	if(istype(M,/obj/item/mmi/digital/posibrain/nano))
-		holder = new /obj/item/organ/internal/mmi_holder/posibrain/nano(target, 1)
+		holder = new /obj/item/organ/internal/mmi_holder/posibrain/nano(target, 1, M)
 	else if(istype(M,/obj/item/mmi/digital/posibrain))
-		holder = new /obj/item/organ/internal/mmi_holder/posibrain(target, 1)
+		holder = new /obj/item/organ/internal/mmi_holder/posibrain(target, 1, M)
 	else if(istype(M,/obj/item/mmi/digital/robot))
-		holder = new /obj/item/organ/internal/mmi_holder/robot(target, 1)
+		holder = new /obj/item/organ/internal/mmi_holder/robot(target, 1, M)
 	else
-		holder = new /obj/item/organ/internal/mmi_holder(target, 1) // Fallback to old behavior if organic MMI or if no subtype exists.
+		holder = new /obj/item/organ/internal/mmi_holder(target, 1, M) // Fallback to old behavior if organic MMI or if no subtype exists.
 	//VOREstation edit end
 	target.internal_organs_by_name["brain"] = holder
-	user.drop_from_inventory(tool)
-	tool.loc = holder
-	holder.stored_mmi = tool
-	holder.update_from_mmi()
 
 	if(M.brainmob && M.brainmob.mind)
 		M.brainmob.mind.transfer_to(target)

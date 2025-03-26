@@ -190,8 +190,8 @@ GLOBAL_LIST_EMPTY(apcs)
 
 	return drained_energy
 
-/obj/machinery/power/apc/New(turf/loc, var/ndir, var/building=0)
-	..()
+/obj/machinery/power/apc/Initialize(mapload, ndir, building)
+	. = ..()
 	wires = new(src)
 	GLOB.apcs += src
 
@@ -211,12 +211,10 @@ GLOBAL_LIST_EMPTY(apcs)
 		name = "[area.name] APC"
 		stat |= MAINT
 		update_icon()
+		return
 
-/obj/machinery/power/apc/Initialize(mapload, ndir, building)
-	. = ..()
-	if(!building)
-		init()
-		return INITIALIZE_HINT_LATELOAD
+	init()
+	return INITIALIZE_HINT_LATELOAD
 
 /obj/machinery/power/apc/LateInitialize()
 	. = ..()
@@ -736,7 +734,7 @@ GLOBAL_LIST_EMPTY(apcs)
 	add_fingerprint(user)
 
 	//Human mob special interaction goes here.
-	if(istype(user,/mob/living/carbon/human))
+	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
 
 		if(H.species.can_shred(H))
@@ -767,7 +765,7 @@ GLOBAL_LIST_EMPTY(apcs)
 
 			cell = null
 			user.visible_message(span_warning("[user.name] removes the power cell from [name]!"),\
-								 span_notice("You remove the power cell."))
+									span_notice("You remove the power cell."))
 			charging = 0
 			update_icon()
 		return
@@ -785,7 +783,7 @@ GLOBAL_LIST_EMPTY(apcs)
 	if(!user)
 		return
 
-	if(wiresexposed && !istype(user, /mob/living/silicon/ai))
+	if(wiresexposed && !isAI(user))
 		wires.Interact(user)
 		return	//The panel is visibly dark when the wires are exposed, so we shouldn't be able to interact with it.
 

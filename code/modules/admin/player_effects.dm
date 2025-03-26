@@ -46,7 +46,7 @@
 	if(!check_rights_for(ui.user.client, R_SPAWN))
 		return
 
-	log_and_message_admins("[key_name(user)] used player effect: [action] on [target.ckey] playing [target.name]")
+	log_and_message_admins("used player effect: [action] on [target.ckey] playing [target.name]", user)
 
 	switch(action)
 
@@ -104,6 +104,7 @@
 			var/mob/living/simple_mob/shadekin/red/shadekin = new(Ts)
 			//Abuse of shadekin
 			shadekin.real_name = shadekin.name
+			shadekin.voremob_loaded = TRUE
 			shadekin.init_vore()
 			shadekin.ability_flags |= 0x1
 			shadekin.phase_shift()
@@ -157,6 +158,7 @@
 			target.transforming = TRUE //Cheap hack to stop them from moving
 			var/mob/living/simple_mob/shadekin/shadekin = new kin_type(Tt)
 			shadekin.real_name = shadekin.name
+			shadekin.voremob_loaded = TRUE
 			shadekin.init_vore()
 			shadekin.can_be_drop_pred = TRUE
 			shadekin.dir = SOUTH
@@ -296,48 +298,7 @@
 			var/mob/living/new_mob = new chosen_beast(get_turf(M))
 			new_mob.faction = M.faction
 
-			if(new_mob && isliving(new_mob))
-				for(var/obj/belly/B as anything in new_mob.vore_organs)
-					new_mob.vore_organs -= B
-					qdel(B)
-				new_mob.vore_organs = list()
-				new_mob.name = M.name
-				new_mob.real_name = M.real_name
-				for(var/lang in M.languages)
-					new_mob.languages |= lang
-				M.copy_vore_prefs_to_mob(new_mob)
-				new_mob.vore_selected = M.vore_selected
-				if(ishuman(M))
-					var/mob/living/carbon/human/H = M
-					if(ishuman(new_mob))
-						var/mob/living/carbon/human/N = new_mob
-						N.gender = H.gender
-						N.identifying_gender = H.identifying_gender
-					else
-						new_mob.gender = H.gender
-				else
-					new_mob.gender = M.gender
-					if(ishuman(new_mob))
-						var/mob/living/carbon/human/N = new_mob
-						N.identifying_gender = M.gender
-
-				for(var/obj/belly/B as anything in M.vore_organs)
-					B.loc = new_mob
-					B.forceMove(new_mob)
-					B.owner = new_mob
-					M.vore_organs -= B
-					new_mob.vore_organs += B
-
-				new_mob.ckey = M.ckey
-				if(M.ai_holder && new_mob.ai_holder)
-					var/datum/ai_holder/old_AI = M.ai_holder
-					old_AI.set_stance(STANCE_SLEEP)
-					var/datum/ai_holder/new_AI = new_mob.ai_holder
-					new_AI.hostile = old_AI.hostile
-					new_AI.retaliate = old_AI.retaliate
-				M.loc = new_mob
-				M.forceMove(new_mob)
-				new_mob.tf_mob_holder = M
+			new_mob.mob_tf(M)
 
 		if("item_tf")
 			var/mob/living/M = target
@@ -608,6 +569,12 @@
 			add_verb(Tar, /mob/living/proc/eat_trash)
 			add_verb(Tar, /mob/living/proc/toggle_trash_catching)
 
+		if("active_cloaking")
+			var/mob/living/Tar = target
+			if(!istype(Tar))
+				return
+			add_verb(Tar, /mob/living/proc/toggle_active_cloaking)
+
 
 		////////INVENTORY//////////////
 
@@ -685,7 +652,7 @@
 			if(Tar.nif)
 				to_chat(user,span_warning("Target already has a NIF."))
 				return
-			if(Tar.species.flags & NO_SCAN)
+			if(Tar.species.flags & NO_DNA)
 				var/obj/item/nif/S = /obj/item/nif/bioadap
 				input_NIF = initial(S.name)
 				new /obj/item/nif/bioadap(Tar)
@@ -706,7 +673,7 @@
 					new chosen_NIF(Tar)
 				else
 					new /obj/item/nif(Tar)
-			log_and_message_admins("[key_name(user)] Quick NIF'd [Tar.real_name] with a [input_NIF].")
+			log_and_message_admins("Quick NIF'd [Tar.real_name] with a [input_NIF].", user)
 
 		if("resize")
 			user.client.resize(target)
@@ -764,7 +731,7 @@
 			X.orbit(target)
 
 		if("ai")
-			if(!istype(target, /mob/living))
+			if(!isliving(target))
 				to_chat(ui.user, span_notice("This can only be used on instances of type /mob/living"))
 				return
 			var/mob/living/L = target
@@ -806,11 +773,11 @@
 			var/reply = tgui_input_text(target, "An admin has sent you a message: [message]", "Reply")
 			if(!reply)
 				return
-			log_and_message_admins("[key_name(target)] replied to [user]'s message: [reply].")
+			log_and_message_admins("replied to [user]'s message: [reply].", target)
 
 		if("stop-orbits")
-			for(var/datum/orbit/X in target.orbiters)
-				X.orbiter.stop_orbit()
+			if(target.orbiters)
+				qdel(target.orbiters)
 
 		if("revert-mob-tf")
 			var/mob/living/Tar = target

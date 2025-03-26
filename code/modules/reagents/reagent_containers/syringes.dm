@@ -15,7 +15,8 @@
 	icon = 'icons/goonstation/objects/syringe_vr.dmi'
 	item_state = "syringe_0"
 	icon_state = "0"
-	center_of_mass = list("x" = 16,"y" = 14)
+	center_of_mass_x = 16
+	center_of_mass_y = 14
 	matter = list(MAT_GLASS = 150)
 	amount_per_transfer_from_this = 5
 	possible_transfer_amounts = null
@@ -37,7 +38,7 @@
 	pickup_sound = 'sound/items/pickup/glass.ogg'
 
 
-/obj/item/reagent_containers/syringe/Initialize()
+/obj/item/reagent_containers/syringe/Initialize(mapload)
 	. = ..()
 	update_icon()
 
@@ -130,7 +131,7 @@
 
 					var/datum/reagent/B
 					drawing = 1
-					if(istype(T, /mob/living/carbon/human))
+					if(ishuman(T))
 						var/mob/living/carbon/human/H = T
 						if(H.species && !H.should_have_organ(O_HEART))
 							H.reagents.trans_to_obj(src, amount)
@@ -193,6 +194,10 @@
 			var/mob/living/carbon/human/H = target
 			var/obj/item/organ/external/affected //VOREStation Edit - Moved this outside this if
 			if(istype(H))
+				if(!H.consume_liquid_belly)
+					if(liquid_belly_check())
+						to_chat(user, span_infoplain("[user == H ? "You can't" : "\The [H] can't"] take that, it contains something produced from a belly!"))
+						return
 				affected = H.get_organ(user.zone_sel.selecting) //VOREStation Edit - See above comment.
 				if(!affected)
 					to_chat(user, span_danger("\The [H] is missing that limb!"))
@@ -258,7 +263,7 @@
 	return
 
 /obj/item/reagent_containers/syringe/proc/syringestab(mob/living/carbon/target as mob, mob/living/carbon/user as mob)
-	if(istype(target, /mob/living/carbon/human))
+	if(ishuman(target))
 
 		var/mob/living/carbon/human/H = target
 
@@ -336,7 +341,7 @@
 	name = "Syringe (inaprovaline)"
 	desc = "Contains inaprovaline - used to stabilize patients."
 
-/obj/item/reagent_containers/syringe/inaprovaline/Initialize()
+/obj/item/reagent_containers/syringe/inaprovaline/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent(REAGENT_ID_INAPROVALINE, 15)
 	//mode = SYRINGE_INJECT //VOREStation Edit - Starts capped
@@ -346,7 +351,7 @@
 	name = "Syringe (anti-toxin)"
 	desc = "Contains anti-toxins."
 
-/obj/item/reagent_containers/syringe/antitoxin/Initialize()
+/obj/item/reagent_containers/syringe/antitoxin/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent(REAGENT_ID_ANTITOXIN, 15)
 	//mode = SYRINGE_INJECT //VOREStation Edit - Starts capped
@@ -356,7 +361,7 @@
 	name = "Syringe (spaceacillin)"
 	desc = "Contains antiviral agents."
 
-/obj/item/reagent_containers/syringe/antiviral/Initialize()
+/obj/item/reagent_containers/syringe/antiviral/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent(REAGENT_ID_SPACEACILLIN, 15)
 	//mode = SYRINGE_INJECT //VOREStation Edit - Starts capped
@@ -366,7 +371,7 @@
 	name = "Syringe (drugs)"
 	desc = "Contains aggressive drugs meant for torture."
 
-/obj/item/reagent_containers/syringe/drugs/Initialize()
+/obj/item/reagent_containers/syringe/drugs/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent(REAGENT_ID_BLISS,  5)
 	reagents.add_reagent(REAGENT_ID_MINDBREAKER,  5)
@@ -374,7 +379,7 @@
 	//mode = SYRINGE_INJECT //VOREStation Edit - Starts capped
 	//update_icon()
 
-/obj/item/reagent_containers/syringe/ld50_syringe/choral/Initialize()
+/obj/item/reagent_containers/syringe/ld50_syringe/choral/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent(REAGENT_ID_CHLORALHYDRATE, 50)
 	mode = SYRINGE_INJECT
@@ -384,8 +389,8 @@
 	name = "Syringe (anabolic steroids)"
 	desc = "Contains drugs for muscle growth."
 
-/obj/item/reagent_containers/syringe/steroid/Initialize()
-	..()
+/obj/item/reagent_containers/syringe/steroid/Initialize(mapload)
+	. = ..()
 	//reagents.add_reagent(REAGENT_ID_ADRENALINE,5) //VOREStation Edit - No thanks.
 	reagents.add_reagent(REAGENT_ID_HYPERZINE,10)
 
@@ -414,7 +419,7 @@
 		infect_chance = 0
 	infect_chance += (targets.len-1)*10    //Extra 10% per extra target
 	if(prob(infect_chance))
-		log_and_message_admins("[loc] infected [target]'s [eo.name] with \the [src].")
+		log_and_message_admins("[loc] infected [target]'s [eo.name] with \the [src].", usr)
 		infect_limb(eo)
 
 	//75% chance to spread a virus if we have one

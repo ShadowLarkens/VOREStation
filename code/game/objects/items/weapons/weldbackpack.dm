@@ -12,7 +12,7 @@
 	drop_sound = 'sound/items/drop/backpack.ogg'
 	pickup_sound = 'sound/items/pickup/backpack.ogg'
 
-/obj/item/weldpack/Initialize()
+/obj/item/weldpack/Initialize(mapload)
 	. = ..()
 	var/datum/reagents/R = new/datum/reagents(max_fuel) //Lotsa refills
 	reagents = R
@@ -87,7 +87,7 @@
 	return
 
 /obj/item/weldpack/attack_hand(mob/user as mob)
-	if(istype(user, /mob/living/carbon/human))
+	if(ishuman(user))
 		var/mob/living/carbon/human/wearer = user
 		if(wearer.back == src)
 			if(nozzle && nozzle_attached)

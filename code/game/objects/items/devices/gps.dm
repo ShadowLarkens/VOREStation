@@ -1,4 +1,4 @@
-var/list/GPS_list = list()
+GLOBAL_LIST_EMPTY(GPS_list)
 
 /obj/item/gps
 	name = "global positioning system"
@@ -26,10 +26,10 @@ var/list/GPS_list = list()
 	pickup_sound = 'sound/items/pickup/device.ogg'
 	drop_sound = 'sound/items/drop/device.ogg'
 
-/obj/item/gps/Initialize()
+/obj/item/gps/Initialize(mapload)
 	. = ..()
 	compass = new(src)
-	GPS_list += src
+	GLOB.GPS_list += src
 	name = "global positioning system ([gps_tag])"
 	update_holder()
 	update_icon()
@@ -78,7 +78,7 @@ var/list/GPS_list = list()
 	. = ..()
 	update_holder()
 
-/obj/item/gps/dropped()
+/obj/item/gps/dropped(mob/user)
 	. = ..()
 	update_holder()
 
@@ -93,10 +93,10 @@ var/list/GPS_list = list()
 /obj/item/gps/Destroy()
 	STOP_PROCESSING(SSobj, src)
 	is_in_processing_list = FALSE
-	GPS_list -= src
-	. = ..()
+	GLOB.GPS_list -= src
 	update_holder()
 	QDEL_NULL(compass)
+	. = ..()
 
 /obj/item/gps/proc/can_track(var/obj/item/gps/other, var/reachable_z_levels)
 	if(!other.tracking || other.emped || other.hide_signal)
@@ -199,7 +199,7 @@ var/list/GPS_list = list()
 	dat["z_level_detection"] = using_map.get_map_levels(curr.z, long_range)
 
 	var/list/gps_list = list()
-	for(var/obj/item/gps/G in GPS_list - src)
+	for(var/obj/item/gps/G in GLOB.GPS_list - src)
 
 		if(!can_track(G, dat["z_level_detection"]))
 			continue
@@ -318,7 +318,7 @@ var/list/GPS_list = list()
 	if(href_list["track_color"])
 		var/obj/item/gps/gps = locate(href_list["track_color"])
 		if(istype(gps) && !QDELETED(gps))
-			var/new_colour = input(usr, "Enter a new tracking color.", "GPS Waypoint Color") as color|null
+			var/new_colour = tgui_color_picker(usr, "Enter a new tracking color.", "GPS Waypoint Color")
 			if(new_colour && istype(gps) && !QDELETED(gps) && holder == usr && !usr.incapacitated())
 				to_chat(usr, span_notice("You adjust the colour \the [src] is using to highlight [gps.gps_tag]."))
 				LAZYSET(tracking_devices, href_list["track_color"], new_colour)

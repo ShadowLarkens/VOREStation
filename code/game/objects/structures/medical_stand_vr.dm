@@ -21,8 +21,8 @@
 	var/list/transfer_amounts = list(REM, 1, 2)
 	var/transfer_amount = 1
 
-/obj/structure/medical_stand/New()
-	..()
+/obj/structure/medical_stand/Initialize(mapload)
+	. = ..()
 	if (spawn_type)
 		tank = new spawn_type (src)
 	contained = new mask_type (src)
@@ -226,7 +226,7 @@
 	set name = "Toggle IV Mode"
 	set src in view(1)
 
-	if(!istype(usr, /mob/living))
+	if(!isliving(usr))
 		to_chat(usr, span_warning("You can't do that."))
 		return
 
@@ -275,7 +275,7 @@
 		to_chat(user, span_warning("There is no tank in \the [src]."))
 		return
 	if(is_loosen)
-		to_chat(user, span_warning("Tighten \the nut with a wrench first."))
+		to_chat(user, span_warning("Tighten the nut with a wrench first."))
 		return
 	if(!Adjacent(target))
 		return

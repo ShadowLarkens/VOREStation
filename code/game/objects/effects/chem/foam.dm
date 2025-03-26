@@ -17,7 +17,7 @@
 	var/dries = 1 //VOREStation Add
 	var/slips = 0 //VOREStation Add
 
-/obj/effect/effect/foam/Initialize(var/mapload, var/ismetal = 0)
+/obj/effect/effect/foam/Initialize(mapload, var/ismetal = 0)
 	. = ..()
 	//icon_state = "[ismetal? "m" : ""]foam" //VOREStation Removal
 	metal = ismetal
@@ -85,7 +85,7 @@
 		return
 	if(metal)
 		return
-	if(slips && istype(AM, /mob/living)) //VOREStation Add
+	if(slips && isliving(AM)) //VOREStation Add
 		var/mob/living/M = AM
 		M.slip("the foam", 6)
 
@@ -142,8 +142,8 @@
 	can_atmos_pass = ATMOS_PASS_NO
 	var/metal = 1 // 1 = aluminum, 2 = iron
 
-/obj/structure/foamedmetal/New()
-	..()
+/obj/structure/foamedmetal/Initialize(mapload)
+	. = ..()
 	update_nearby_tiles(1)
 
 /obj/structure/foamedmetal/Destroy()

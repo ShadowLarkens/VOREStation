@@ -2,6 +2,7 @@
 	data = new/list("donor" = null, "viruses" = null, "species" = SPECIES_HUMAN, "blood_DNA" = null, "blood_type" = null, "blood_colour" = "#A10808", "resistances" = null, "trace_chem" = null, REAGENT_ID_ANTIBODIES = list())
 	name = REAGENT_BLOOD
 	id = REAGENT_ID_BLOOD
+	description = "Blood."
 	taste_description = REAGENT_ID_IRON
 	taste_mult = 1.3
 	reagent_state = LIQUID
@@ -34,7 +35,7 @@
 
 	..()
 
-	if(!data["donor"] || istype(data["donor"], /mob/living/carbon/human))
+	if(!data["donor"] || ishuman(data["donor"]))
 		blood_splatter(T, src, 1)
 	else if(istype(data["donor"], /mob/living/carbon/alien))
 		var/obj/effect/decal/cleanable/blood/B = blood_splatter(T, src, 1)
@@ -169,6 +170,7 @@
 
 /datum/reagent/blood/synthblood
 	name = REAGENT_SYNTHBLOOD
+	description = "Synthetic Blood"
 	id = REAGENT_ID_SYNTHBLOOD
 	color = "#999966"
 	volume_mod = 2
@@ -191,6 +193,7 @@
 /datum/reagent/antibodies
 	data = list(REAGENT_ID_ANTIBODIES=list())
 	name = REAGENT_ANTIBODIES
+	description = "Antibodies against some type of virus."
 	taste_description = "slime"
 	id = REAGENT_ID_ANTIBODIES
 	reagent_state = LIQUID
@@ -270,7 +273,7 @@
 		L.water_act(amount / 25) // Div by 25, as water_act multiplies it by 5 in order to calculate firestack modification.
 		remove_self(needed)
 		// Put out cigarettes if splashed.
-		if(istype(L, /mob/living/carbon/human))
+		if(ishuman(L))
 			var/mob/living/carbon/human/H = L
 			if(H.wear_mask)
 				if(istype(H.wear_mask, /obj/item/clothing/mask/smokable))

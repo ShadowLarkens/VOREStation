@@ -15,7 +15,7 @@
 	var/potency = -1
 
 
-/obj/item/reagent_containers/food/snacks/grown/Initialize(var/mapload, var/planttype)
+/obj/item/reagent_containers/food/snacks/grown/Initialize(mapload, var/planttype)
 	. = ..()
 
 	if(!dried_type)
@@ -151,7 +151,7 @@
 			if(M.buckled)
 				return
 
-			if(istype(M,/mob/living/carbon/human))
+			if(ishuman(M))
 				var/mob/living/carbon/human/H = M
 				if(H.shoes && H.shoes.item_flags & NOSLIP)
 					return
@@ -179,7 +179,7 @@
 				//TODO: generalize this.
 				to_chat(user, span_notice("You add some cable to the [src.name] and slide it inside the battery casing."))
 				var/obj/item/cell/potato/pocell = new /obj/item/cell/potato(get_turf(user))
-				if(src.loc == user && istype(user,/mob/living/carbon/human))
+				if(src.loc == user && ishuman(user))
 					user.put_in_hands(pocell)
 				pocell.maxcharge = src.potency * 200
 				pocell.charge = pocell.maxcharge
@@ -375,12 +375,11 @@
 
 var/list/fruit_icon_cache = list()
 
-/obj/item/reagent_containers/food/snacks/fruit_slice/New(var/newloc, var/datum/seed/S)
-	..(newloc)
+/obj/item/reagent_containers/food/snacks/fruit_slice/Initialize(mapload, var/datum/seed/S)
+	. = ..()
 	// Need to go through and make a general image caching controller. Todo.
 	if(!istype(S))
-		qdel(src)
-		return
+		return INITIALIZE_HINT_QDEL
 
 	name = "[S.seed_name] slice"
 	desc = "A slice of \a [S.seed_name]. Tasty, probably."

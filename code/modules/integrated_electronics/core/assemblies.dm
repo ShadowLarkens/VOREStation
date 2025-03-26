@@ -17,14 +17,14 @@
 	var/detail_color = COLOR_ASSEMBLY_BLACK
 
 
-/obj/item/electronic_assembly/Initialize()
+/obj/item/electronic_assembly/Initialize(mapload)
 	battery = new(src)
 	START_PROCESSING(SSobj, src)
 	return ..()
 
 /obj/item/electronic_assembly/Destroy()
-	battery = null // It will be qdel'd by ..() if still in our contents
 	STOP_PROCESSING(SSobj, src)
+	battery = null // It will be qdel'd by ..() if still in our contents
 	return ..()
 
 /obj/item/electronic_assembly/process()
@@ -286,7 +286,7 @@
 		return TRUE
 
 	else if(istype(I, /obj/item/integrated_circuit))
-		if(!user.unEquip(I) && !istype(user, /mob/living/silicon/robot)) //Robots cannot de-equip items in grippers.
+		if(!user.unEquip(I) && !isrobot(user)) //Robots cannot de-equip items in grippers.
 			return FALSE
 		if(add_circuit(I, user))
 			to_chat(user, span_notice("You slide \the [I] inside \the [src]."))

@@ -18,7 +18,7 @@
 	var/maxcopies = 10	//how many copies can be copied at once- idea shamelessly stolen from bs12's copier!
 	var/copying = FALSE // Is the printer busy with something? Sanity check variable.
 
-/obj/machinery/photocopier/Initialize()
+/obj/machinery/photocopier/Initialize(mapload)
 	. = ..()
 	default_apply_parts()
 
@@ -87,7 +87,7 @@
 
 				if(!camera)
 					return
-				var/obj/item/photo/selection = camera.selectpicture()
+				var/obj/item/photo/selection = camera.selectpicture(ui.user)
 				if (!selection)
 					return
 
@@ -272,7 +272,7 @@
 		switch(species_to_check)
 			if(SPECIES_HUMAN)
 				temp_img = icon('icons/obj/butts_vr.dmi', "human")
-			if(SPECIES_TAJ)
+			if(SPECIES_TAJARAN)
 				temp_img = icon('icons/obj/butts_vr.dmi', "tajaran")
 			if(SPECIES_UNATHI)
 				temp_img = icon('icons/obj/butts_vr.dmi', "unathi")

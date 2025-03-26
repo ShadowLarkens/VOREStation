@@ -34,7 +34,7 @@
 *   Initialising
 ********************/
 
-/obj/machinery/microwave/Initialize()
+/obj/machinery/microwave/Initialize(mapload)
 	. = ..()
 
 	reagents = new/datum/reagents(100)
@@ -253,7 +253,7 @@
 
 /obj/machinery/microwave/ui_assets(mob/user)
 	return list(
-		get_asset_datum(/datum/asset/spritesheet/kitchen_recipes)
+		get_asset_datum(/datum/asset/spritesheet_batched/kitchen_recipes)
 	)
 
 /obj/machinery/microwave/tgui_static_data(mob/user)
@@ -594,7 +594,7 @@
 	circuit_item_capacity = 100
 	item_level = 1
 
-/obj/machinery/microwave/advanced/Initialize()
+/obj/machinery/microwave/advanced/Initialize(mapload)
 	. = ..()
 	reagents.maximum_volume = 1000
 

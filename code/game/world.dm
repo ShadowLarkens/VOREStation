@@ -9,10 +9,14 @@
 	diary = start_log("[log_path].log")
 	href_logfile = start_log("[log_path]-hrefs.htm")
 	error_log = start_log("[log_path]-error.log")
+	sql_error_log = start_log("[log_path]-sql-error.log")
+	query_debug_log = start_log("[log_path]-query-debug.log")
 	debug_log = start_log("[log_path]-debug.log")
 	//VOREStation Edit End
 
-	changelog_hash = md5('html/changelog.html')					//used for telling if the changelog has changed recently
+	var/latest_changelog = file("[global.config.directory]/../html/changelogs/archive/" + time2text(world.timeofday, "YYYY-MM") + ".yml")
+	GLOB.changelog_hash = fexists(latest_changelog) ? md5(latest_changelog) : "" //for telling if the changelog has changed recently
+	to_world_log("Changelog Hash: '[GLOB.changelog_hash]' ([latest_changelog])")
 
 	if(byond_version < RECOMMENDED_VERSION)
 		to_world_log("Your server's byond version does not meet the recommended requirements for this server. Please update BYOND")
@@ -20,6 +24,8 @@
 	TgsNew()
 
 	config.Load(params[OVERRIDE_CONFIG_DIRECTORY_PARAMETER])
+
+	load_admins()
 
 	ConfigLoaded()
 	makeDatumRefLists()
@@ -44,6 +50,11 @@
 
 	src.update_status()
 	setup_season()	//VOREStation Addition
+
+	var/debug_server = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
+	if (debug_server)
+		call_ext(debug_server, "auxtools_init")()
+		enable_debugging()
 
 	. = ..()
 
@@ -88,7 +99,7 @@
 	// (i.e. basically nothing should be added before load_admins() in here)
 
 	// Try to set round ID
-	//SSdbcore.InitializeRound() TODO: Implement roundid on database subsystem and uncomment
+	SSdbcore.InitializeRound()
 
 	//apply a default value to config.python_path, if needed
 	if (!CONFIG_GET(string/python_path))
@@ -121,7 +132,7 @@ var/world_topic_spam_protect_time = world.timeofday
 	else if (copytext(T,1,7) == "status")
 		var/input[] = params2list(T)
 		var/list/s = list()
-		s["version"] = game_version
+		s["version"] = GLOB.game_version
 		s["mode"] = master_mode
 		s["respawn"] = CONFIG_GET(flag/abandon_allowed)
 		s["persistance"] = CONFIG_GET(flag/persistence_disabled)
@@ -145,9 +156,9 @@ var/world_topic_spam_protect_time = world.timeofday
 				if(C.holder)
 					if(C.holder.fakekey)
 						continue
-					admins[C.key] = C.holder.rank
+					admins[C.key] = C.holder.rank_names()
 				players += C.key
-				if(istype(C.mob, /mob/living))
+				if(isliving(C.mob))
 					active++
 
 			s["players"] = players.len
@@ -245,7 +256,8 @@ var/world_topic_spam_protect_time = world.timeofday
 
 	else if(copytext(T,1,5) == "info")
 		var/input[] = params2list(T)
-		if(input["key"] != CONFIG_GET(string/comms_password))
+		var/password = CONFIG_GET(string/comms_password)
+		if(!password || input["key"] != password)
 			if(world_topic_spam_protect_ip == addr && abs(world_topic_spam_protect_time - world.time) < 50)
 
 				spawn(50)
@@ -300,7 +312,7 @@ var/world_topic_spam_protect_time = world.timeofday
 			info["hasbeenrev"] = M.mind ? M.mind.has_been_rev : "No mind"
 			info["stat"] = M.stat
 			info["type"] = M.type
-			if(istype(M, /mob/living))
+			if(isliving(M))
 				var/mob/living/L = M
 				info["damage"] = list2params(list(
 							oxy = L.getOxyLoss(),
@@ -332,7 +344,8 @@ var/world_topic_spam_protect_time = world.timeofday
 
 
 		var/input[] = params2list(T)
-		if(input["key"] != CONFIG_GET(string/comms_password))
+		var/password = CONFIG_GET(string/comms_password)
+		if(!password || input["key"] != password)
 			if(world_topic_spam_protect_ip == addr && abs(world_topic_spam_protect_time - world.time) < 50)
 
 				spawn(50)
@@ -382,7 +395,8 @@ var/world_topic_spam_protect_time = world.timeofday
 				2. validationkey = the key the bot has, it should match the gameservers commspassword in it's configuration.
 		*/
 		var/input[] = params2list(T)
-		if(input["key"] != CONFIG_GET(string/comms_password))
+		var/password = CONFIG_GET(string/comms_password)
+		if(!password || input["key"] != password)
 			if(world_topic_spam_protect_ip == addr && abs(world_topic_spam_protect_time - world.time) < 50)
 
 				spawn(50)
@@ -397,7 +411,8 @@ var/world_topic_spam_protect_time = world.timeofday
 
 	else if(copytext(T,1,4) == "age")
 		var/input[] = params2list(T)
-		if(input["key"] != CONFIG_GET(string/comms_password))
+		var/password = CONFIG_GET(string/comms_password)
+		if(!password || input["key"] != password)
 			if(world_topic_spam_protect_ip == addr && abs(world_topic_spam_protect_time - world.time) < 50)
 				spawn(50)
 					world_topic_spam_protect_time = world.time
@@ -497,7 +512,7 @@ var/world_topic_spam_protect_time = world.timeofday
 					continue
 
 				var/title = "Moderator"
-				var/rights = admin_ranks[title]
+				var/rights = GLOB.admin_ranks[title]
 
 				var/ckey = copytext(line, 1, length(line)+1)
 				var/datum/admins/D = new /datum/admins(title, rights, ckey)
@@ -519,6 +534,23 @@ var/world_topic_spam_protect_time = world.timeofday
 				var/ckey = copytext(line, 1, length(line)+1)
 				var/datum/mentor/M = new /datum/mentor(ckey)
 				M.associate(GLOB.directory[ckey])
+	else
+		establish_db_connection()
+		if(!SSdbcore.IsConnected())
+			error("Failed to connect to database in load_mentors().")
+			log_misc("Failed to connect to database in load_mentors().")
+			return
+
+		var/datum/db_query/query = SSdbcore.NewQuery("SELECT ckey, mentor FROM erro_mentor")
+		query.Execute()
+		while(query.NextRow())
+			var/ckey = query.item[1]
+			var/mentor = query.item[2]
+
+			if(mentor)
+				var/datum/mentor/M = new /datum/mentor(ckey)
+				M.associate(GLOB.directory[ckey])
+		qdel(query)
 
 /world/proc/update_status()
 	var/s = ""
@@ -529,7 +561,7 @@ var/world_topic_spam_protect_time = world.timeofday
 	s += span_bold("[station_name()]");
 	s += " ("
 	s += "<a href=\"https://\">" //Change this to wherever you want the hub to link to.
-//	s += "[game_version]"
+//	s += "[GLOB.game_version]"
 	s += "Default"  //Replace this with something else. Or ever better, delete it and uncomment the game version.
 	s += "</a>"
 	s += ")"
@@ -597,8 +629,8 @@ var/failed_old_db_connections = 0
 	if(failed_db_connections > FAILED_DB_CONNECTION_CUTOFF)	//If it failed to establish a connection more than 5 times in a row, don't bother attempting to conenct anymore.
 		return 0
 
-	if(!dbcon)
-		dbcon = new()
+	if(!SSdbcore)
+		SSdbcore = new()
 
 	var/user = CONFIG_GET(string/feedback_login)
 	var/pass = CONFIG_GET(string/feedback_password)
@@ -606,13 +638,13 @@ var/failed_old_db_connections = 0
 	var/address = CONFIG_GET(string/address)
 	var/port = CONFIG_GET(number/port)
 
-	dbcon.Connect("dbi:mysql:[db]:[address]:[port]","[user]","[pass]")
-	. = dbcon.IsConnected()
+	SSdbcore.Connect("dbi:mysql:[db]:[address]:[port]","[user]","[pass]")
+	. = SSdbcore.IsConnected()
 	if ( . )
 		failed_db_connections = 0	//If this connection succeeded, reset the failed connections counter.
 	else
 		failed_db_connections++		//If it failed, increase the failed connections counter.
-		to_world_log(dbcon.ErrorMsg())
+		to_world_log(SSdbcore.ErrorMsg())
 
 	return .
 
@@ -621,7 +653,7 @@ var/failed_old_db_connections = 0
 	if(failed_db_connections > FAILED_DB_CONNECTION_CUTOFF)
 		return 0
 
-	if(!dbcon || !dbcon.IsConnected())
+	if(!SSdbcore || !SSdbcore.IsConnected())
 		return setup_database_connection()
 	else
 		return 1
@@ -631,14 +663,11 @@ var/failed_old_db_connections = 0
 	var/list/results = list("-- Resetting DB connections --")
 	failed_db_connections = 0
 
-	if(dbcon?.IsConnected())
-		dbcon.Disconnect()
-		results += "dbcon was connected and asked to disconnect"
+	if(SSdbcore?.IsConnected())
+		SSdbcore.Disconnect()
+		results += "SSdbcore was connected and asked to disconnect"
 	else
-		results += "dbcon was not connected"
-
-	if(dbcon_old?.IsConnected())
-		results += "WARNING: dbcon_old is connected, not touching it, but is this intentional?"
+		results += "SSdbcore was not connected"
 
 	if(!CONFIG_GET(flag/sql_enabled))
 		results += "stopping because config.sql_enabled = false"
@@ -721,3 +750,18 @@ var/global/game_id = null
 		game_id = "[c[(t % l) + 1]][game_id]"
 		t = round(t / l)
 	return 1
+
+/proc/auxtools_stack_trace(msg)
+	CRASH(msg)
+
+/proc/auxtools_expr_stub()
+	CRASH("auxtools not loaded")
+
+/proc/enable_debugging(mode, port)
+	CRASH("auxtools not loaded")
+
+/world/Del()
+	var/debug_server = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
+	if (debug_server)
+		call_ext(debug_server, "auxtools_shutdown")()
+	. = ..()

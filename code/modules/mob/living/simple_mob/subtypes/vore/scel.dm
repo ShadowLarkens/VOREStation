@@ -58,8 +58,8 @@
 
 	allow_mind_transfer = TRUE
 
-/mob/living/simple_mob/vore/scel/New()
-	..()
+/mob/living/simple_mob/vore/scel/Initialize(mapload)
+	. = ..()
 	if(random_skin)
 		icon_living = pick(skins)
 		icon_rest = "[icon_living]-rest"
@@ -95,6 +95,10 @@
 	movement_cooldown = -1
 
 /mob/living/simple_mob/vore/scel/init_vore()
+	if(!voremob_loaded)
+		return
+	if(LAZYLEN(vore_organs))
+		return
 	. = ..()
 	var/obj/belly/B = vore_selected
 	B.name = "stomach"

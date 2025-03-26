@@ -126,99 +126,23 @@
 		if((bantype == BANTYPE_PERMA || bantype == BANTYPE_TEMP) && playermob.client)
 			qdel(playermob.client)
 
+	else if(href_list["editrightsbrowser"])
+		edit_admin_permissions(0)
+
+	else if(href_list["editrightsbrowserlog"])
+		edit_admin_permissions(1, href_list["editrightstarget"], href_list["editrightsoperation"], href_list["editrightspage"])
+
+	if(href_list["editrightsbrowsermanage"])
+		if(href_list["editrightschange"])
+			change_admin_rank(ckey(href_list["editrightschange"]), href_list["editrightschange"], TRUE)
+		else if(href_list["editrightsremove"])
+			remove_admin(ckey(href_list["editrightsremove"]), href_list["editrightsremove"], TRUE)
+		else if(href_list["editrightsremoverank"])
+			remove_rank(href_list["editrightsremoverank"])
+		edit_admin_permissions(2)
+
 	else if(href_list["editrights"])
-		if(!check_rights(R_PERMISSIONS))
-			message_admins("[key_name_admin(usr)] attempted to edit the admin permissions without sufficient rights.")
-			log_admin("[key_name(usr)] attempted to edit the admin permissions without sufficient rights.")
-			return
-
-		var/adm_ckey
-
-		var/task = href_list["editrights"]
-		if(task == "add")
-			var/new_ckey = ckey(tgui_input_text(usr,"New admin's ckey","Admin ckey", null))
-			if(!new_ckey)	return
-			if(new_ckey in admin_datums)
-				to_chat(usr, span_filter_adminlog(span_warning("Error: Topic 'editrights': [new_ckey] is already an admin")))
-				return
-			adm_ckey = new_ckey
-			task = "rank"
-		else if(task != "show")
-			adm_ckey = ckey(href_list["ckey"])
-			if(!adm_ckey)
-				to_chat(usr, span_filter_adminlog(span_warning("Error: Topic 'editrights': No valid ckey")))
-				return
-
-		var/datum/admins/D = admin_datums[adm_ckey]
-
-		if(task == "remove")
-			if(tgui_alert(usr, "Are you sure you want to remove [adm_ckey]?","Message",list("Yes","Cancel")) == "Yes")
-				if(!D)	return
-				admin_datums -= adm_ckey
-				D.disassociate()
-
-				message_admins("[key_name_admin(usr)] removed [adm_ckey] from the admins list")
-				log_admin("[key_name(usr)] removed [adm_ckey] from the admins list")
-				log_admin_rank_modification(adm_ckey, "Removed")
-
-		else if(task == "rank")
-			var/new_rank
-			if(admin_ranks.len)
-				new_rank = tgui_input_list(usr, "Please select a rank", "New rank", (admin_ranks|"*New Rank*"))
-			else
-				new_rank = tgui_input_list(usr, "Please select a rank", "New rank", list("Game Master","Game Admin", "Trial Admin", "Admin Observer","*New Rank*"))
-
-			var/rights = 0
-			if(D)
-				rights = D.rights
-			switch(new_rank)
-				if(null,"") return
-				if("*New Rank*")
-					new_rank = tgui_input_text(usr, "Please input a new rank", "New custom rank")
-					if(CONFIG_GET(flag/admin_legacy_system))
-						new_rank = ckeyEx(new_rank)
-					if(!new_rank)
-						to_chat(usr, span_filter_adminlog(span_warning("Error: Topic 'editrights': Invalid rank")))
-						return
-					if(CONFIG_GET(flag/admin_legacy_system))
-						if(admin_ranks.len)
-							if(new_rank in admin_ranks)
-								rights = admin_ranks[new_rank]		//we typed a rank which already exists, use its rights
-							else
-								admin_ranks[new_rank] = 0			//add the new rank to admin_ranks
-				else
-					if(CONFIG_GET(flag/admin_legacy_system))
-						new_rank = ckeyEx(new_rank)
-						rights = admin_ranks[new_rank]				//we input an existing rank, use its rights
-
-			if(D)
-				D.disassociate()								//remove adminverbs and unlink from client
-				D.rank = new_rank								//update the rank
-				D.rights = rights								//update the rights based on admin_ranks (default: 0)
-			else
-				D = new /datum/admins(new_rank, rights, adm_ckey)
-
-			var/client/C = GLOB.directory[adm_ckey]						//find the client with the specified ckey (if they are logged in)
-			D.associate(C)											//link up with the client and add verbs
-
-			message_admins("[key_name_admin(usr)] edited the admin rank of [adm_ckey] to [new_rank]")
-			log_admin("[key_name(usr)] edited the admin rank of [adm_ckey] to [new_rank]")
-			log_admin_rank_modification(adm_ckey, new_rank)
-
-		else if(task == "permissions")
-			if(!D)	return
-			var/list/permissionlist = list()
-			for(var/i=1, i<=R_MAXPERMISSION, i<<=1)		//that <<= is shorthand for i = i << 1. Which is a left bitshift
-				permissionlist[rights2text(i)] = i
-			var/new_permission = tgui_input_list(usr, "Select a permission to turn on/off", "Permission toggle", permissionlist)
-			if(!new_permission)	return
-			D.rights ^= permissionlist[new_permission]
-
-			message_admins("[key_name_admin(usr)] toggled the [new_permission] permission of [adm_ckey]")
-			log_admin("[key_name(usr)] toggled the [new_permission] permission of [adm_ckey]")
-			log_admin_permission_modification(adm_ckey, permissionlist[new_permission])
-
-		edit_admin_permissions()
+		edit_rights_topic(href_list)
 
 	else if(href_list["call_shuttle"])
 		if(!check_rights(R_ADMIN|R_EVENT))	return
@@ -411,9 +335,9 @@
 		var/jobs = ""
 
 	/***********************************WARNING!************************************
-				      The jobban stuff looks mangled and disgusting
-						      But it looks beautiful in-game
-						                -Nodrak
+					The jobban stuff looks mangled and disgusting
+						But it looks beautiful in-game
+										-Nodrak
 	************************************WARNING!***********************************/
 		var/counter = 0
 //Regular jobs
@@ -426,7 +350,7 @@
 			if(!job) continue
 
 			if(jobban_isbanned(M, job.title))
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'><font color=red>[replacetext(job.title, " ", "&nbsp")]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>" + span_red("[replacetext(job.title, " ", "&nbsp")]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>[replacetext(job.title, " ", "&nbsp")]</a></td>"
 
@@ -446,7 +370,7 @@
 			if(!job) continue
 
 			if(jobban_isbanned(M, job.title))
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'><font color=red>[replacetext(job.title, " ", "&nbsp")]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>" + span_red("[replacetext(job.title, " ", "&nbsp")]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>[replacetext(job.title, " ", "&nbsp")]</a></td>"
 
@@ -466,7 +390,7 @@
 			if(!job) continue
 
 			if(jobban_isbanned(M, job.title))
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'><font color=red>[replacetext(job.title, " ", "&nbsp")]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>" + span_red("[replacetext(job.title, " ", "&nbsp")]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>[replacetext(job.title, " ", "&nbsp")]</a></td>"
 
@@ -486,7 +410,7 @@
 			if(!job) continue
 
 			if(jobban_isbanned(M, job.title))
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'><font color=red>[replacetext(job.title, " ", "&nbsp")]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>" + span_red("[replacetext(job.title, " ", "&nbsp")]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>[replacetext(job.title, " ", "&nbsp")]</a></td>"
 
@@ -506,7 +430,7 @@
 			if(!job) continue
 
 			if(jobban_isbanned(M, job.title))
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'><font color=red>[replacetext(job.title, " ", "&nbsp")]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>" + span_red("[replacetext(job.title, " ", "&nbsp")]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>[replacetext(job.title, " ", "&nbsp")]</a></td>"
 
@@ -526,7 +450,7 @@
 			if(!job) continue
 
 			if(jobban_isbanned(M, job.title))
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'><font color=red>[replacetext(job.title, " ", "&nbsp")]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>" + span_red("[replacetext(job.title, " ", "&nbsp")]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>[replacetext(job.title, " ", "&nbsp")]</a></td>"
 
@@ -547,7 +471,7 @@
 			if(!job) continue
 
 			if(jobban_isbanned(M, job.title))
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'><font color=red>[replacetext(job.title, " ", "&nbsp")]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>" + span_red("[replacetext(job.title, " ", "&nbsp")]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>[replacetext(job.title, " ", "&nbsp")]</a></td>"
 
@@ -571,7 +495,7 @@
 			if(!job) continue
 
 			if(jobban_isbanned(M, job.title))
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'><font color=red>[replacetext(job.title, " ", "&nbsp")]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>" + span_red("[replacetext(job.title, " ", "&nbsp")]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>[replacetext(job.title, " ", "&nbsp")]</a></td>"
 
@@ -592,7 +516,7 @@
 			if(!job) continue
 
 			if(jobban_isbanned(M, job.title))
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'><font color=red>[replacetext(job.title, " ", "&nbsp")]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>" + span_red("[replacetext(job.title, " ", "&nbsp")]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>[replacetext(job.title, " ", "&nbsp")]</a></td>"
 
@@ -601,7 +525,7 @@
 				counter = 0
 
 		if(jobban_isbanned(M, JOB_INTERNAL_AFFAIRS_AGENT))
-			jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3="+JOB_INTERNAL_AFFAIRS_AGENT+";jobban4=\ref[M]'><font color=red>"+JOB_INTERNAL_AFFAIRS_AGENT+"</font></a></td>"
+			jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3="+JOB_INTERNAL_AFFAIRS_AGENT+";jobban4=\ref[M]'>" + span_red(JOB_INTERNAL_AFFAIRS_AGENT) + "</a></td>"
 		else
 			jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3="+JOB_INTERNAL_AFFAIRS_AGENT+";jobban4=\ref[M]'>"+JOB_INTERNAL_AFFAIRS_AGENT+"</a></td>"
 
@@ -617,7 +541,7 @@
 			if(!job) continue
 
 			if(jobban_isbanned(M, job.title))
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'><font color=red>[replacetext(job.title, " ", "&nbsp")]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>" + span_red("[replacetext(job.title, " ", "&nbsp")]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[job.title];jobban4=\ref[M]'>[replacetext(job.title, " ", "&nbsp")]</a></td>"
 
@@ -640,7 +564,7 @@
 				continue
 
 			if(jobban_isbanned(M, "[antag.bantype]") || isbanned_dept)
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[antag.bantype];jobban4=\ref[M]'><font color=red>[replacetext("[antag.role_text]", " ", "&nbsp")]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[antag.bantype];jobban4=\ref[M]'>" + span_red("[replacetext("[antag.role_text]", " ", "&nbsp")]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[antag.bantype];jobban4=\ref[M]'>[replacetext("[antag.role_text]", " ", "&nbsp")]</a></td>"
 
@@ -657,7 +581,7 @@
 		jobs += "<tr bgcolor='ccccff'><th colspan='[length(misc_roles)]'>Other Roles</th></tr><tr align='center'>"
 		for(var/entry in misc_roles)
 			if(jobban_isbanned(M, entry))
-				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[entry];jobban4=\ref[M]'><font color=red>[entry]</font></a></td>"
+				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[entry];jobban4=\ref[M]'>" + span_red("[entry]") + "</a></td>"
 			else
 				jobs += "<td width='20%'><a href='byond://?src=\ref[src];[HrefToken()];jobban3=[entry];jobban4=\ref[M]'>[entry]</a></td>"
 
@@ -669,7 +593,7 @@
 
 		// Finished
 		body = "<body>[jobs]</body>"
-		dat = "<tt>[header][body]</tt>"
+		dat = "<html><tt>[header][body]</tt></html>"
 		usr << browse(dat, "window=jobban2;size=800x490")
 		return
 
@@ -689,7 +613,7 @@
 			return
 
 		if(M != usr)																//we can jobban ourselves
-			if(M.client && M.client.holder && (M.client.holder.rights & R_BAN))		//they can ban too. So we can't ban them
+			if(M.client && M.client.holder && (check_rights_for(M.client, R_BAN)))		//they can ban too. So we can't ban them
 				tgui_alert_async(usr, "You cannot perform this action. You must be of a higher administrative rank!")
 				return
 
@@ -1001,7 +925,7 @@
 		dat += {"<A href='byond://?src=\ref[src];[HrefToken()];c_mode2=secret'>Secret</A><br>"}
 		dat += {"<A href='byond://?src=\ref[src];[HrefToken()];c_mode2=random'>Random</A><br>"}
 		dat += {"Now: [master_mode]"}
-		usr << browse(dat, "window=c_mode")
+		usr << browse("<html>[dat]</html>", "window=c_mode")
 
 	else if(href_list["f_secret"])
 		if(!check_rights(R_ADMIN|R_EVENT))	return
@@ -1015,7 +939,7 @@
 			dat += {"<A href='byond://?src=\ref[src];[HrefToken()];f_secret2=[mode]'>[config.mode_names[mode]]</A><br>"}
 		dat += {"<A href='byond://?src=\ref[src];[HrefToken()];f_secret2=secret'>Random (default)</A><br>"}
 		dat += {"Now: [secret_force_mode]"}
-		usr << browse(dat, "window=f_secret")
+		usr << browse("<html>[dat]</html>", "window=f_secret")
 
 	else if(href_list["c_mode2"])
 		if(!check_rights(R_ADMIN|R_SERVER|R_EVENT))	return
@@ -1091,7 +1015,7 @@
 		if(!ismob(M))
 			to_chat(usr, span_filter_adminlog("This can only be used on instances of type /mob"))
 			return
-		if(istype(M, /mob/living/silicon/ai))
+		if(isAI(M))
 			to_chat(usr, span_filter_adminlog("This cannot be used on instances of type /mob/living/silicon/ai"))
 			return
 
@@ -1112,7 +1036,7 @@
 		if(!M)	return
 
 		M.loc = prison_cell
-		if(istype(M, /mob/living/carbon/human))
+		if(ishuman(M))
 			var/mob/living/carbon/human/prisoner = M
 			prisoner.equip_to_slot_or_del(new /obj/item/clothing/under/color/prison(prisoner), slot_w_uniform)
 			prisoner.equip_to_slot_or_del(new /obj/item/clothing/shoes/orange(prisoner), slot_shoes)
@@ -1154,7 +1078,7 @@
 		if(!ismob(M))
 			to_chat(usr, span_filter_adminlog("This can only be used on instances of type /mob"))
 			return
-		if(istype(M, /mob/living/silicon/ai))
+		if(isAI(M))
 			to_chat(usr, span_filter_adminlog("This cannot be used on instances of type /mob/living/silicon/ai"))
 			return
 
@@ -1179,7 +1103,7 @@
 		if(!ismob(M))
 			to_chat(usr, span_filter_adminlog("This can only be used on instances of type /mob"))
 			return
-		if(istype(M, /mob/living/silicon/ai))
+		if(isAI(M))
 			to_chat(usr, span_filter_adminlog("This cannot be used on instances of type /mob/living/silicon/ai"))
 			return
 
@@ -1204,7 +1128,7 @@
 		if(!ismob(M))
 			to_chat(usr, span_filter_adminlog("This can only be used on instances of type /mob"))
 			return
-		if(istype(M, /mob/living/silicon/ai))
+		if(isAI(M))
 			to_chat(usr, span_filter_adminlog("This cannot be used on instances of type /mob/living/silicon/ai"))
 			return
 
@@ -1226,14 +1150,14 @@
 		if(!ismob(M))
 			to_chat(usr, span_filter_adminlog("This can only be used on instances of type /mob"))
 			return
-		if(istype(M, /mob/living/silicon/ai))
+		if(isAI(M))
 			to_chat(usr, span_filter_adminlog("This cannot be used on instances of type /mob/living/silicon/ai"))
 			return
 
 		for(var/obj/item/I in M)
 			M.drop_from_inventory(I)
 
-		if(istype(M, /mob/living/carbon/human))
+		if(ishuman(M))
 			var/mob/living/carbon/human/observer = M
 			observer.equip_to_slot_or_del(new /obj/item/clothing/under/suit_jacket(observer), slot_w_uniform)
 			observer.equip_to_slot_or_del(new /obj/item/clothing/shoes/black(observer), slot_shoes)
@@ -1296,7 +1220,7 @@
 		if(!check_rights(R_SPAWN))	return
 
 		var/mob/M = locate(href_list["makeanimal"])
-		if(istype(M, /mob/new_player))
+		if(isnewplayer(M))
 			to_chat(usr, span_filter_adminlog("This cannot be used on instances of type /mob/new_player"))
 			return
 
@@ -1357,7 +1281,7 @@
 		if(ismob(M))
 			var/take_msg = span_notice("<b>ADMINHELP</b>: <b>[key_name(usr.client)]</b> is attending to <b>[key_name(M)]'s</b> adminhelp, please don't dogpile them.")
 			for(var/client/X in GLOB.admins)
-				if((R_ADMIN|R_MOD|R_SERVER) & X.holder.rights) //VOREStation Edit
+				if(check_rights_for(X, (R_ADMIN|R_MOD|R_SERVER)))
 					to_chat(X, take_msg)
 			to_chat(M, span_filter_pm(span_boldnotice("Your adminhelp is being attended to by [usr.client]. Thanks for your patience!")))
 			// VoreStation Edit Start
@@ -1543,7 +1467,7 @@
 				var/obj/pageobj = B.pages[page]
 				data += "<A href='byond://?src=\ref[src];[HrefToken()];AdminFaxViewPage=[page];paper_bundle=\ref[B]'>Page [page] - [pageobj.name]</A><BR>"
 
-			usr << browse(data, "window=[B.name]")
+			usr << browse("<html>[data]</html>", "window=[B.name]")
 		else
 			to_chat(usr, span_warning("The faxed item is not viewable. This is probably a bug, and should be reported on the tracker: [fax.type]"))
 
@@ -1593,7 +1517,7 @@
 			usr.on_mob_jump()
 			usr.forceMove(T)
 			feedback_add_details("admin_verb","JM") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-			log_and_message_admins("[key_name_admin(usr)] jumped to [key_name_admin(M)]")
+			log_and_message_admins("jumped to [key_name_admin(M)]", usr)
 		else
 			to_chat(usr, span_filter_adminlog("This mob is not located in the game world."))
 

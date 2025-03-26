@@ -7,7 +7,7 @@
 
 	var/list/Lines = list()
 
-	if(check_rights(R_ADMIN|R_SERVER|R_MOD,FALSE,src))
+	if(check_rights_for(src, R_ADMIN|R_SERVER|R_MOD))
 		for(var/client/C in GLOB.clients)
 			var/entry = "<tr><td>[C.key]"
 			if(C.holder && C.holder.fakekey)
@@ -81,7 +81,7 @@
 			var/mob/observer/dead/O = C.mob
 			if(isobserver(O))
 				entry += " - " + span_gray("Observing") + "<br>"
-			else if(istype(O,/mob/new_player))
+			else if(isnewplayer(O))
 				entry += " - " + span_blue("In Lobby") + "<br>"
 			else
 				entry += " - "+ span_green("Playing") + "<br>"

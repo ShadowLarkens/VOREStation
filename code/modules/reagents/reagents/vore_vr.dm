@@ -13,7 +13,8 @@
 	mrate_static = TRUE
 
 /datum/reagent/macrocillin/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
-	M.resize(M.size_multiplier+0.01, uncapped = M.has_large_resize_bounds()) //Incrrease 1% per tick.
+	var/new_size = clamp((M.size_multiplier + 0.01), RESIZE_MINIMUM_DORMS, RESIZE_MAXIMUM_DORMS)
+	M.resize(new_size, uncapped = M.has_large_resize_bounds()) //Incrrease 1% per tick.
 	return
 
 /datum/reagent/microcillin
@@ -26,7 +27,8 @@
 	mrate_static = TRUE
 
 /datum/reagent/microcillin/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
-	M.resize(M.size_multiplier-0.01, uncapped = M.has_large_resize_bounds()) //Decrease 1% per tick.
+	var/new_size = clamp((M.size_multiplier - 0.01), RESIZE_MINIMUM_DORMS, RESIZE_MAXIMUM_DORMS)
+	M.resize(new_size, uncapped = M.has_large_resize_bounds()) //Decrease 1% per tick.
 	return
 
 
@@ -201,6 +203,10 @@
 /datum/reagent/drugs/rainbow_toxin/affect_blood(mob/living/carbon/M, var/alien, var/removed)
 	..()
 	var/drug_strength = 20
+	if(M.species.chem_strength_tox > 0)
+		drug_strength *= M.species.chem_strength_tox
+	if(alien == IS_SLIME)
+		drug_strength *= 0.15 //~ 1/6
 	M.druggy = max(M.druggy, drug_strength)
 
 /datum/reagent/drugs/rainbow_toxin/overdose(var/mob/living/M as mob)

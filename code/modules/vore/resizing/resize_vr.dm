@@ -160,7 +160,7 @@
 
 	var/nagmessage = "Adjust your mass to be a size between 25 to 200% (or 1% to 600% in dormitories). (DO NOT ABUSE)"
 	var/default = size_multiplier * 100
-	var/new_size = tgui_input_number(usr, nagmessage, "Pick a Size", default, 600, 1)
+	var/new_size = tgui_input_number(src, nagmessage, "Pick a Size", default, 600, 1)
 	if(size_range_check(new_size))
 		resize(new_size/100, uncapped = has_large_resize_bounds(), ignore_prefs = TRUE)
 		// I'm not entirely convinced that `src ? ADMIN_JMP(src) : "null"` here does anything
@@ -175,7 +175,7 @@
 */
 
 /**
- * Attempt to scoop up this mob up into H's hands, if the size difference is large enough.
+ * Attempt to scoop up this mob up into M's hands, if the size difference is large enough.
  * @return false if normal code should continue, 1 to prevent normal code.
  */
 /mob/living/proc/attempt_to_scoop(mob/living/M, mob/living/G, ignore_size = FALSE) //second one is for the Grabber, only exists for animals to self-grab
@@ -194,7 +194,7 @@
 			return 0
 	if(size_diff >= 0.50 || mob_size < MOB_SMALL || size_diff >= get_effective_size() || ignore_size)
 		if(buckled)
-			to_chat(usr,span_notice("You have to unbuckle \the [src] before you pick them up."))
+			to_chat(src,span_notice("You have to unbuckle \the [src] before you pick them up."))
 			return 0
 		holder_type = /obj/item/holder/micro
 		var/obj/item/holder/m_holder = get_scooped(M, G)
@@ -212,6 +212,8 @@
  * @return false if normal code should continue, true to prevent normal code.
  */
 /mob/living/proc/handle_micro_bump_helping(mob/living/tmob)
+	if(is_incorporeal() || tmob.is_incorporeal())
+		return FALSE
 	//Riding and being moved to us or something similar
 	if(tmob in buckled_mobs)
 		return TRUE
@@ -271,6 +273,8 @@
 	//We can't be stepping on anyone
 	if(!canmove || buckled)
 		return
+	if(is_incorporeal() || tmob.is_incorporeal())
+		return
 
 	//Riding and being moved to us or something similar
 	if(tmob in buckled_mobs)
@@ -289,7 +293,7 @@
 		for (var/atom/movable/M in prey.loc)
 			if (prey == M || pred == M)
 				continue
-			if (istype(M, /mob/living))
+			if (isliving(M))
 				var/mob/living/L = M
 				if (!M.CanPass(src, prey.loc) && !(get_effective_size(FALSE) - L.get_effective_size(TRUE) >= size_ratio_needed || L.lying))
 					can_pass = FALSE
@@ -357,7 +361,7 @@
 			equip_to_slot_if_possible(prey.get_scooped(pred), slot_shoes, 0, 1)
 			add_attack_logs(pred, prey, "Grabbed underfoot ([tail ? "taur" : "nontaur"], no shoes)")
 
-	if(m_intent == "run")
+	if(m_intent == I_RUN)
 		switch(a_intent)
 			if(I_DISARM)
 				message_pred = "You quickly push [prey] to the ground with your foot!"

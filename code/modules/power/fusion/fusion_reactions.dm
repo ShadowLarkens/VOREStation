@@ -17,8 +17,7 @@ var/list/fusion_reactions
 /proc/get_fusion_reaction(var/p_react, var/s_react, var/m_energy)
 	if(!fusion_reactions)
 		fusion_reactions = list()
-		for(var/rtype in subtypesof(/decl/fusion_reaction)
-		)
+		for(var/rtype in subtypesof(/decl/fusion_reaction))
 			var/decl/fusion_reaction/cur_reaction = new rtype()
 			if(!fusion_reactions[cur_reaction.p_react])
 				fusion_reactions[cur_reaction.p_react] = list()
@@ -126,7 +125,7 @@ var/list/fusion_reactions
 	for(var/mob/living/mob in living_mob_list)
 		var/turf/T = get_turf(mob)
 		if(T && (holder.z == T.z))
-			if(istype(mob, /mob/living/carbon/human))
+			if(ishuman(mob))
 				var/mob/living/carbon/human/H = mob
 				H.hallucination += rand(100,150)
 

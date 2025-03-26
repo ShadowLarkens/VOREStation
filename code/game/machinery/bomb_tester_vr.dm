@@ -32,8 +32,8 @@
 	var/datum/gas_mixture/faketank
 	var/faketank_integrity
 
-/obj/machinery/bomb_tester/New()
-	..()
+/obj/machinery/bomb_tester/Initialize(mapload)
+	. = ..()
 	default_apply_parts()
 	RefreshParts()
 	faketank = new
@@ -42,7 +42,7 @@
 	tank1 = null //Base machine Destroy()
 	tank2 = null //handles deleting contents
 	test_canister = null
-	..()
+	. = ..()
 
 /obj/machinery/bomb_tester/dismantle()
 	if(tank1)

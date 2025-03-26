@@ -49,7 +49,7 @@
 		"cold"
 	)
 
-/obj/machinery/door/firedoor/Initialize()
+/obj/machinery/door/firedoor/Initialize(mapload)
 	. = ..()
 	//Delete ourselves if we find extra mapped in firedoors
 	for(var/obj/machinery/door/firedoor/F in loc)
@@ -136,7 +136,7 @@
 	if(operating)
 		return//Already doing something.
 
-	if(istype(user, /mob/living/carbon/human))
+	if(ishuman(user))
 		var/mob/living/carbon/human/X = user
 		if(istype(X.species, /datum/species/xenos))
 			src.attack_alien(user)
@@ -193,7 +193,7 @@
 				close()
 
 /obj/machinery/door/firedoor/attack_alien(var/mob/user) //Familiar, right? Doors.
-	if(istype(user, /mob/living/carbon/human))
+	if(ishuman(user))
 		var/mob/living/carbon/human/X = user
 		if(istype(X.species, /datum/species/xenos))
 			if(src.blocked)
@@ -414,7 +414,10 @@
 /obj/machinery/door/firedoor/close()
 	latetoggle()
 	. = ..()
+
+/obj/machinery/door/firedoor/close_internalfinish(forced = 0)
 	// Queue us for processing when we are closed!
+	..()
 	if(density)
 		START_MACHINE_PROCESSING(src)
 

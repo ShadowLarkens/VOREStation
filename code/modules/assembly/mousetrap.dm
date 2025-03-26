@@ -59,7 +59,7 @@
 				which_hand = "r_hand"
 			triggered(user, which_hand)
 			user.visible_message(span_warning("[user] accidentally sets off [src], breaking their fingers."), \
-								 span_warning("You accidentally trigger [src]!"))
+									span_warning("You accidentally trigger [src]!"))
 			return
 
 		to_chat(user, span_notice("You disarm [src]."))
@@ -75,7 +75,7 @@
 				which_hand = "r_hand"
 			triggered(user, which_hand)
 			user.visible_message(span_warning("[user] accidentally sets off [src], breaking their fingers."), \
-								 span_warning("You accidentally trigger [src]!"))
+									span_warning("You accidentally trigger [src]!"))
 			return
 	..()
 
@@ -85,7 +85,7 @@
 	if(armed)
 		if(ishuman(AM))
 			var/mob/living/carbon/H = AM
-			if(H.m_intent == "run")
+			if(H.m_intent == I_RUN)
 				triggered(H)
 				H.visible_message(span_warning("[H] accidentally steps on [src]."), \
 								  span_warning("You accidentally step on [src]"))

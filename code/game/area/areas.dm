@@ -57,7 +57,7 @@ GLOBAL_LIST_EMPTY(areas_by_type)
 	GLOB.areas_by_type[type] = src
 	return ..()
 
-/area/Initialize()
+/area/Initialize(mapload)
 	. = ..()
 	luminosity = !(dynamic_lighting)
 	icon_state = ""
@@ -384,7 +384,7 @@ var/list/mob/living/forced_ambiance_list = new
 	if(!L.lastarea)
 		L.lastarea = src
 	var/area/oldarea = L.lastarea
-	if((oldarea.get_gravity() == 0) && (get_gravity() == 1) && (L.m_intent == "run")) // Being ready when you change areas gives you a chance to avoid falling all together.
+	if((oldarea.get_gravity() == 0) && (get_gravity() == 1) && (L.m_intent == I_RUN)) // Being ready when you change areas gives you a chance to avoid falling all together.
 		thunk(L)
 		L.update_floating( L.Check_Dense_Object() )
 
@@ -420,7 +420,7 @@ var/list/mob/living/forced_ambiance_list = new
 		else
 			L << sound(null, channel = CHANNEL_AMBIENCE_FORCED)
 	else if(src.ambience && src.ambience.len)
-		var/ambience_odds = L?.client.prefs.ambience_chance
+		var/ambience_odds = L.read_preference(/datum/preference/numeric/ambience_chance)
 		if(prob(ambience_odds) && (world.time >= L.client.time_last_ambience_played + 1 MINUTE))
 			var/sound = pick(ambience)
 			L << sound(sound, repeat = 0, wait = 0, volume = 50 * volume_mod, channel = CHANNEL_AMBIENCE)
@@ -445,12 +445,12 @@ var/list/mob/living/forced_ambiance_list = new
 			return // Being buckled to something solid keeps you in place.
 		if(istype(H.shoes, /obj/item/clothing/shoes/magboots) && (H.shoes.item_flags & NOSLIP))
 			return
-		if(H.incorporeal_move) // VOREstation edit - Phaseshifted beings should not be affected by gravity
+		if(H.is_incorporeal()) // VOREstation edit - Phaseshifted beings should not be affected by gravity
 			return
 		if(H.species.can_zero_g_move || H.species.can_space_freemove)
 			return
 
-		if(H.m_intent == "run")
+		if(H.m_intent == I_RUN)
 			H.AdjustStunned(6)
 			H.AdjustWeakened(6)
 		else
@@ -552,17 +552,19 @@ GLOBAL_DATUM(spoiler_obfuscation_image, /image)
 		cut_overlay(GLOB.spoiler_obfuscation_image)
 
 /area/proc/flag_check(var/flag, var/match_all = FALSE)
-    if(match_all)
-        return (flags & flag) == flag
-    return flags & flag
+	if(match_all)
+		return (flags & flag) == flag
+	return flags & flag
 
 // RS Port #658 Start
 /area/proc/check_phase_shift(var/mob/ourmob)
-	if(!flag_check(AREA_BLOCK_PHASE_SHIFT) || !ourmob.incorporeal_move)
+	if(!flag_check(AREA_BLOCK_PHASE_SHIFT) || !ourmob.is_incorporeal())
 		return
 	if(!isliving(ourmob))
 		return
-	if(isanimal(ourmob))
+	if(ourmob.client?.holder)
+		return
+	if(issimplekin(ourmob))
 		var/mob/living/simple_mob/shadekin/SK = ourmob
 		if(SK.ability_flags & AB_PHASE_SHIFTED)
 			SK.phase_in(SK.loc)
@@ -571,3 +573,12 @@ GLOBAL_DATUM(spoiler_obfuscation_image, /image)
 		if(SK.ability_flags & AB_PHASE_SHIFTED)
 			SK.phase_in(SK.loc)
 // RS Port #658 End
+
+/area/proc/isAlwaysIndoors()
+	return FALSE
+
+/area/shuttle/isAlwaysIndoors()
+	return TRUE
+
+/area/turbolift/isAlwaysIndoors()
+	return TRUE

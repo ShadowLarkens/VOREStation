@@ -176,12 +176,13 @@
 	desc = "A slice from The Chaos Cake, it pulses weirdly, as if angry to be separated from the whole"
 	icon_state = "chaoscake_slice-1"
 
-	center_of_mass = list("x"=16, "y"=10)
+	center_of_mass_x = 16
+	center_of_mass_y = 10
 	nutriment_desc = list()
 	nutriment_amt = 4
 	volume = 80
 
-/obj/item/reagent_containers/food/snacks/chaoscakeslice/Initialize()
+/obj/item/reagent_containers/food/snacks/chaoscakeslice/Initialize(mapload)
 	. = ..()
 	var/i = rand(1,6)
 	icon_state = "chaoscake_slice-[i]"
@@ -292,10 +293,10 @@
 	var/slicetime = 15 SECONDS
 
 	var/slicelist = list(/obj/item/reagent_containers/food/snacks/sliceable/pizza/margherita/bigslice,
-						 /obj/item/reagent_containers/food/snacks/sliceable/pizza/pineapple/bigslice,
-						 /obj/item/reagent_containers/food/snacks/sliceable/pizza/meatpizza/bigslice,
-						 /obj/item/reagent_containers/food/snacks/sliceable/pizza/mushroompizza/bigslice,
-						 /obj/item/reagent_containers/food/snacks/sliceable/pizza/vegetablepizza/bigslice)
+							/obj/item/reagent_containers/food/snacks/sliceable/pizza/pineapple/bigslice,
+							/obj/item/reagent_containers/food/snacks/sliceable/pizza/meatpizza/bigslice,
+							/obj/item/reagent_containers/food/snacks/sliceable/pizza/mushroompizza/bigslice,
+							/obj/item/reagent_containers/food/snacks/sliceable/pizza/vegetablepizza/bigslice)
 
 /obj/structure/theonepizza/attackby(var/obj/item/W, var/mob/living/user)
 	if(istype(W,/obj/item/material/knife))

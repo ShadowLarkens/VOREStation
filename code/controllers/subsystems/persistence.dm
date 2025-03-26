@@ -11,12 +11,12 @@ SUBSYSTEM_DEF(persistence)
 	var/list/unpicked_paintings = list()
 
 /datum/controller/subsystem/persistence/Initialize()
-	. = ..()
 	for(var/datum/persistent/P as anything in subtypesof(/datum/persistent))
 		if(initial(P.name))
 			P = new P
 			persistence_datums[P.type] = P
 			P.Initialize()
+	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/persistence/Shutdown()
 	for(var/thing in persistence_datums)
@@ -53,7 +53,7 @@ SUBSYSTEM_DEF(persistence)
 		return
 
 	var/list/dat = list("<table width = '100%'>")
-	var/can_modify = check_rights(R_ADMIN, 0, user)
+	var/can_modify = check_rights_for(user.client, (R_ADMIN|R_DEBUG))
 	for(var/thing in persistence_datums)
 		var/datum/persistent/P = persistence_datums[thing]
 		if(P.has_admin_data)

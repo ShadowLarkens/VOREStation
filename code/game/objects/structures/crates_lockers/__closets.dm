@@ -42,7 +42,7 @@
 	var/obj/effect/overlay/closet_door/door_obj
 	var/vore_sound = 'sound/effects/metalscrape2.ogg'
 
-/obj/structure/closet/Initialize()
+/obj/structure/closet/Initialize(mapload)
 	..()
 	return INITIALIZE_HINT_LATELOAD
 
@@ -53,7 +53,7 @@
 		starts_with = null
 
 	if(!opened)		// if closed, any item at the crate's loc is put in the contents
-		if(istype(loc, /mob/living)) return
+		if(isliving(loc)) return
 		var/obj/item/I
 		for(I in loc)
 			if(I.density || I.anchored || I == src) continue
@@ -312,8 +312,8 @@
 			for(var/obj/item/I in LB.contents)
 				LB.remove_from_storage(I, T)
 			user.visible_message(span_notice("[user] empties \the [LB] into \the [src]."), \
-								 span_notice("You empty \the [LB] into \the [src]."), \
-								 span_notice("You hear rustling of clothes."))
+									span_notice("You empty \the [LB] into \the [src]."), \
+									span_notice("You hear rustling of clothes."))
 			return
 		if(isrobot(user))
 			return
@@ -475,12 +475,6 @@
 		BD.unwrap()
 	open()
 
-/obj/structure/closet/proc/animate_shake()
-	var/init_px = pixel_x
-	var/shake_dir = pick(-1, 1)
-	animate(src, transform=turn(matrix(), 8*shake_dir), pixel_x=init_px + 2*shake_dir, time=1)
-	animate(transform=null, pixel_x=init_px, time=6, easing=ELASTIC_EASING)
-
 /obj/structure/closet/onDropInto(var/atom/movable/AM)
 	return
 
@@ -552,7 +546,7 @@
 	set category = "Object"
 	set name = "Vore Occupants"
 
-	if(!istype(usr, /mob/living)) //no ghosts
+	if(!isliving(usr)) //no ghosts
 		return
 
 	if(!(usr in src.contents))
@@ -562,7 +556,7 @@
 	var/list/targets = list() //IF IT IS NOT BROKEN. DO NOT FIX IT.
 
 	for(var/mob/living/L in src.contents)
-		if(!istype(L, /mob/living)) //Don't eat anything that isn't mob/living. Failsafe.
+		if(!isliving(L)) //Don't eat anything that isn't mob/living. Failsafe.
 			continue
 		if(L == usr) //no eating yourself. 1984.
 			continue
@@ -578,7 +572,7 @@
 	if(!target)
 		return
 
-	if(!istype(target, /mob/living)) //Safety.
+	if(!isliving(target)) //Safety.
 		to_chat(src, span_warning("You need to select a living target!"))
 		return
 

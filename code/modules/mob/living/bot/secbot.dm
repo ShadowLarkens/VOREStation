@@ -224,7 +224,8 @@
 
 /mob/living/bot/secbot/resetTarget()
 	..()
-	UnregisterSignal(target, COMSIG_OBSERVER_MOVED)
+	if(target)
+		UnregisterSignal(target, COMSIG_OBSERVER_MOVED)
 	awaiting_surrender = 0
 	attacked = FALSE
 	walk_to(src, 0)
@@ -249,7 +250,7 @@
 			target = M
 			awaiting_surrender = 0
 			say("Level [threat] infraction alert!")
-			custom_emote(1, "points at [M.name]!")
+			automatic_custom_emote(VISIBLE_MESSAGE, "points at [M.name]!")
 			playsound(src, pick(threat_found_sounds), 50)
 			return
 
@@ -342,7 +343,7 @@
 						H.handcuffed = new /obj/item/handcuffs(H)
 					H.update_handcuffed()
 			busy = FALSE
-	else if(istype(M, /mob/living))
+	else if(isliving(M))
 		var/mob/living/L = M
 		L.adjustBruteLoss(xeno_harm_strength)
 		do_attack_animation(M)

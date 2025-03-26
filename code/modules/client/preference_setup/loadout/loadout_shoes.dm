@@ -45,6 +45,14 @@
 	..()
 	gear_tweaks += gear_tweak_free_color_choice
 
+/datum/gear/shoes/jackboots_white
+	display_name = "jackboots, white"
+	path = /obj/item/clothing/shoes/boots/jackboots/white
+
+/datum/gear/shoes/jackboots_silver
+	display_name = "jackboots, silver"
+	path = /obj/item/clothing/shoes/boots/jackboots/silver
+
 /datum/gear/shoes/workboots
 	display_name = "workboots"
 	path = /obj/item/clothing/shoes/boots/workboots
@@ -70,12 +78,12 @@
 	path = /obj/item/clothing/shoes/laceup
 
 /datum/gear/shoes/lacey/New()
-    ..()
-    var/list/laces = list()
-    for(var/lace in typesof(/obj/item/clothing/shoes/laceup))
-        var/obj/item/clothing/shoes/laceup/lace_type = lace
-        laces[initial(lace_type.name)] = lace_type
-    gear_tweaks += new/datum/gear_tweak/path(sortAssoc(laces))
+	..()
+	var/list/laces = list()
+	for(var/lace in typesof(/obj/item/clothing/shoes/laceup))
+		var/obj/item/clothing/shoes/laceup/lace_type = lace
+		laces[initial(lace_type.name)] = lace_type
+	gear_tweaks += new/datum/gear_tweak/path(sortAssoc(laces))
 
 /datum/gear/shoes/green
 	display_name = "shoes, green"
@@ -110,12 +118,12 @@
 	path = /obj/item/clothing/shoes/hitops/
 
 /datum/gear/shoes/hitops/New()
-    ..()
-    var/list/hitops = list()
-    for(var/hitop in typesof(/obj/item/clothing/shoes/hitops))
-        var/obj/item/clothing/shoes/hitops/hitop_type = hitop
-        hitops[initial(hitop_type.name)] = hitop_type
-    gear_tweaks += new/datum/gear_tweak/path(sortAssoc(hitops))
+	..()
+	var/list/hitops = list()
+	for(var/hitop in typesof(/obj/item/clothing/shoes/hitops))
+		var/obj/item/clothing/shoes/hitops/hitop_type = hitop
+		hitops[initial(hitop_type.name)] = hitop_type
+	gear_tweaks += new/datum/gear_tweak/path(sortAssoc(hitops))
 
 /datum/gear/shoes/flipflops
 	display_name = "flip flops"
@@ -163,9 +171,9 @@
 		"cowboy boots, black"=/obj/item/clothing/shoes/boots/cowboy/black,
 		"cowboy boots, white"=/obj/item/clothing/shoes/boots/cowboy/white,
 		"cowboy boots, fancy"=/obj/item/clothing/shoes/boots/cowboy/fancy,
-		"cowboy boots, snakeskin"=/obj/item/clothing/shoes/boots/cowboy/snakeskin,
-		"cowboy boots, green"=/obj/item/clothing/shoes/boots/cowboy/green,
-		"cowboy boots, blue"=/obj/item/clothing/shoes/boots/cowboy/blue
+		"cowboy boots, snakeskin"=/obj/item/clothing/shoes/boots/cowboy/snakeskin
+		//"cowboy boots, green"=/obj/item/clothing/shoes/boots/cowboy/green,
+		//"cowboy boots, blue"=/obj/item/clothing/shoes/boots/cowboy/blue
 	)
 	gear_tweaks += new/datum/gear_tweak/path(sortAssoc(selector_uniforms))
 
@@ -263,5 +271,49 @@
 	path = /obj/item/clothing/shoes/sandals
 
 /datum/gear/shoes/sandals/New()
+	..()
+	gear_tweaks += gear_tweak_free_color_choice
+
+/datum/gear/shoes/black/cuffs
+	display_name = "legwraps, black"
+	path = /obj/item/clothing/shoes/black/cuffs
+
+/datum/gear/shoes/black/cuffs/blue
+	display_name = "legwraps, blue"
+	path = /obj/item/clothing/shoes/black/cuffs/blue
+
+/datum/gear/shoes/black/cuffs/red
+	display_name = "legwraps, red"
+	path = /obj/item/clothing/shoes/black/cuffs/red
+
+/datum/gear/shoes/siren
+	display_name = "boots, Siren"
+	path = /obj/item/clothing/shoes/boots/fluff/siren
+
+/datum/gear/shoes/toeless
+	display_name = "toe-less jackboots"
+	path = /obj/item/clothing/shoes/boots/jackboots/toeless
+
+/datum/gear/shoes/singer_blue
+	display_name = "blue performer's boots"
+	path = /obj/item/clothing/shoes/boots/singer
+
+/datum/gear/shoes/singer_yellow
+	display_name = "yellow performer's boots"
+	path = /obj/item/clothing/shoes/boots/singer/yellow
+
+/datum/gear/shoes/antediluvian
+	display_name = "legwraps, antediluvian"
+	path = /obj/item/clothing/shoes/antediluvian
+
+/datum/gear/shoes/flats/alt
+	display_name = "flats, alt"
+	path = /obj/item/clothing/shoes/flats/white/color/alt
+
+/datum/gear/shoes/sandals_elegant
+	display_name = "sandals, elegant"
+	path = /obj/item/clothing/shoes/sandals_elegant
+
+/datum/gear/shoes/sandals_elegant/New()
 	..()
 	gear_tweaks += gear_tweak_free_color_choice

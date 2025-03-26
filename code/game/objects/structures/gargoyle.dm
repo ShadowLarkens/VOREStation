@@ -40,7 +40,7 @@
 		comp.paused = FALSE
 		identifier = length(comp.identifier) > 0 ? comp.identifier : initial(identifier)
 		material = length(comp.material) > 0 ? comp.material : initial(material)
-		tint = length(comp.tint) > 0 ? comp.tint : initial(tint)
+		tint = length(comp.tint) > 0 ? comp.tint : initial(comp.tint)
 		adjective = length(comp.adjective) > 0 ? comp.adjective : initial(adjective)
 		if (copytext_char(adjective, -1) != "s")
 			adjective += "s"
@@ -279,7 +279,7 @@
 		if(gargoyle.adminbus_trash || is_type_in_list(I,edible_trash) && I.trash_eatable && !is_type_in_list(I,item_vore_blacklist))
 			gargoyle.hitby(AM, speed)
 			return
-	else if(istype(AM,/mob/living) && gargoyle)
+	else if(isliving(AM) && gargoyle)
 		var/mob/living/L = AM
 		if(gargoyle.throw_vore && L.throw_vore && gargoyle.can_be_drop_pred && L.can_be_drop_prey)
 			var/drop_prey_temp = FALSE

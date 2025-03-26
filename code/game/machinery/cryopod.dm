@@ -237,7 +237,7 @@
 	//This inherits from the robot cryo, so synths can be properly cryo'd.  If a non-synth enters and is cryo'd, ..() is called and it'll still work.
 	name = "Airlock of Wonders"
 	desc = "An airlock that isn't an airlock, and shouldn't exist.  Yell at a coder/mapper."
-	icon = 'icons/obj/doors/Doorint.dmi'
+	icon = 'icons/obj/doors/doorint.dmi'
 	icon_state = "door_open"
 	base_icon_state = "door_open"
 	occupied_icon_state = "door_closed"
@@ -289,9 +289,9 @@
 
 	time_till_despawn = 60 //1 second, because gateway.
 
-/obj/machinery/cryopod/New()
+/obj/machinery/cryopod/Initialize(mapload)
+	. = ..()
 	announce = new /obj/item/radio/intercom(src)
-	..()
 
 /obj/machinery/cryopod/Destroy()
 	if(occupant)
@@ -299,7 +299,7 @@
 		occupant.resting = 1
 	return ..()
 
-/obj/machinery/cryopod/Initialize()
+/obj/machinery/cryopod/Initialize(mapload)
 	. = ..()
 
 	find_control_computer()
@@ -339,6 +339,9 @@
 //Lifted from Unity stasis.dm and refactored. ~Zuhayr
 /obj/machinery/cryopod/process()
 	if(occupant)
+		if(occupant.loc != src)
+			go_out(TRUE)
+			return
 		//Allow a ten minute gap between entering the pod and actually despawning.
 		if(world.time - time_entered < time_till_despawn)
 			return
@@ -525,7 +528,7 @@
 		//Make an announcement and log the person entering storage.
 		control_computer.frozen_crew += "[to_despawn.real_name], [to_despawn.mind.role_alt_title] - [stationtime2text()]"
 		control_computer._admin_logs += "[key_name(to_despawn)] ([to_despawn.mind.role_alt_title]) at [stationtime2text()]"
-		log_and_message_admins("[key_name(to_despawn)] ([to_despawn.mind.role_alt_title]) entered cryostorage.")
+		log_and_message_admins("([to_despawn.mind.role_alt_title]) entered cryostorage.", to_despawn)
 
 		//VOREStation Edit Start
 		var/depart_announce = TRUE
@@ -654,12 +657,12 @@
 	for(var/obj/machinery/gateway/G in range(1,src))
 		G.icon_state = "on"
 
-/obj/machinery/cryopod/robot/door/gateway/go_out()
-	..()
+/obj/machinery/cryopod/robot/door/gateway/go_out(var/skip_move = FALSE)
+	..(skip_move)
 	for(var/obj/machinery/gateway/G in range(1,src))
 		G.icon_state = "off"
 
-/obj/machinery/cryopod/proc/go_out()
+/obj/machinery/cryopod/proc/go_out(var/skip_move = FALSE)
 
 	if(!occupant)
 		return
@@ -667,8 +670,8 @@
 	if(occupant.client)
 		occupant.client.eye = occupant.client.mob
 		occupant.client.perspective = MOB_PERSPECTIVE
-
-	occupant.forceMove(get_turf(src))
+	if(!skip_move)
+		occupant.forceMove(get_turf(src))
 	if(ishuman(occupant) && applies_stasis)
 		var/mob/living/carbon/human/H = occupant
 		H.Stasis(0)

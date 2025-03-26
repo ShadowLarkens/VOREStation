@@ -26,7 +26,7 @@
 /obj/effect/wingrille_spawn/CanPass(atom/movable/mover, turf/target)
 	return FALSE
 
-/obj/effect/wingrille_spawn/Initialize()
+/obj/effect/wingrille_spawn/Initialize(mapload)
 	if(win_path && ticker && ticker.current_state < GAME_STATE_PLAYING)
 		activate()
 	..()
@@ -57,7 +57,7 @@
 	activated = 1
 	for(var/obj/effect/wingrille_spawn/other in neighbours)
 		if(!other.activated) other.activate()
-	if(initialized && !QDELETED(src))
+	if((flags & ATOM_INITIALIZED) && !QDELETED(src))
 		qdel(src)
 
 /obj/effect/wingrille_spawn/proc/handle_window_spawn(var/obj/structure/window/W)

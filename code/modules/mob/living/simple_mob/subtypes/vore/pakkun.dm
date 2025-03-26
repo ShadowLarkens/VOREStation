@@ -81,11 +81,13 @@
 		return
 
 	if(resting)
-		vore_selected.digest_mode = DM_UNABSORB
+		if(isbelly(vore_selected))
+			vore_selected.digest_mode = DM_UNABSORB
 		ai_holder.go_sleep()
 
 	else
-		vore_selected.digest_mode = vore_default_mode
+		if(isbelly(vore_selected))
+			vore_selected.digest_mode = vore_default_mode
 		ai_holder.go_wake()
 
 /mob/living/simple_mob/vore/pakkun/attack_hand(mob/user)
@@ -121,7 +123,7 @@
 		if(abs(holder.x - L.x)>6 || abs(holder.y - L.y)>6) //finally, pakkuns on the very very edge of the screen won't target you
 			our_targets -= list_target
 			continue
-	if(istype(holder, /mob/living/simple_mob))
+	if(isanimal(holder))
 		var/mob/living/simple_mob/SM = holder
 		our_targets -= SM.prey_excludes // Lazylist, but subtracting a null from the list seems fine.
 	return our_targets
@@ -132,7 +134,7 @@
 		var/mob/living/L = the_target
 		if(!(L.can_be_drop_prey && L.throw_vore && L.allowmobvore))
 			return FALSE
-		if(istype(holder, /mob/living/simple_mob))
+		if(isanimal(holder))
 			var/mob/living/simple_mob/SM = holder
 			if(LAZYFIND(SM.prey_excludes, L))
 				return FALSE
@@ -147,7 +149,11 @@
 		ai_holder.remove_target()
 
 /mob/living/simple_mob/vore/pakkun/init_vore()
-	..()
+	if(!voremob_loaded)
+		return
+	if(LAZYLEN(vore_organs))
+		return
+	. = ..()
 	var/obj/belly/B = vore_selected
 	B.name = "stomach"
 	B.desc = "you land with a soft bump in what can only be described as a big soft slimy sack, the walls effortlessly stretching to match your every move with no sign of reaching any kind of elastic \
@@ -161,15 +167,15 @@
 	B.digest_mode = DM_SELECT
 
 /mob/living/simple_mob/vore/pakkun/attackby(var/obj/item/O, var/mob/user) //if they're newspapered, they'll spit out any junk they've eaten for whatever reason
-    if(istype(O, /obj/item/newspaper) && !ckey && isturf(user.loc))
-        user.visible_message(span_info("[user] swats [src] with [O]!"))
-        release_vore_contents()
-        for(var/mob/living/L in living_mobs(0))
-            if(!(LAZYFIND(prey_excludes, L)))
-                LAZYSET(prey_excludes, L, world.time)
-                addtimer(CALLBACK(src, PROC_REF(removeMobFromPreyExcludes), WEAKREF(L)), 5 MINUTES)
-    else
-        ..()
+	if(istype(O, /obj/item/newspaper) && !ckey && isturf(user.loc))
+		user.visible_message(span_info("[user] swats [src] with [O]!"))
+		release_vore_contents()
+		for(var/mob/living/L in living_mobs(0))
+			if(!(LAZYFIND(prey_excludes, L)))
+				LAZYSET(prey_excludes, L, world.time)
+				addtimer(CALLBACK(src, PROC_REF(removeMobFromPreyExcludes), WEAKREF(L)), 5 MINUTES)
+	else
+		..()
 
 //a palette-swapped version that's a bit bossier, in JRPG tradition
 
@@ -271,7 +277,11 @@
 	..()
 
 /mob/living/simple_mob/vore/pakkun/snapdragon/snappy/init_vore()
-	..()
+	if(!voremob_loaded)
+		return
+	if(LAZYLEN(vore_organs))
+		return
+	. = ..()
 	var/obj/belly/B = vore_selected
 	B.digest_mode = DM_HOLD
 	B.desc = "the lizard gently yet insistently stuffs you down her gullet - evidently enjoying this moment of playtime as you land in a sprawled heap in the stretchy, clinging sack that makes up \

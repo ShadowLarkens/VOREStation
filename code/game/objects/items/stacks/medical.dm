@@ -29,7 +29,7 @@
 		to_chat(user, span_warning("There's not enough [uses_charge ? "charge" : "items"] left to use that!"))
 		return 1
 
-	if (istype(M, /mob/living/carbon/human))
+	if (ishuman(M))
 		var/mob/living/carbon/human/H = M
 		var/obj/item/organ/external/affecting = H.get_organ(user.zone_sel.selecting)
 
@@ -94,7 +94,7 @@
 	if(..())
 		return 1
 
-	if (istype(M, /mob/living/carbon/human))
+	if (ishuman(M))
 		var/mob/living/carbon/human/H = M
 		var/obj/item/organ/external/affecting = H.get_organ(user.zone_sel.selecting)
 
@@ -108,7 +108,7 @@
 		else
 			var/available = get_amount()
 			user.visible_message(span_infoplain(span_bold("\The [user]") + " starts bandaging [M]'s [affecting.name]."), \
-					             span_notice("You start bandaging [M]'s [affecting.name]."))
+								span_notice("You start bandaging [M]'s [affecting.name]."))
 			var/used = 0
 			for (var/datum/wound/W in affecting.wounds)
 				if(W.internal)
@@ -131,10 +131,10 @@
 
 				if (W.current_stage <= W.max_bleeding_stage)
 					user.visible_message(span_infoplain(span_bold("\The [user]") + " bandages \a [W.desc] on [M]'s [affecting.name]."), \
-					                              span_notice("You bandage \a [W.desc] on [M]'s [affecting.name]."))
+												span_notice("You bandage \a [W.desc] on [M]'s [affecting.name]."))
 				else
 					user.visible_message(span_infoplain(span_bold("\The [user]") + " places a bandage over \a [W.desc] on [M]'s [affecting.name]."), \
-					                              span_notice("You place a bandage over \a [W.desc] on [M]'s [affecting.name]."))
+												span_notice("You place a bandage over \a [W.desc] on [M]'s [affecting.name]."))
 				W.bandage()
 				playsound(src, pick(apply_sounds), 25)
 				used++
@@ -163,7 +163,7 @@
 	if(..())
 		return 1
 
-	if (istype(M, /mob/living/carbon/human))
+	if (ishuman(M))
 		var/mob/living/carbon/human/H = M
 		var/obj/item/organ/external/affecting = H.get_organ(user.zone_sel.selecting)
 
@@ -177,7 +177,7 @@
 		else
 			var/available = get_amount()
 			user.visible_message(span_infoplain(span_bold("\The [user]") + " starts treating [M]'s [affecting.name]."), \
-					             span_notice("You start treating [M]'s [affecting.name]."))
+									span_notice("You start treating [M]'s [affecting.name]."))
 			var/used = 0
 			for (var/datum/wound/W in affecting.wounds)
 				if (W.internal)
@@ -200,14 +200,14 @@
 
 				if (W.current_stage <= W.max_bleeding_stage)
 					user.visible_message(span_infoplain(span_bold("\The [user]") + " bandages \a [W.desc] on [M]'s [affecting.name]."), \
-					                              span_notice("You bandage \a [W.desc] on [M]'s [affecting.name]."))
+											span_notice("You bandage \a [W.desc] on [M]'s [affecting.name]."))
 					//H.add_side_effect("Itch")
 				else if (W.damage_type == BRUISE)
 					user.visible_message(span_infoplain(span_bold("\The [user]") + " places a bruise patch over \a [W.desc] on [M]'s [affecting.name]."), \
-					                              span_notice("You place a bruise patch over \a [W.desc] on [M]'s [affecting.name]."))
+											span_notice("You place a bruise patch over \a [W.desc] on [M]'s [affecting.name]."))
 				else
 					user.visible_message(span_infoplain(span_bold("\The [user]") + " places a bandaid over \a [W.desc] on [M]'s [affecting.name]."), \
-					                              span_notice("You place a bandaid over \a [W.desc] on [M]'s [affecting.name]."))
+											span_notice("You place a bandaid over \a [W.desc] on [M]'s [affecting.name]."))
 				W.bandage()
 				// W.disinfect() // VOREStation - Tech1 should not disinfect
 				playsound(src, pick(apply_sounds), 25)
@@ -237,7 +237,7 @@
 	if(..())
 		return 1
 
-	if (istype(M, /mob/living/carbon/human))
+	if (ishuman(M))
 		var/mob/living/carbon/human/H = M
 		var/obj/item/organ/external/affecting = H.get_organ(user.zone_sel.selecting)
 
@@ -250,7 +250,7 @@
 			return 1
 		else
 			user.visible_message(span_infoplain(span_bold("\The [user]") + " starts salving wounds on [M]'s [affecting.name]."), \
-					             span_notice("You start salving the wounds on [M]'s [affecting.name].") )
+									span_notice("You start salving the wounds on [M]'s [affecting.name].") )
 			if(!do_mob(user, M, 10, exclusive = TRUE))
 				to_chat(user, span_notice("You must stand still to salve wounds."))
 				return 1
@@ -258,7 +258,7 @@
 				to_chat(user, span_warning("The wounds on [M]'s [affecting.name] have already been salved."))
 				return 1
 			user.visible_message(span_notice("[user] salved wounds on [M]'s [affecting.name]."), \
-			                         span_notice("You salved wounds on [M]'s [affecting.name].") )
+									span_notice("You salved wounds on [M]'s [affecting.name].") )
 			use(1)
 			affecting.salve()
 			playsound(src, pick(apply_sounds), 25)
@@ -282,7 +282,7 @@
 	if(..())
 		return 1
 
-	if (istype(M, /mob/living/carbon/human))
+	if (ishuman(M))
 		var/mob/living/carbon/human/H = M
 		var/obj/item/organ/external/affecting = H.get_organ(user.zone_sel.selecting)
 
@@ -296,7 +296,7 @@
 		else
 			var/available = get_amount()
 			user.visible_message(span_infoplain(span_bold("\The [user]") + " starts treating [M]'s [affecting.name]."), \
-					             span_notice("You start treating [M]'s [affecting.name].") )
+									span_notice("You start treating [M]'s [affecting.name].") )
 			var/used = 0
 			for (var/datum/wound/W in affecting.wounds)
 				if (W.internal)
@@ -318,13 +318,13 @@
 
 				if (W.current_stage <= W.max_bleeding_stage)
 					user.visible_message(span_infoplain(span_bold("\The [user]") + " cleans \a [W.desc] on [M]'s [affecting.name] and seals the edges with bioglue."), \
-					                     span_notice("You clean and seal \a [W.desc] on [M]'s [affecting.name].") )
+											span_notice("You clean and seal \a [W.desc] on [M]'s [affecting.name].") )
 				else if (W.damage_type == BRUISE)
 					user.visible_message(span_infoplain(span_bold("\The [user]") + " places a medical patch over \a [W.desc] on [M]'s [affecting.name]."), \
-					                              span_notice("You place a medical patch over \a [W.desc] on [M]'s [affecting.name].") )
+											span_notice("You place a medical patch over \a [W.desc] on [M]'s [affecting.name].") )
 				else
 					user.visible_message(span_infoplain(span_bold("\The [user]") + " smears some bioglue over \a [W.desc] on [M]'s [affecting.name]."), \
-					                              span_notice("You smear some bioglue over \a [W.desc] on [M]'s [affecting.name].") )
+											span_notice("You smear some bioglue over \a [W.desc] on [M]'s [affecting.name].") )
 				W.bandage()
 				W.disinfect()
 				W.heal_damage(heal_brute)
@@ -352,7 +352,7 @@
 	if(..())
 		return 1
 
-	if (istype(M, /mob/living/carbon/human))
+	if (ishuman(M))
 		var/mob/living/carbon/human/H = M
 		var/obj/item/organ/external/affecting = H.get_organ(user.zone_sel.selecting)
 
@@ -364,7 +364,7 @@
 			return 1
 		else
 			user.visible_message(span_infoplain(span_bold("\The [user]") + " starts salving wounds on [M]'s [affecting.name]."), \
-					             span_notice("You start salving the wounds on [M]'s [affecting.name].") )
+									span_notice("You start salving the wounds on [M]'s [affecting.name].") )
 			if(!do_mob(user, M, 10, exclusive = TRUE))
 				to_chat(user, span_notice("You must stand still to salve wounds."))
 				return 1
@@ -395,7 +395,7 @@
 	if(..())
 		return 1
 
-	if (istype(M, /mob/living/carbon/human))
+	if (ishuman(M))
 		var/mob/living/carbon/human/H = M
 		var/obj/item/organ/external/affecting = H.get_organ(user.zone_sel.selecting)
 		var/limb = affecting.name
