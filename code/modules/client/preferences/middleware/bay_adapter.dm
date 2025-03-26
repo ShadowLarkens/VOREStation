@@ -65,4 +65,6 @@
 		for(var/datum/category_item/player_setup_item/item as anything in category.items)
 			. = item.tgui_act(action, params, ui, state)
 			if(.)
+				if(. & TOPIC_UPDATE_PREVIEW)
+					preferences.update_preview_icon()
 				return

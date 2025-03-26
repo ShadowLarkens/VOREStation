@@ -61,7 +61,8 @@ var/list/preferences_datums = list()
 		"4"  = "character_preview_map:2,3",
 		"8"  = "character_preview_map:2,1",
 		"BG" = "character_preview_map:1,1 to 3,8",
-		"PMH" = "character_preview_map:2,7"
+		"PMH" = "character_preview_map:2,7",
+		"PMHjiggle" = "character_preview_map:102,7:107",
 	)
 
 		//Jobs, uses bitflags

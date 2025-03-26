@@ -31,7 +31,7 @@ export const CharacterPreferenceWindow = (props) => {
       <Window.Content>
         <Stack height="100%">
           <Stack.Item
-            basis="80%"
+            basis="70%"
             className="PreferencesMenu__OldStyle"
             position="relative"
           >

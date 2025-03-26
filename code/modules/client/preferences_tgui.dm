@@ -11,6 +11,7 @@
 		ui = new(user, src, "PreferencesMenu", "Preferences")
 		ui.set_autoupdate(FALSE)
 		ui.open()
+		CallAsync(src, PROC_REF(jiggle_map))
 
 /datum/preferences/tgui_state(mob/user)
 	return GLOB.tgui_always_state
@@ -175,7 +176,16 @@
 				return
 			update_preview_icon()
 			COOLDOWN_START(src, ui_refresh_cooldown, 5 SECONDS)
+			CallAsync(src, PROC_REF(jiggle_map))
 			. = TRUE
+
+/datum/preferences/proc/jiggle_map()
+	// Fix for weird byond bug, jiggles the map around a little
+	var/obj/screen/setup_preview/pm_helper/PMH = LAZYACCESS(char_render_holders, "PMH")
+	sleep(0.1 SECONDS)
+	PMH.screen_loc = LAZYACCESS(preview_screen_locs, "PMHjiggle")
+	sleep(0.1 SECONDS)
+	PMH.screen_loc = LAZYACCESS(preview_screen_locs, "PMH")
 
 /datum/preferences/tgui_close(mob/user)
 	save_character()
