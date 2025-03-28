@@ -64,6 +64,7 @@ export const EarsDimmer = (props: {
   const color = data.ears_color1;
   const color2 = data.ears_color2;
   const color3 = data.ears_color3;
+  const alpha = data.ears_alpha;
 
   let styles = staticData.available_ear_styles;
   styles.sort();
@@ -92,11 +93,15 @@ export const EarsDimmer = (props: {
             case ColorType.Third:
               act('set_ear_color3');
               break;
+            case ColorType.Alpha:
+              act('ears_alpha');
+              break;
           }
         }}
         color_one={color || '#FFFFFF'}
         color_two={color2 || '#FFFFFF'}
         color_three={color3 || '#FFFFFF'}
+        alpha={alpha}
       />
 
       {styles.map((style) => (

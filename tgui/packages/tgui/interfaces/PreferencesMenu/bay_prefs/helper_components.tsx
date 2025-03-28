@@ -182,6 +182,7 @@ export enum ColorType {
   First,
   Second,
   Third,
+  Alpha,
 }
 
 export const ColorPicker = (props: {
@@ -189,8 +190,9 @@ export const ColorPicker = (props: {
   color_one?: string | null;
   color_two?: string | null;
   color_three?: string | null;
+  alpha?: number;
 }) => {
-  const { onClick, color_one, color_two, color_three } = props;
+  const { onClick, color_one, color_two, color_three, alpha } = props;
 
   return (
     <Stack>
@@ -210,6 +212,13 @@ export const ColorPicker = (props: {
         <Stack.Item>
           <Button onClick={() => onClick(ColorType.Third)}>
             Third Color: <ColorBox color={color_three} />
+          </Button>
+        </Stack.Item>
+      )}
+      {alpha !== undefined && (
+        <Stack.Item>
+          <Button onClick={() => onClick(ColorType.Alpha)}>
+            Alpha: {alpha}
           </Button>
         </Stack.Item>
       )}

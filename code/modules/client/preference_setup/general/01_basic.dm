@@ -52,8 +52,6 @@
 
 /datum/category_item/player_setup_item/general/basic/content()
 	. = list()
-	. += span_bold("Biological Sex:") + " <a href='byond://?src=\ref[src];bio_gender=1'><b>[gender2text(pref.biological_gender)]</b></a><br>"
-	. += span_bold("Pronouns:") + " <a href='byond://?src=\ref[src];id_gender=1'><b>[gender2text(pref.identifying_gender)]</b></a><br>"
 	. += span_bold("Age:") + " <a href='byond://?src=\ref[src];age=1'>[pref.read_preference(/datum/preference/numeric/human/age)]</a> <b>Birthday:</b> <a href='byond://?src=\ref[src];bday_month=1'>[pref.read_preference(/datum/preference/numeric/human/bday_month)]</a><b>/</b><a href='byond://?src=\ref[src];bday_day=1'>[pref.read_preference(/datum/preference/numeric/human/bday_day)]</a> - <b>Announce?:</b> <a href='byond://?src=\ref[src];bday_announce=1'>[pref.read_preference(/datum/preference/toggle/human/bday_announce) ? "Yes" : "No"]</a><br>"
 	. += span_bold("Spawn Point:") + " <a href='byond://?src=\ref[src];spawnpoint=1'>[pref.read_preference(/datum/preference/choiced/living/spawnpoint)]</a><br>"
 	if(CONFIG_GET(flag/allow_metadata))
@@ -128,14 +126,14 @@
 			return TOPIC_REFRESH
 
 		if("bio_gender")
-			var/new_gender = tgui_input_list(user, "Choose your character's biological sex:", "Character Preference", get_genders(), pref.biological_gender)
-			if(new_gender)
+			var/new_gender = lowertext(params["gender"])
+			if(new_gender in get_genders())
 				pref.set_biological_gender(new_gender)
 			return TOPIC_REFRESH_UPDATE_PREVIEW
 
 		if("id_gender")
-			var/new_gender = tgui_input_list(user, "Choose your character's pronouns:", "Character Preference", all_genders_define_list, pref.identifying_gender)
-			if(new_gender)
+			var/new_gender = lowertext(params["gender"])
+			if(new_gender in all_genders_define_list)
 				pref.identifying_gender = new_gender
 			return TOPIC_REFRESH
 

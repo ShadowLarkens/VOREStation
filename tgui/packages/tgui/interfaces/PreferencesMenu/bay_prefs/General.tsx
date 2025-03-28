@@ -1,10 +1,22 @@
 import { useState } from 'react';
-import { Box, Button, Icon, Section, Stack } from 'tgui-core/components';
+import {
+  Box,
+  Button,
+  Icon,
+  Popper,
+  Section,
+  Stack,
+} from 'tgui-core/components';
 
 import { useBackend } from '../../../backend';
 import { ServerData } from '../data';
 import { ServerPreferencesFetcher } from '../ServerPreferencesFetcher';
-import { GeneralData, GeneralDataConstant, GeneralDataStatic } from './data';
+import {
+  Gender,
+  GeneralData,
+  GeneralDataConstant,
+  GeneralDataStatic,
+} from './data';
 import { EarsDimmer, EarsImageButton } from './general/Ears';
 import { EarsSecondaryDimmer } from './general/EarsSecondary';
 import { FacialDimmer, FacialImageButton } from './general/Facial';
@@ -161,11 +173,94 @@ export const GeneralPopup = (props: {
   }
 };
 
+export const gender2icon = (gender: Gender) => {
+  switch (gender) {
+    case Gender.Female: {
+      return 'venus';
+    }
+    case Gender.Male: {
+      return 'mars';
+    }
+    case Gender.Plural: {
+      return 'transgender';
+    }
+    case Gender.Neuter: {
+      return 'neuter';
+    }
+  }
+};
+
+export const gender2pronouns = (gender: Gender) => {
+  switch (gender) {
+    case Gender.Female: {
+      return 'She/Her';
+    }
+    case Gender.Male: {
+      return 'He/Him';
+    }
+    case Gender.Plural: {
+      return 'They/Them';
+    }
+    case Gender.Neuter: {
+      return 'It/Its';
+    }
+  }
+};
+
+export const GenderButton = (props: {
+  gender: Gender;
+  tooltip?: string;
+  setGender: (gender: Gender) => void;
+}) => {
+  const [genderMenuOpen, setGenderMenuOpen] = useState(false);
+
+  return (
+    <Box width={4}>
+      <Popper
+        isOpen={genderMenuOpen}
+        onClickOutside={() => setGenderMenuOpen(false)}
+        placement="right-end"
+        content={
+          <Stack backgroundColor="white" ml={0.5} p={0.3}>
+            {Object.keys(Gender).map((x) => (
+              <Button
+                selected={props.gender === x}
+                key={x}
+                icon={gender2icon(x as Gender)}
+                tooltip={gender2pronouns(x as Gender)}
+                fontSize="22px"
+                width={4}
+                height={4}
+                verticalAlignContent="middle"
+                textAlign="center"
+                onClick={() => props.setGender(x as Gender)}
+              />
+            ))}
+          </Stack>
+        }
+      >
+        <Button
+          onClick={() => setGenderMenuOpen((x) => !x)}
+          fontSize="22px"
+          icon={gender2icon(props.gender)}
+          tooltip={props.tooltip}
+          tooltipPosition="top"
+          width={4}
+          height={4}
+          verticalAlignContent="middle"
+          textAlign="center"
+        />
+      </Popper>
+    </Box>
+  );
+};
+
 export const GeneralContent = (props: {
   data: GeneralData;
   staticData: GeneralDataStatic;
   serverData: GeneralDataConstant;
 }) => {
+  const { act } = useBackend();
   const { data, staticData, serverData } = props;
 
   const hair_color = data.hair_color;
@@ -253,6 +348,18 @@ export const GeneralContent = (props: {
           >
             Markings
           </CustomImageButton>
+        </Stack.Item>
+        <Stack.Item>
+          <GenderButton
+            gender={data.biological_sex}
+            tooltip="Biological Sex"
+            setGender={(gender: Gender) => act('bio_gender', { gender })}
+          />
+          <GenderButton
+            gender={data.identifying_gender}
+            tooltip="Gender Identity"
+            setGender={(gender: Gender) => act('id_gender', { gender })}
+          />
         </Stack.Item>
       </Stack>
     </Section>

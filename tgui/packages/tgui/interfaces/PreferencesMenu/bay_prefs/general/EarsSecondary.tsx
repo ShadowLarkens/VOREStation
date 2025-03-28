@@ -21,6 +21,7 @@ export const EarsSecondaryDimmer = (props: {
   const color1 = colors[0] || null;
   const color2 = colors[1] || null;
   const color3 = colors[2] || null;
+  const alpha = data.ears_alpha2;
 
   let styles = staticData.available_ear_styles;
   styles.sort();
@@ -49,11 +50,14 @@ export const EarsSecondaryDimmer = (props: {
             case ColorType.Third:
               act('set_ear_secondary_color', { type: 3 });
               break;
+            case ColorType.Alpha:
+              act('secondary_ears_alpha');
           }
         }}
         color_one={color1 || '#FFFFFF'}
         color_two={color2 || '#FFFFFF'}
         color_three={color3 || '#FFFFFF'}
+        alpha={alpha}
       />
 
       {styles.map((style) => (

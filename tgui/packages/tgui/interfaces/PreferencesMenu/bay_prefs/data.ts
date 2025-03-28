@@ -10,12 +10,19 @@ export type BodyMarking = Record<
   color: string;
 };
 
+export enum Gender {
+  Male = 'Male',
+  Female = 'Female',
+  Neuter = 'Neuter',
+  Plural = 'Plural',
+}
+
 export type BasicData = {
   real_name: string;
   be_random_name: BooleanLike;
   nickname: string;
-  biological_sex: string;
-  identifying_gender: string;
+  biological_sex: Gender;
+  identifying_gender: Gender;
   age: number;
   bday_month: number;
   bday_day: number;
@@ -39,6 +46,9 @@ export type BodyData = {
   ears_color1: string;
   ears_color2: string;
   ears_color3: string;
+
+  ears_alpha: number;
+  ears_alpha2: number;
 
   ear_secondary_style: string | null;
   ear_secondary_colors: string[];

@@ -1,10 +1,14 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useCallback } from 'react';
 import { useBackend } from 'tgui/backend';
 import { Button, ImageButton, Section } from 'tgui-core/components';
 
 import { GeneralData, GeneralDataConstant, GeneralDataStatic } from '../data';
 import { VisiblePopup } from '../General';
-import { ColorizedImageButton, ColorPicker } from '../helper_components';
+import {
+  ColorizedImageButton,
+  ColorPicker,
+  getImage,
+} from '../helper_components';
 
 export const HairImageButton = (
   props: PropsWithChildren<{
@@ -18,6 +22,18 @@ export const HairImageButton = (
 ) => {
   const { serverData, hairStyle, hairColor, onClick } = props;
 
+  const renderHuman = useCallback(
+    async (ctx: OffscreenCanvasRenderingContext2D) => {
+      ctx.globalCompositeOperation = 'destination-over';
+      let image = await getImage(
+        Byond.iconRefMap['icons/mob/human.dmi'] + '?state=body_f_s&dir=2',
+      );
+
+      ctx.drawImage(image, 0, 0, 32, 10, 0, 0, 64, 20);
+    },
+    [],
+  );
+
   if (!(hairStyle in serverData.hair_styles)) {
     return (
       <ImageButton verticalAlign="top" onClick={onClick}>
@@ -25,7 +41,6 @@ export const HairImageButton = (
       </ImageButton>
     );
   }
-
   const data = serverData.hair_styles[hairStyle];
   return (
     <ColorizedImageButton
@@ -35,6 +50,7 @@ export const HairImageButton = (
       onClick={onClick}
       tooltip={props.tooltip}
       selected={props.selected}
+      postRender={renderHuman}
     >
       {props.children}
     </ColorizedImageButton>

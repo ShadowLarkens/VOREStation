@@ -969,20 +969,6 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 			pref.update_preference_by_type(/datum/preference/numeric/human/wing_alpha, new_wing_alpha)
 			return TOPIC_REFRESH_UPDATE_PREVIEW
 
-	else if (href_list["ears_alpha"])
-		var/new_ear_alpha = tgui_input_number(user, "Choose how transparent your character's primary ears are.", "Character Preference",
-			pref.read_preference(/datum/preference/numeric/human/ears_alpha), 255, 0)
-		if(new_ear_alpha)
-			pref.update_preference_by_type(/datum/preference/numeric/human/ears_alpha, new_ear_alpha)
-			return TOPIC_REFRESH_UPDATE_PREVIEW
-
-	else if (href_list["secondary_ears_alpha"])
-		var/new_ear_alpha = tgui_input_number(user, "Choose how transparent your character's horns are.", "Character Preference",
-			pref.read_preference(/datum/preference/numeric/human/ears_alpha/secondary), 255, 0)
-		if(new_ear_alpha)
-			pref.update_preference_by_type(/datum/preference/numeric/human/ears_alpha/secondary, new_ear_alpha)
-			return TOPIC_REFRESH_UPDATE_PREVIEW
-
 	return ..()
 
 /datum/category_item/player_setup_item/general/body/proc/reset_limbs()
@@ -1118,6 +1104,9 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	data["ears_color1"] = pref.read_preference(/datum/preference/color/human/ears_color1)
 	data["ears_color2"] = pref.read_preference(/datum/preference/color/human/ears_color2)
 	data["ears_color3"] = pref.read_preference(/datum/preference/color/human/ears_color3)
+
+	data["ears_alpha"] = pref.read_preference(/datum/preference/numeric/human/ears_alpha)
+	data["ears_alpha2"] = pref.read_preference(/datum/preference/numeric/human/ears_alpha/secondary)
 
 	data["ear_secondary_style"] = pref.ear_secondary_style
 	data["ear_secondary_colors"] = pref.ear_secondary_colors
@@ -1398,3 +1387,17 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 			var/zone = params["zone"]
 			pref.body_markings[marking][zone]["on"] = !pref.body_markings[marking][zone]["on"]
 			return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("ears_alpha")
+			var/new_ear_alpha = tgui_input_number(ui.user, "Choose how transparent your character's primary ears are.", "Character Preference",
+				pref.read_preference(/datum/preference/numeric/human/ears_alpha), 255, 0)
+			if(new_ear_alpha)
+				pref.update_preference_by_type(/datum/preference/numeric/human/ears_alpha, new_ear_alpha)
+				return TOPIC_REFRESH_UPDATE_PREVIEW
+
+		if("secondary_ears_alpha")
+			var/new_ear_alpha = tgui_input_number(ui.user, "Choose how transparent your character's horns are.", "Character Preference",
+				pref.read_preference(/datum/preference/numeric/human/ears_alpha/secondary), 255, 0)
+			if(new_ear_alpha)
+				pref.update_preference_by_type(/datum/preference/numeric/human/ears_alpha/secondary, new_ear_alpha)
+				return TOPIC_REFRESH_UPDATE_PREVIEW
