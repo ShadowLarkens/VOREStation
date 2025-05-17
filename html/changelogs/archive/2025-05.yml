@@ -136,3 +136,15 @@
       definitions
   crabcube:
   - rscadd: New moth eyes marking!
+2025-05-17:
+  Diana:
+  - qol: Guns that do bonus damage to simple_mob/animal (phaseguns) now do bonus damage
+      to any simple_mob
+  - qol: Survey Vendor and Mining Vendor have had some adjustments. PSGs are now available
+      in them. Some price adjustments. Mining gets a expensive version of their rig.
+  - qol: Kinetic Gauntlets can fit in your backpack now.
+  TheCaramelion:
+  - code_imp: RemoveDisease proc now uses LAZYREMOVE
+  - code_imp: HasResistance proc now uses LAZYFIND
+  Willburd:
+  - refactor: Overmap shuttle star movement overlay is not controlled by a subsystem
