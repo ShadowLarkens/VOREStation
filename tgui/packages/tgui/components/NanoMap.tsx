@@ -61,16 +61,55 @@ export class NanoMap extends Component<Props, State> {
     document.removeEventListener('wheel', this.handleWheel);
   }
 
+  getWxH = (zoom: number) => {
+    const { config } = useBackend();
+    return [
+      this.props.zoomScale * zoom * (config.mapInfo.maxx / config.mapInfo.maxy),
+      this.props.zoomScale * zoom,
+    ];
+  };
+
   setZoom(zoom: number) {
+    const { config } = useBackend();
     const newZoom = Math.min(Math.max(zoom, 1), 8);
     this.setState((state) => {
       const zoomDifference = -(state.zoom - newZoom);
+      const oldWxH = this.getWxH(state.zoom);
+      const newWxH = this.getWxH(newZoom);
+
+      const aspectRatio = newWxH[0] / newWxH[1];
+
+      const grewByX = newWxH[0] - oldWxH[0];
+      const grewByY = newWxH[1] - oldWxH[1];
+
+      logger.log(
+        'old',
+        oldWxH,
+        'new',
+        newWxH,
+        'grewBy',
+        grewByX,
+        grewByY,
+        'ratio',
+        aspectRatio,
+      );
 
       const newOffsetX =
-        state.offsetX - (this.props.zoomScale / 2) * zoomDifference;
+        state.offsetX -
+        (this.props.zoomScale * zoomDifference * aspectRatio) / 2;
 
       const newOffsetY =
-        state.offsetY - (this.props.zoomScale / 2) * zoomDifference;
+        state.offsetY -
+        (this.props.zoomScale * zoomDifference * aspectRatio) / 2;
+
+      logger.log(
+        'old offset',
+        state.offsetX,
+        state.offsetY,
+        'new offset',
+        newOffsetX,
+        newOffsetY,
+      );
 
       return {
         ...state,
@@ -138,6 +177,7 @@ export class NanoMap extends Component<Props, State> {
         originX: 0,
         originY: 0,
       });
+      logger.log('moved to', this.state.offsetX, this.state.offsetY);
       document.removeEventListener('mousemove', this.handleDragMove);
       document.removeEventListener('mouseup', this.handleDragEnd);
       pauseEvent(e);
@@ -180,12 +220,13 @@ export class NanoMap extends Component<Props, State> {
     const { dragging, offsetX, offsetY, zoom = 1 } = this.state;
     const { children } = this.props;
 
+    const WxH = this.getWxH(zoom);
+
     const mapUrl = resolveAsset('minimap_' + config.mapZLevel + '.png');
     // (x * zoom), x Needs to be double the turf- map size. (for virgo, 140x140)
-    const mapSize = this.props.zoomScale * zoom + 'px';
     const newStyle: {} = {
-      width: mapSize,
-      height: mapSize,
+      width: WxH[0] + 'px',
+      height: WxH[1] + 'px',
       'margin-top': offsetY + 'px',
       'margin-left': offsetX + 'px',
       overflow: 'hidden',
