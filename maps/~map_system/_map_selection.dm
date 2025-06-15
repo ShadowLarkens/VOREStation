@@ -8,6 +8,7 @@
 //#define USE_MAP_TETHER
 #define USE_MAP_STELLARDELIGHT
 //#define USE_MAP_GROUNDBASE
+//#define USE_MAP_LAVAWORLD
 
 // Debug
 //#define USE_MAP_MINITEST
@@ -31,6 +32,11 @@
 // Groundbase
 #ifdef USE_MAP_GROUNDBASE
 #include "../groundbase/groundbase.dm"
+#endif
+
+// Lavaworld
+#ifdef USE_MAP_LAVAWORLD
+#include "../lavaworld/lavaworld.dm"
 #endif
 
 // Debug: Minitest

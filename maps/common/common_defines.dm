@@ -53,6 +53,9 @@
 #define Z_NAME_ALIAS_GB_WILDS_E				"GB WILDS EAST"
 #define Z_NAME_ALIAS_GB_WILDS_W				"GB WILDS WEST"
 
+// Lavaworld
+#define Z_LEVEL_LW_LEVEL1					1
+
 // Common
 #define Z_NAME_OFFMAP1						"Offmap Ship - Talon V2"
 #define Z_NAME_AEROSTAT						"Remmi Aerostat - Z1 Aerostat"

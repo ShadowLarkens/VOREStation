@@ -99,6 +99,30 @@
 		{
 			"type": "process",
 			"command": "tools/build/build",
+			"args": ["-DLOWMEMORYMODE", "-DCITESTING", "-DUSE_MAP_LAVAWORLD"],
+			"windows": {
+				"command": ".\\tools\\build\\build.bat",
+				"args": ["-DLOWMEMORYMODE", "-DCITESTING", "-DUSE_MAP_LAVAWORLD"]
+			},
+			"options": {
+				"env": {
+					"DM_EXE": "${config:dreammaker.byondPath}"
+				}
+			},
+			"problemMatcher": [
+				"$dreammaker",
+				"$tsc",
+				"$eslint-stylish"
+			],
+			"group": {
+				"kind": "build"
+			},
+			"dependsOn": "dm: reparse",
+			"label": "Build All (Force Lavaworld)"
+		},
+		{
+			"type": "process",
+			"command": "tools/build/build",
 			"args": ["-DLOWMEMORYMODE", "-DCITESTING", "-DUSE_MAP_GROUNDBASE"],
 			"windows": {
 				"command": ".\\tools\\build\\build.bat",
