@@ -1,8 +1,9 @@
 import dagre from '@dagrejs/dagre';
 import { useEffect, useState } from 'react';
-import { Box, InfinitePlane } from 'tgui-core/components';
+import { Box, Button, InfinitePlane } from 'tgui-core/components';
 import { fetchRetry } from 'tgui-core/http';
 import { resolveAsset } from '../../assets';
+import { useTechWebRoute } from './hooks';
 
 type ResearchJson = {
   nodes: {
@@ -25,6 +26,8 @@ type TechwebGraphNode = {
 type TechwebGraphEdge = {
   v: string;
   w: string;
+  v_label: string;
+  w_label: string;
   points: {
     x: number;
     y: number;
@@ -34,6 +37,7 @@ type TechwebGraphEdge = {
 export const TechwebGraphView = (props) => {
   const [nodes, setNodes] = useState<TechwebGraphNode[]>();
   const [edges, setEdges] = useState<TechwebGraphEdge[]>();
+  const [techwebRoute, setTechwebRoute] = useTechWebRoute();
 
   useEffect(() => {
     const render = async () => {
@@ -77,6 +81,8 @@ export const TechwebGraphView = (props) => {
         return {
           v: e.v,
           w: e.w,
+          v_label: nodeV.label || e.v,
+          w_label: nodeW.label || e.w,
           points: edge.points,
         };
       });
@@ -95,7 +101,7 @@ export const TechwebGraphView = (props) => {
       initialTop={-50}
     >
       {nodes?.map((node) => (
-        <Box
+        <Button
           width="200px"
           height="20px"
           backgroundColor="black"
@@ -104,24 +110,97 @@ export const TechwebGraphView = (props) => {
           left={`${node.x - 100}px`}
           top={`${node.y - 10}px`}
           textAlign="center"
+          id={node.v}
+          onClick={() =>
+            setTechwebRoute({ route: 'details', selectedNode: node.v })
+          }
         >
           {node.label}
-        </Box>
+        </Button>
       ))}
       <svg
         width="100%"
         height="100%"
         style={{
           position: 'absolute',
-          pointerEvents: 'none',
           zIndex: -1,
           overflow: 'visible',
         }}
       >
         <g>
           {edges?.map((edge) => {
-            let path = ``;
+            const first = edge.points[0];
+            const last = edge.points[edge.points.length - 1];
 
+            const MAX_LENGTH_BEFORE_JUMP = 600;
+            const JUMP_X = 20;
+            const JUMP_Y = 20;
+            const JUMP_UPPER_X = 20;
+            const JUMP_UPPER_Y = -40;
+
+            if (Math.abs(first.x - last.x) > MAX_LENGTH_BEFORE_JUMP) {
+              const first_path = `M ${first.x} ${first.y} L ${first.x + JUMP_X} ${first.y + JUMP_Y}`;
+              const last_path = `M ${last.x} ${last.y} L ${last.x + JUMP_UPPER_X} ${last.y + JUMP_UPPER_Y}`;
+
+              return (
+                <g key={edge.v + edge.w}>
+                  <g
+                    cursor="pointer"
+                    onClick={() =>
+                      setTechwebRoute({
+                        route: 'details',
+                        selectedNode: edge.w,
+                      })
+                    }
+                  >
+                    <path d={first_path} stroke="#3639c4" strokeWidth={2} />
+                    <rect
+                      fill="#3639c4"
+                      x={first.x + JUMP_X}
+                      y={first.y + JUMP_Y}
+                      width={edge.w_label.length * 10}
+                      height={20}
+                      rx="5px"
+                    />
+                    <text
+                      x={first.x + JUMP_X + 5}
+                      y={first.y + JUMP_Y + 15}
+                      fill="white"
+                    >
+                      {edge.w_label}
+                    </text>
+                  </g>
+                  <g
+                    cursor="pointer"
+                    onClick={() =>
+                      setTechwebRoute({
+                        route: 'details',
+                        selectedNode: edge.v,
+                      })
+                    }
+                  >
+                    <path d={last_path} stroke="#3684c4ff" strokeWidth={2} />
+                    <rect
+                      fill="#3684c4ff"
+                      x={last.x + JUMP_UPPER_X}
+                      y={last.y + JUMP_UPPER_Y}
+                      width={edge.v_label.length * 10}
+                      height={20}
+                      rx="5px"
+                    />
+                    <text
+                      x={last.x + JUMP_UPPER_X + 5}
+                      y={last.y + JUMP_UPPER_Y + 15}
+                      fill="white"
+                    >
+                      {edge.v_label}
+                    </text>
+                  </g>
+                </g>
+              );
+            }
+
+            let path = ``;
             let i = 0;
             for (const point of edge.points) {
               if (i === 0) {

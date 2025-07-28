@@ -10,8 +10,10 @@
 		var/datum/techweb_node/node = SSresearch.techweb_nodes[node_id]
 
 		UNTYPED_LIST_ADD(nodes, list(
-			"v" = node_id
+			"v" = node_id,
+			name = node.display_name,
 		))
+
 		for(var/unlock_id in node.unlock_ids)
 			UNTYPED_LIST_ADD(edges, list(
 				"v" = node_id,
