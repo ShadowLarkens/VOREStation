@@ -1,3 +1,28 @@
+// JSON for graph layout
+/datum/asset/json/research
+	name = "research_json"
+
+/datum/asset/json/research/generate()
+	var/list/nodes = list()
+	var/list/edges = list()
+
+	for(var/node_id in SSresearch.techweb_nodes)
+		var/datum/techweb_node/node = SSresearch.techweb_nodes[node_id]
+
+		UNTYPED_LIST_ADD(nodes, list(
+			"v" = node_id
+		))
+		for(var/unlock_id in node.unlock_ids)
+			UNTYPED_LIST_ADD(edges, list(
+				"v" = node_id,
+				"w" = unlock_id
+			))
+
+	return list(
+		"nodes" = nodes,
+		"edges" = edges,
+	)
+
 // Representative icons for each research design
 /datum/asset/spritesheet_batched/research_designs
 	name = "design"

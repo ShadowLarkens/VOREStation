@@ -156,6 +156,8 @@ Nothing else in the console has ID requirements.
 
 /obj/machinery/computer/rdconsole_tg/ui_assets(mob/user)
 	return list(
+		get_asset_datum(/datum/asset/json/research),
+		get_asset_datum(/datum/asset/simple/circuit_assets),
 		get_asset_datum(/datum/asset/spritesheet_batched/research_designs),
 	)
 

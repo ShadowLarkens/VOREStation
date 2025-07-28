@@ -8,7 +8,7 @@ import {
   Tabs,
   VirtualList,
 } from 'tgui-core/components';
-
+import { TechwebGraphView } from './GraphView';
 import { useRemappedBackend } from './helpers';
 import { TechNode } from './nodes/TechNode';
 
@@ -16,6 +16,7 @@ enum Tab {
   RESEARCHED,
   AVAILABLE,
   FUTURE,
+  GRAPH,
 }
 
 export function TechwebOverview(props) {
@@ -83,6 +84,12 @@ export function TechwebOverview(props) {
               >
                 Future
               </Tabs.Tab>
+              <Tabs.Tab
+                selected={!searching && tabIndex === Tab.GRAPH}
+                onClick={() => switchTab(3)}
+              >
+                Graph
+              </Tabs.Tab>
               {!!searching && <Tabs.Tab selected>Search Results</Tabs.Tab>}
             </Tabs>
           </Flex.Item>
@@ -98,7 +105,9 @@ export function TechwebOverview(props) {
       </Flex.Item>
       <Flex.Item className="Techweb__OverviewNodes" height="100%">
         <Section fill scrollable>
-          {displayedNodes?.length ? (
+          {tabIndex === Tab.GRAPH ? (
+            <TechwebGraphView />
+          ) : displayedNodes?.length ? (
             <VirtualList>
               {displayedNodes.map((n) => (
                 <TechNode node={n} key={n.id} />
