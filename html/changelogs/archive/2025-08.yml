@@ -119,3 +119,12 @@
   - bugfix: Reagent scanner can get the reagents inside refinery machines even if
       they are sealed
   - bugfix: Mobs that glow will hide their light while ventcrawling
+2025-08-06:
+  Will:
+  - bugfix: TODO - FIX ME, finally fixed. Cosmetic menus properly hides illegal cosmetics.
+  - bugfix: Mapper anchored flashers start active when the round begins
+  - rscadd: Ports an emote interaction
+  - code_imp: Scalpel uses a clamp_chance var instead of typechecking during surgery
+  - bugfix: smoke effects no longer choke you if you have the no breathing mutation
+  Willburd:
+  - bugfix: Refinery runtime when checking empty conveyors
