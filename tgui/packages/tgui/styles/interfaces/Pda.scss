@@ -8,14 +8,9 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: 8;
   // Dim
   animation: dim 0.4s forwards;
-}
-
-.Pda__Transition > i {
-  animation: center-scale 0.4s forwards;
-  transform-origin: center center;
 }
 
 @keyframes dim {
@@ -27,6 +22,11 @@
   }
 }
 
+.Pda__Transition > i {
+  animation: center-scale 0.4s forwards;
+  transform-origin: center center;
+}
+
 @keyframes center-scale {
   from {
     transform: scale(1);
@@ -34,4 +34,68 @@
   to {
     transform: scale(4);
   }
+}
+
+.Pda__Folder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  // Fill positioned parent
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  // Dim
+  animation: blur 0.4s forwards;
+}
+
+@keyframes blur {
+  from {
+    background: hsla(0, 0%, 0%, 0);
+    backdrop-filter: blur(0px);
+    opacity: 0;
+  }
+  to {
+    background: hsla(0, 0%, 0%, 0.25);
+    backdrop-filter: blur(8px);
+    opacity: 1;
+  }
+}
+
+.Pda__Folder__Inner {
+  border-radius: 16px;
+  background-color: hsla(0, 0%, 0%, 0.5);
+  height: 400px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.Pda__Folder__Inner > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+@keyframes fade-out {
+  from {
+    background: hsla(0, 0%, 0%, 0.25);
+    backdrop-filter: blur(8px);
+    opacity: 1;
+  }
+  to {
+    background: hsla(0, 0%, 0%, 0);
+    backdrop-filter: blur(0px);
+    opacity: 0;
+  }
+}
+
+.Pda__FadeOut {
+  animation: fade-out 0.2s forwards;
+}
+
+.Pda__AppList {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  row-gap: 10px;
 }

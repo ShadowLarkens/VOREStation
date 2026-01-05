@@ -152,6 +152,7 @@ export const ColorizedImage = (props: {
 export const CustomImageButton = (
   props: PropsWithChildren<{
     image: ReactNode;
+    imageSize?: number;
     tooltip?: string;
     selected?: boolean;
     onClick: () => void;
@@ -163,6 +164,7 @@ export const CustomImageButton = (
       dmIcon="not_a_real_icon.dmi"
       dmIconState="equally_fake_icon_state"
       dmFallback={props.image}
+      imageSize={props.imageSize}
       onClick={props.onClick}
       tooltip={props.tooltip}
       selected={props.selected}

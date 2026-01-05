@@ -76,27 +76,39 @@ export const Pda = (props) => {
   const App = getPdaApp(app.template);
 
   return (
-    <Window width={580} height={670} theme={useRetro ? 'pda_retro' : undefined}>
-      <Window.Content scrollable>
-        <PDAHeader
-          settingsMode={settingsMode}
-          onSettingsMode={setSettingsMode}
-        />
-        {(settingsMode && <PDASettings />) || (
-          <Section
-            title={
-              <Box>
-                <Icon name={app.icon} mr={1} />
-                {app.name}
-              </Box>
-            }
-            p={1}
-          >
-            <App />
-          </Section>
-        )}
-        <Box mb={8} />
-        <PDAFooter onSettingsMode={setSettingsMode} />
+    <Window
+      width={420}
+      height={420 * (16 / 9)}
+      theme={useRetro ? 'pda_retro' : undefined}
+    >
+      <Window.Content>
+        <Stack height="100%" vertical>
+          <Stack.Item>
+            <PDAHeader
+              settingsMode={settingsMode}
+              onSettingsMode={setSettingsMode}
+            />
+          </Stack.Item>
+          <Stack.Item grow>
+            {(settingsMode && <PDASettings />) || (
+              <Section
+                title={
+                  <>
+                    <Icon name={app.icon} mr={1} />
+                    {app.name}
+                  </>
+                }
+                fill
+                scrollable
+              >
+                <App />
+              </Section>
+            )}
+          </Stack.Item>
+          <Stack.Item>
+            <PDAFooter onSettingsMode={setSettingsMode} />
+          </Stack.Item>
+        </Stack>
       </Window.Content>
     </Window>
   );
@@ -185,17 +197,12 @@ const PDAFooter = (props: {
   onSettingsMode: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const { act, data } = useBackend<Data>();
+  const { onSettingsMode } = props;
 
   const { app, useRetro } = data;
 
   return (
-    <Box
-      position="fixed"
-      bottom="0%"
-      left="0%"
-      right="0%"
-      backgroundColor={useRetro ? '#6f7961' : '#1b1b1b'}
-    >
+    <Box backgroundColor={useRetro ? '#6f7961' : '#1b1b1b'}>
       <Stack>
         <Stack.Item basis="33%">
           <Button
@@ -219,7 +226,7 @@ const PDAFooter = (props: {
             mb={0}
             fontSize={1.7}
             onClick={() => {
-              props.onSettingsMode(false);
+              onSettingsMode(false);
               act('Home');
             }}
           />
