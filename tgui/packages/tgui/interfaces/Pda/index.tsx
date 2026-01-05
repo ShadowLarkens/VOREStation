@@ -13,7 +13,7 @@ import {
 } from 'tgui-core/components';
 import type { BooleanLike } from 'tgui-core/react';
 
-type Data = {
+export type PDAData = {
   owner: string;
   ownjob: string;
   idInserted: BooleanLike;
@@ -55,7 +55,7 @@ function getPdaApp(name: string): () => React.JSX.Element {
 }
 
 export const Pda = (props) => {
-  const { data } = useBackend<Data>();
+  const { data } = useBackend<PDAData>();
 
   const { app, owner, useRetro } = data;
 
@@ -118,28 +118,18 @@ const PDAHeader = (props: {
   settingsMode: BooleanLike;
   onSettingsMode: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const { act, data } = useBackend<Data>();
+  const { act, data } = useBackend<PDAData>();
 
   const { idInserted, idLink, stationTime } = data;
 
   return (
     <Box mb={1}>
       <Stack align="center" justify="space-between">
-        {!!idInserted && (
-          <Stack.Item>
-            <Button
-              icon="eject"
-              color="transparent"
-              onClick={() => act('Authenticate')}
-            >
-              {idLink}
-            </Button>
-          </Stack.Item>
-        )}
-        <Stack.Item grow textAlign="center" bold>
+        <Stack.Item grow />
+        <Stack.Item textAlign="center" bold>
           {stationTime}
         </Stack.Item>
-        <Stack.Item>
+        <Stack.Item grow textAlign="right">
           <Button
             selected={props.settingsMode}
             onClick={() => props.onSettingsMode(!props.settingsMode)}
@@ -153,7 +143,7 @@ const PDAHeader = (props: {
 };
 
 const PDASettings = (props) => {
-  const { act, data } = useBackend<Data>();
+  const { act, data } = useBackend<PDAData>();
 
   const { idInserted, idLink, cartridge_name, touch_silent } = data;
 
@@ -196,7 +186,7 @@ const PDASettings = (props) => {
 const PDAFooter = (props: {
   onSettingsMode: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const { act, data } = useBackend<Data>();
+  const { act, data } = useBackend<PDAData>();
   const { onSettingsMode } = props;
 
   const { app, useRetro } = data;

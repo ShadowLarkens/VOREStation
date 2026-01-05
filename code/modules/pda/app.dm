@@ -101,7 +101,6 @@
 		pda.scanmode = src
 		name = "Disable [base_name]"
 
-	pda.update_shortcuts()
 	return 1
 
 /datum/data/pda/utility/scanmode/proc/scan_mob(mob/living/C as mob, mob/living/user as mob)

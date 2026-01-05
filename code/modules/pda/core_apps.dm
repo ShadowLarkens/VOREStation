@@ -8,14 +8,33 @@
 
 	data["app"]["is_home"] = 1
 
-	data["apps"] = pda.shortcut_cache
-	data["categories"] = pda.shortcut_cat_order
-	data["pai"] = !isnull(pda.pai)				// pAI inserted?
+	var/list/apps = list()
+	var/list/cat_order = list()
 
-	var/list/notifying[0]
-	for(var/P in pda.notifying_programs)
-		notifying["\ref[P]"] = 1
-	data["notifying"] = notifying
+	var/prog_list = pda.programs.Copy()
+	if(pda.cartridge)
+		prog_list |= pda.cartridge.programs
+
+	for(var/datum/data/pda/P as anything in prog_list)
+		if(P.hidden)
+			continue
+		var/alist/cat
+		if(P.category in apps)
+			cat = apps[P.category]
+		else
+			cat = list()
+			apps[P.category] = cat
+			cat_order += P.category
+		cat |= list(list(name = P.name, icon = P.icon, notify_icon = P.notify_icon, notifying = (P in pda.notifying_programs), ref = "\ref[P]"))
+
+	// force the order of a few core categories
+	cat_order = list("General") \
+		+ sortList(cat_order - list("General", "Scanners", "Utilities")) \
+		+ list("Scanners", "Utilities")
+
+	data["apps"] = apps
+	data["categories"] = cat_order
+	data["pai"] = !isnull(pda.pai)				// pAI inserted?
 
 /datum/data/pda/app/main_menu/tgui_act(action, list/params, datum/tgui/ui, datum/tgui_state/state)
 	if(..())

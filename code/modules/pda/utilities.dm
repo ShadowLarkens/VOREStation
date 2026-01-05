@@ -8,7 +8,6 @@
 /datum/data/pda/utility/flashlight/start()
 	fon = !fon
 	name = fon ? "Disable Flashlight" : "Enable Flashlight"
-	pda.update_shortcuts()
 	pda.set_light(fon ? f_lum : 0)
 	if(fon)
 		pda.add_overlay("light-o")

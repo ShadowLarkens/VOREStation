@@ -5,7 +5,7 @@
 /datum/data/pda/app/nerdle
 	name = "Nerdle"
 	icon = "child-reaching" //yipee!
-	notify_icon = "child-combatant"
+	notify_icon = "child-rifle"
 	title = "Nerdle™️ V0.8"
 	template = "pda_nerdle"
 

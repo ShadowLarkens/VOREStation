@@ -14,32 +14,6 @@
 	data["owner"] = owner					// Who is your daddy...
 	data["ownjob"] = ownjob					// ...and what does he do?
 
-	// update list of shortcuts, only if they changed
-	if(!shortcut_cache.len)
-		shortcut_cache = list()
-		shortcut_cat_order = list()
-		var/prog_list = programs.Copy()
-		if(cartridge)
-			prog_list |= cartridge.programs
-
-		for(var/datum/data/pda/P as anything in prog_list)
-
-			if(P.hidden)
-				continue
-			var/list/cat
-			if(P.category in shortcut_cache)
-				cat = shortcut_cache[P.category]
-			else
-				cat = list()
-				shortcut_cache[P.category] = cat
-				shortcut_cat_order += P.category
-			cat |= list(list(name = P.name, icon = P.icon, notify_icon = P.notify_icon, ref = "\ref[P]"))
-
-		// force the order of a few core categories
-		shortcut_cat_order = list("General") \
-			+ sortList(shortcut_cat_order - list("General", "Scanners", "Utilities")) \
-			+ list("Scanners", "Utilities")
-
 	data["idInserted"] = (id ? 1 : 0)
 	data["idLink"] = (id ? text("[id.registered_name], [id.assignment]") : "--------")
 
@@ -96,7 +70,6 @@
 					if(P in C.programs)
 						P.unnotify()
 				cartridge = null
-				update_shortcuts()
 		if("Authenticate")//Checks for ID
 			id_check(ui.user, 1)
 		if("Retro")
@@ -105,9 +78,8 @@
 			touch_silent = !touch_silent
 		if("Ringtone")
 			return set_ringtone(ui.user)
-		else
-			if(current_app)
-				. = current_app.tgui_act(action, params, ui, state)
+		else if(current_app)
+			. = current_app.tgui_act(action, params, ui, state)
 
 	if((honkamt > 0) && (prob(60)))//For clown virus.
 		honkamt--

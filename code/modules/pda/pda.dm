@@ -41,16 +41,14 @@
 	var/datum/data/pda/app/lastapp = null
 	var/list/programs = list(
 		new/datum/data/pda/app/main_menu,
-		new/datum/data/pda/app/notekeeper,
-		new/datum/data/pda/app/news,
 		new/datum/data/pda/app/messenger,
 		new/datum/data/pda/app/manifest,
+		new/datum/data/pda/app/notekeeper,
+		new/datum/data/pda/app/news,
 		new/datum/data/pda/app/atmos_scanner,
 		new/datum/data/pda/app/nerdle,
 		new/datum/data/pda/utility/scanmode/notes,
 		new/datum/data/pda/utility/flashlight)
-	var/list/shortcut_cache = list()
-	var/list/shortcut_cat_order = list()
 	var/list/notifying_programs = list()
 	var/retro_mode = 0
 
@@ -212,10 +210,6 @@
 		if(A)
 			return A
 	return null
-
-// force the cache to rebuild on update_ui
-/obj/item/pda/proc/update_shortcuts()
-	shortcut_cache.Cut()
 
 /obj/item/pda/proc/update_programs()
 	for(var/datum/data/pda/P as anything in programs)
@@ -385,7 +379,6 @@
 	playsound(src, 'sound/machines/id_swipe.ogg', 100, 1)
 	cartridge = null
 	update_programs()
-	update_shortcuts()
 	start_program(find_program(/datum/data/pda/app/main_menu))
 
 
@@ -418,7 +411,6 @@
 		user.drop_item()
 		cartridge.loc = src
 		cartridge.update_programs(src)
-		update_shortcuts()
 		to_chat(user, span_notice("You insert [cartridge] into [src]."))
 		if(cartridge.radio)
 			cartridge.radio.hostpda = src
