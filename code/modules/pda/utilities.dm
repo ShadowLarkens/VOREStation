@@ -1,19 +1,3 @@
-/datum/data/pda/utility/flashlight
-	name = "Enable Flashlight"
-	icon = "lightbulb-o"
-
-	var/fon = 0 //Is the flashlight function on?
-	var/f_lum = 2 //Luminosity for the flashlight function
-
-/datum/data/pda/utility/flashlight/start()
-	fon = !fon
-	name = fon ? "Disable Flashlight" : "Enable Flashlight"
-	pda.set_light(fon ? f_lum : 0)
-	if(fon)
-		pda.add_overlay("light-o")
-	else
-		pda.cut_overlay("light-o")
-
 /datum/data/pda/utility/honk
 	name = "Honk Synthesizer"
 	icon = "smile-o"

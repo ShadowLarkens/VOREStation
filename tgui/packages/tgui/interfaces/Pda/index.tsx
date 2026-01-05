@@ -18,6 +18,7 @@ export type PDAData = {
   ownjob: string;
   idInserted: BooleanLike;
   idLink: string;
+  flash_on: BooleanLike;
   useRetro: BooleanLike;
   touch_silent: BooleanLike;
   cartridge_name: string;
@@ -120,7 +121,7 @@ const PDAHeader = (props: {
 }) => {
   const { act, data } = useBackend<PDAData>();
 
-  const { idInserted, idLink, stationTime } = data;
+  const { stationTime, flash_on } = data;
 
   return (
     <Box mb={1}>
@@ -136,6 +137,11 @@ const PDAHeader = (props: {
             icon="cog"
           />
           <Button onClick={() => act('Retro')} icon="adjust" />
+          <Button
+            selected={flash_on}
+            onClick={() => act('Flashlight')}
+            icon="lightbulb-o"
+          />
         </Stack.Item>
       </Stack>
     </Box>
@@ -145,7 +151,7 @@ const PDAHeader = (props: {
 const PDASettings = (props) => {
   const { act, data } = useBackend<PDAData>();
 
-  const { idInserted, idLink, cartridge_name, touch_silent } = data;
+  const { cartridge_name, touch_silent } = data;
 
   return (
     <Section title="Settings">
@@ -168,13 +174,6 @@ const PDASettings = (props) => {
           <LabeledList.Item label="Cartridge">
             <Button icon="eject" onClick={() => act('Eject')}>
               {cartridge_name}
-            </Button>
-          </LabeledList.Item>
-        )}
-        {!!idInserted && (
-          <LabeledList.Item label="ID Card">
-            <Button icon="eject" onClick={() => act('Authenticate')}>
-              {idLink}
             </Button>
           </LabeledList.Item>
         )}

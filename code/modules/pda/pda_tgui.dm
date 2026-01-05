@@ -17,6 +17,7 @@
 	data["idInserted"] = (id ? 1 : 0)
 	data["idLink"] = (id ? text("[id.registered_name], [id.assignment]") : "--------")
 
+	data["flash_on"] = flash_on
 	data["useRetro"] = retro_mode
 	data["touch_silent"] = touch_silent
 
@@ -78,8 +79,11 @@
 			touch_silent = !touch_silent
 		if("Ringtone")
 			return set_ringtone(ui.user)
-		else if(current_app)
-			. = current_app.tgui_act(action, params, ui, state)
+		if("Flashlight")
+			toggle_flashlight()
+		else
+			if(current_app)
+				. = current_app.tgui_act(action, params, ui, state)
 
 	if((honkamt > 0) && (prob(60)))//For clown virus.
 		honkamt--

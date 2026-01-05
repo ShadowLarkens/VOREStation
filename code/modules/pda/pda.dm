@@ -28,6 +28,8 @@
 	var/ttone = "beep" //The ringtone!
 	var/hidden = 0 // Is the PDA hidden from the PDA list?
 	var/touch_silent = 0 //If 1, no beeps on interacting.
+	var/flash_on = FALSE
+	var/flash_lum = 2
 
 	var/obj/item/card/id/id = null //Making it possible to slot an ID card into the PDA so it can function as both.
 	var/ownjob = null //related to above - this is assignment (potentially alt title)
@@ -47,8 +49,7 @@
 		new/datum/data/pda/app/news,
 		new/datum/data/pda/app/atmos_scanner,
 		new/datum/data/pda/app/nerdle,
-		new/datum/data/pda/utility/scanmode/notes,
-		new/datum/data/pda/utility/flashlight)
+		new/datum/data/pda/utility/scanmode/notes)
 	var/list/notifying_programs = list()
 	var/retro_mode = 0
 
@@ -499,3 +500,12 @@
 						/obj/item/cartridge/signal/science,
 						/obj/item/cartridge/quartermaster)
 	new newcart(src)
+
+
+/obj/item/pda/proc/toggle_flashlight()
+	flash_on = !flash_on
+	set_light(flash_on ? flash_lum : 0)
+	if(flash_on)
+		add_overlay("light-o")
+	else
+		cut_overlay("light-o")
