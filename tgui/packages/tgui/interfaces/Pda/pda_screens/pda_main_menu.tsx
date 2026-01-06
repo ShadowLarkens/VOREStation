@@ -27,12 +27,63 @@ type App = {
   ref: string;
 };
 
-const specialIconColors = {
-  'Enable Flashlight': 'green',
-  'Disable Flashlight': 'red',
+export const pda_main_menu = (props) => {
+  const { data } = useBackend<Data>();
+  const { useRetro } = data;
+
+  if (useRetro) {
+    return <RetroMainMenu />;
+  } else {
+    return <ModernMainMenu />;
+  }
 };
 
-export const pda_main_menu = (props) => {
+const RetroMainMenu = (props) => {
+  const { act, data } = useBackend<Data>();
+
+  const { owner, ownjob, idInserted, idLink, pai, apps } = data;
+
+  return (
+    <>
+      <Box>
+        <LabeledList>
+          <LabeledList.Item label="Owner" color="average">
+            {owner}, {ownjob}
+          </LabeledList.Item>
+          <LabeledList.Item label="ID">
+            <Button
+              icon="eject"
+              color="transparent"
+              onClick={() => act('Authenticate')}
+              disabled={!idInserted}
+            >
+              {idInserted ? idLink : 'No ID Inserted'}
+            </Button>
+            <Button
+              icon="sync"
+              disabled={!idInserted}
+              onClick={() => act('UpdateInfo')}
+            >
+              Sync ID
+            </Button>
+          </LabeledList.Item>
+        </LabeledList>
+      </Box>
+      {pai ? (
+        <Section title="pAI">
+          <Button fluid icon="cog" onClick={() => act('pai', { option: 1 })}>
+            Configuration
+          </Button>
+          <Button fluid icon="eject" onClick={() => act('pai', { option: 2 })}>
+            Eject pAI
+          </Button>
+        </Section>
+      ) : null}
+    </>
+  );
+};
+
+const ModernMainMenu = (props) => {
   const { act, data } = useBackend<Data>();
 
   const [showTransition, setShowTransition] = useState('');
@@ -40,15 +91,6 @@ export const pda_main_menu = (props) => {
   const [fadingOut, setFadingOut] = useState(false);
 
   const startProgram = (program: App) => {
-    if (
-      program.name.startsWith('Enable') ||
-      program.name.startsWith('Disable')
-    ) {
-      // Special case, instant
-      act('StartProgram', { program: program.ref });
-      return;
-    }
-
     setShowTransition(program.icon);
 
     setTimeout(() => {
@@ -189,10 +231,7 @@ const Category = (props: {
                       name={app.notifying ? app.notify_icon : app.icon}
                       key={app.ref}
                       size={1.2}
-                      color={
-                        specialIconColors[app.name] ||
-                        (app.notifying ? 'red' : 'transparent')
-                      }
+                      color={app.notifying ? 'red' : 'transparent'}
                     />
                   ))}
                 </Box>
@@ -261,10 +300,7 @@ const AppLaunchButton = (props: {
         <ImageButton
           key={app.ref}
           fallbackIcon={app.notifying ? app.notify_icon : app.icon}
-          color={
-            specialIconColors[app.name] ||
-            (app.notifying ? 'red' : 'transparent')
-          }
+          color={app.notifying ? 'red' : 'transparent'}
           onClick={() => startProgram(app)}
           imageSize={70}
         >
