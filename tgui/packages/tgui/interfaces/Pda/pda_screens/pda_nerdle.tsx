@@ -15,6 +15,32 @@ export const pda_nerdle = (props) => {
   const { guesses, guesses_raw, max, used_guesses, target_word } = data;
 
   const gameOver = used_guesses >= max || guesses_raw.includes(target_word);
+  const getGuessResult = (row: number, col: number) => {
+    if (row >= guesses.length || col >= guesses[row].length) {
+      return -1;
+    }
+    return guesses[row][col];
+  };
+  const getGuessLetter = (row: number, col: number) => {
+    if (row >= guesses_raw.length || col >= guesses_raw[row].length) {
+      return '';
+    }
+    return guesses_raw[row][col];
+  };
+  const getColor = (guess: number, grey: boolean) => {
+    if (guess === -1) {
+      return grey ? '#3a3a3c' : '';
+    } else if (guess == 1) {
+      return 'good';
+    } else if (guess == 2) {
+      return 'average';
+    } else {
+      return 'bad';
+    }
+  };
+
+  let rows = [0, 1, 2, 3, 4, 5];
+  let cols = [0, 1, 2, 3, 4];
 
   return (
     <Box>
@@ -22,14 +48,6 @@ export const pda_nerdle = (props) => {
         <Box>
           Guess the 5-letter word! You have {max - used_guesses} attempts left.
         </Box>
-        {!gameOver && (
-          <Box>
-            <Input
-              placeholder="Enter your guess"
-              onEnter={(value) => act('guess', { lastword: value })}
-            />
-          </Box>
-        )}
         {gameOver && (
           <Box color="good" bold>
             {guesses_raw.includes(target_word)
@@ -39,43 +57,31 @@ export const pda_nerdle = (props) => {
         )}
       </Section>
       <Section title="Guesses">
-        <Stack vertical align="center">
-          {guesses.length > 0 ? (
-            guesses.map((guess, index) => (
-              <Box key={index}>
-                <Stack.Item align="center">
-                  <Stack width="100%">
-                    {guess.map((result, i) => (
-                      <Box
-                        key={i}
-                        color={
-                          result === 1
-                            ? 'good'
-                            : result === 2
-                              ? 'average'
-                              : 'bad'
-                        }
-                        textAlign="center"
-                        bold
-                        backgroundColor={
-                          result === 1
-                            ? 'rgba(0, 255, 0, 0.2)'
-                            : result === 2
-                              ? 'rgba(255, 255, 0, 0.2)'
-                              : 'rgba(255, 0, 0, 0.2)'
-                        }
-                      >
-                        {guesses_raw[index][i]}
-                      </Box>
-                    ))}
-                  </Stack>
-                </Stack.Item>
+        {rows.map((row) => (
+          <Box key={row} className="Pda__Nerdle__Row">
+            {cols.map((col) => (
+              <Box
+                key={col}
+                className="Pda__Nerdle__Box"
+                backgroundColor={getColor(getGuessResult(row, col), false)}
+                style={{
+                  border: `2px solid ${getColor(getGuessResult(row, col), true)}`,
+                }}
+              >
+                {getGuessLetter(row, col)}
               </Box>
-            ))
-          ) : (
-            <Box>No guesses yet!</Box>
-          )}
-        </Stack>
+            ))}
+          </Box>
+        ))}
+        {!gameOver && (
+          <Input
+            mt={1}
+            fluid
+            placeholder="Enter your guess"
+            onEnter={(value) => act('guess', { lastword: value })}
+            fontSize={2}
+          />
+        )}
       </Section>
     </Box>
   );

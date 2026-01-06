@@ -99,3 +99,21 @@
   grid-template-columns: 1fr 1fr 1fr 1fr;
   row-gap: 10px;
 }
+
+// NERDLE
+.Pda__Nerdle__Row {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.Pda__Nerdle__Box {
+  display: inline-block;
+  height: 64px;
+  width: 64px;
+  font-size: 4em;
+  margin-right: 4px;
+  margin-bottom: 4px;
+  text-align: center;
+  text-transform: capitalize;
+}
