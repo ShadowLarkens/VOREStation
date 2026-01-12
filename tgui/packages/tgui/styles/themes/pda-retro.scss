@@ -3,10 +3,15 @@
   --color-base: hsl(85, 11%, 43%);
   --color-primary: hsl(0, 0%, 0%);
   --color-label: hsl(0, 0%, 0%);
-  --color-average: hsl(0, 0%, 0%);
+  --color-average: hsl(51, 89%, 40%);
+  --color-good: hsl(130, 88%, 40%);
+  --color-grey: hsl(0, 0%, 20%);
   --base-gradient-spread: 0;
   --color-text: var(--color-black);
   --border-radius-unit: 0;
+  --font-family: 'Grand9K Pixel';
+  --font-size: 13px;
+  --blur-medium: blur(0px);
 
   // Components
   --button-background-default: hsl(52, 40%, 85%);
@@ -17,6 +22,15 @@
   --progress-bar-background: hsla(0, 0%, 0%, 0.502);
 
   --color-section: hsla(0, 0%, 0%, 0.102);
+  --section-background: hsla(0, 0%, 0%, 0);
+
+  --tooltip-color: var(--color-label);
+  --tooltip-background: var(--color-base);
+
+  --input-color: var(--color-label);
+  --input-background: var(--color-base);
+  --input-border-color: var(--color-label);
+  --input-border-color-focus: hsl(0, 0%, 30%);
 
   // Interfaces
   --tinder-sent-color: hsl(86, 13%, 62%);
@@ -26,6 +40,7 @@
     color: #161613;
     background-color: hsl(83, 11%, 33%);
     border: 1px solid hsl(0, 0%, 0%);
+    transition: none;
 
     &-disabled {
       color: hsl(0, 0%, 31%);
@@ -36,9 +51,24 @@
       }
     }
 
+    &:hover {
+      color: hsl(0, 0%, 67%);
+    }
+
     &--selected {
       color: var(--color-white);
       border-style: inset;
+    }
+  }
+
+  .Section {
+    &__title {
+      padding: var(--space-sm);
+      padding-bottom: 0em;
+    }
+
+    &__content {
+      padding: var(--space-sm) var(--space-sm);
     }
   }
 
@@ -50,7 +80,26 @@
     font-weight: bold;
   }
 
+  .Tooltip {
+    box-shadow: none;
+    border: 2px solid var(--color-label);
+  }
+
   .Tooltip::after {
     color: hsl(0, 0%, 100%);
+  }
+
+  // PDA Specific Overrides
+  .Pda__Nerdle__Row {
+    color: white;
+  }
+
+  .Pda__Nerdle__Box {
+    // Grand9K doesn't scale correctly from the center so we have to fake it
+    font-size: 3em;
+  }
+
+  .Pda__Folder__Inner .ImageButton__content {
+    color: white !important;
   }
 }

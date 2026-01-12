@@ -117,3 +117,14 @@
   text-align: center;
   text-transform: capitalize;
 }
+
+.Pda__Notekeeper__Grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+
+  // have to override a weird thing in tgui-core
+  .Button:last-child {
+    margin-right: var(--space-xs);
+    margin-bottom: var(--space-xs);
+  }
+}

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useBackend } from 'tgui/backend';
+import React, { useEffect, useState } from 'react';
+import { useBackend, useSharedState } from 'tgui/backend';
 import {
   Box,
   Button,
@@ -29,31 +29,69 @@ type App = {
 
 export const pda_main_menu = (props) => {
   const { data } = useBackend<Data>();
-  const { useRetro } = data;
 
-  if (useRetro) {
-    return <RetroMainMenu />;
+  const [useList, setUseList] = useSharedState('pda-useList', false);
+  const [userSelectedMode, setUserSelectedMode] = useSharedState(
+    'pda-userSelectedMode',
+    false,
+  );
+
+  // Automatically switch between the two modes
+  useEffect(() => {
+    if (userSelectedMode) {
+      return;
+    }
+
+    if (data.useRetro) {
+      setUseList(true);
+    } else {
+      setUseList(false);
+    }
+  }, [data.useRetro, userSelectedMode]);
+
+  if (useList) {
+    return (
+      <ListMainMenu
+        setUseList={(val) => {
+          setUserSelectedMode(true);
+          setUseList(val);
+        }}
+      />
+    );
   } else {
-    return <ModernMainMenu />;
+    return (
+      <AppMainMenu
+        setUseList={(val) => {
+          setUserSelectedMode(true);
+          setUseList(val);
+        }}
+      />
+    );
   }
 };
 
-const RetroMainMenu = (props) => {
+const ListMainMenu = (props: { setUseList: (on: boolean) => void }) => {
   const { act, data } = useBackend<Data>();
+  const { setUseList } = props;
 
-  const { owner, ownjob, idInserted, idLink, pai, apps } = data;
+  const { owner, ownjob, idInserted, idLink, pai, categories, apps } = data;
 
   return (
     <>
       <Box>
         <LabeledList>
-          <LabeledList.Item label="Owner" color="average">
+          <LabeledList.Item
+            label="Owner"
+            color="average"
+            buttons={
+              <Button onClick={() => setUseList(false)}>App Mode</Button>
+            }
+          >
             {owner}, {ownjob}
           </LabeledList.Item>
           <LabeledList.Item label="ID">
             <Button
               icon="eject"
-              color="transparent"
               onClick={() => act('Authenticate')}
               disabled={!idInserted}
             >
@@ -79,18 +117,42 @@ const RetroMainMenu = (props) => {
           </Button>
         </Section>
       ) : null}
+      {categories.map((cat) => (
+        <Section title={cat} key={cat}>
+          {apps[cat].map((app) => (
+            <Button
+              fluid
+              icon={app.notifying ? app.notify_icon : app.icon}
+              onClick={() => {
+                act('StartProgram', { program: app.ref });
+              }}
+            >
+              {app.name}
+            </Button>
+          ))}
+        </Section>
+      ))}
     </>
   );
 };
 
-const ModernMainMenu = (props) => {
+const AppMainMenu = (props: { setUseList: (on: boolean) => void }) => {
   const { act, data } = useBackend<Data>();
+  const { setUseList } = props;
 
   const [showTransition, setShowTransition] = useState('');
   const [showPopup, setShowPopup] = useState<string | null>(null);
   const [fadingOut, setFadingOut] = useState(false);
 
   const startProgram = (program: App) => {
+    if (
+      program.name.startsWith('Enable') ||
+      program.name.startsWith('Disable')
+    ) {
+      act('StartProgram', { program: program.ref });
+      return;
+    }
+
     setShowTransition(program.icon);
 
     setTimeout(() => {
@@ -134,13 +196,18 @@ const ModernMainMenu = (props) => {
       ) : null}
       <Box>
         <LabeledList>
-          <LabeledList.Item label="Owner" color="average">
+          <LabeledList.Item
+            label="Owner"
+            color="average"
+            buttons={
+              <Button onClick={() => setUseList(true)}>List Mode</Button>
+            }
+          >
             {owner}, {ownjob}
           </LabeledList.Item>
           <LabeledList.Item label="ID">
             <Button
               icon="eject"
-              color="transparent"
               onClick={() => act('Authenticate')}
               disabled={!idInserted}
             >

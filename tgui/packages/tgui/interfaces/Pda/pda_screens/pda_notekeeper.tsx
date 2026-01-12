@@ -11,73 +11,44 @@ export const pda_notekeeper = (props) => {
   return (
     <Box>
       <Section>
-        {/* Lets just be nice and lazy with this, multinote support!. */}
-        <Table>
-          <Table.Row header>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note1')}>
-                Note A
-              </Button>
-            </Table.Cell>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note2')}>
-                Note B
-              </Button>
-            </Table.Cell>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note3')}>
-                Note C
-              </Button>
-            </Table.Cell>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note4')}>
-                Note D
-              </Button>
-            </Table.Cell>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note5')}>
-                Note E
-              </Button>
-            </Table.Cell>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note6')}>
-                Note F
-              </Button>
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row header>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note7')}>
-                Note G
-              </Button>
-            </Table.Cell>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note8')}>
-                Note H
-              </Button>
-            </Table.Cell>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note9')}>
-                Note I
-              </Button>
-            </Table.Cell>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note10')}>
-                Note J
-              </Button>
-            </Table.Cell>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note11')}>
-                Note K
-              </Button>
-            </Table.Cell>
-            <Table.Cell>
-              <Button icon="sticky-note-o" onClick={() => act('Note12')}>
-                Note L
-              </Button>
-            </Table.Cell>
-          </Table.Row>
-        </Table>
+        <Box className="Pda__Notekeeper__Grid">
+          <Button icon="sticky-note-o" onClick={() => act('Note1')}>
+            Note A
+          </Button>
+          <Button icon="sticky-note-o" onClick={() => act('Note2')}>
+            Note B
+          </Button>
+          <Button icon="sticky-note-o" onClick={() => act('Note3')}>
+            Note C
+          </Button>
+          <Button icon="sticky-note-o" onClick={() => act('Note4')}>
+            Note D
+          </Button>
+          <Button icon="sticky-note-o" onClick={() => act('Note5')}>
+            Note E
+          </Button>
+          <Button icon="sticky-note-o" onClick={() => act('Note6')}>
+            Note F
+          </Button>
+          <Button icon="sticky-note-o" onClick={() => act('Note7')}>
+            Note G
+          </Button>
+          <Button icon="sticky-note-o" onClick={() => act('Note8')}>
+            Note H
+          </Button>
+          <Button icon="sticky-note-o" onClick={() => act('Note9')}>
+            Note I
+          </Button>
+          <Button icon="sticky-note-o" onClick={() => act('Note10')}>
+            Note J
+          </Button>
+          <Button icon="sticky-note-o" onClick={() => act('Note11')}>
+            Note K
+          </Button>
+          <Button icon="sticky-note-o" onClick={() => act('Note12')}>
+            Note L
+          </Button>
+        </Box>
       </Section>
       <Section title={notename}>
         <Button icon="pen" onClick={() => act('Edit')}>
